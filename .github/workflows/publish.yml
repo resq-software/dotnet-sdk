@@ -28,7 +28,6 @@ jobs:
             --output ./nupkgs
 
       - name: Push to NuGet.org
-        if: ${{ secrets.NUGET_API_KEY != '' }}
         run: |
           dotnet nuget push ./nupkgs/*.nupkg \
             --api-key "${{ secrets.NUGET_API_KEY }}" \
