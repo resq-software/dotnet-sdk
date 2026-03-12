@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>ResQ.Blockchain</RootNamespace>
+    <PackageId>ResQ.Blockchain</PackageId>
+    <Version>0.1.0</Version>
+    <Authors>ResQ Software</Authors>
+    <Description>ResQ blockchain integration — Neo N3 client and mock for development</Description>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/resq-software/dotnet-sdk</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/resq-software/dotnet-sdk</RepositoryUrl>
+    <PackageTags>resq;drone;blockchain;neo;disaster-response</PackageTags>
+    <IsPackable>true</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Neo" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>ResQ.Core</RootNamespace>
+    <PackageId>ResQ.Core</PackageId>
+    <Version>0.1.0</Version>
+    <Authors>ResQ Software</Authors>
+    <Description>ResQ core domain models — location, enums, blockchain models, and shared utilities</Description>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/resq-software/dotnet-sdk</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/resq-software/dotnet-sdk</RepositoryUrl>
+    <PackageTags>resq;drone;core;models;disaster-response</PackageTags>
+    <IsPackable>true</IsPackable>
+  </PropertyGroup>
+
+</Project>

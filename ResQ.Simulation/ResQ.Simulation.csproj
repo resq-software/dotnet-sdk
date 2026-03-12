@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <PackageId>ResQ.Simulation</PackageId>
+    <Version>0.1.0</Version>
+    <Authors>ResQ Software</Authors>
+    <Description>ResQ simulation harness — virtual drone and scenario runner</Description>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/resq-software/dotnet-sdk</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/resq-software/dotnet-sdk</RepositoryUrl>
+    <PackageTags>resq;drone;simulation;testing;disaster-response</PackageTags>
+    <IsPackable>true</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../ResQ.Clients/ResQ.Clients.csproj" />
+    <ProjectReference Include="../ResQ.Core/ResQ.Core.csproj" />
+  </ItemGroup>
+
+</Project>

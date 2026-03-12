@@ -1,0 +1,268 @@
+/**
+ * Copyright 2026 ResQ
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto3";
+
+package resq.guidedops;
+
+import "core.proto";
+import "google/protobuf/timestamp.proto";
+
+// ─── Common Types ─────────────────────────────────────────────────────────────
+
+// Selector for choosing drones — explicit IDs or auto-selection.
+message DroneSelector {
+  oneof selector {
+    string drone_id = 1;
+    DroneIdList drone_ids = 2;
+    AutoSelect auto = 3;
+  }
+}
+
+message DroneIdList {
+  repeated string drone_ids = 1;
+}
+
+// Automatic drone selection with capability constraints.
+message AutoSelect {
+  uint32 max_drones = 1;
+  float max_radius_m = 2;
+  bool require_camera = 3;
+  bool require_thermal = 4;
+  bool require_relay_role = 5;
+}
+
+// Polygon defined by ordered vertices (first ≠ last; implicitly closed).
+message GeoPolygon {
+  repeated resq.shared.Location vertices = 1;
+}
+
+// Circle defined by center and radius.
+message GeoCircle {
+  resq.shared.Location center = 1;
+  float radius_m = 2;
+}
+
+// A geographic area — polygon or circle.
+message SearchArea {
+  oneof shape {
+    GeoPolygon polygon = 1;
+    GeoCircle circle = 2;
+  }
+}
+
+// Constraints on drone flight behavior.
+message FlightConstraints {
+  float min_alt_m = 1;
+  float max_alt_m = 2;
+  float max_speed_mps = 3;
+  uint32 time_budget_s = 4;
+  bool gps_required = 5;
+}
+
+// Safety / geofence constraints.
+message SafetyConstraints {
+  SearchArea geofence = 1;
+  float no_fly_buffer_m = 2;
+  bool require_dtsop_gate = 3;
+}
+
+// ─── Operator Intent ──────────────────────────────────────────────────────────
+
+enum IntentType {
+  INTENT_TYPE_UNSPECIFIED = 0;
+  INVESTIGATE_POINT = 1;
+  SEARCH_AREA = 2;
+}
+
+// High-level operator goal submitted to HCE.
+message OperatorIntent {
+  string intent_id = 1;
+  string operator_id = 2;
+  google.protobuf.Timestamp created_at = 3;
+
+  IntentType type = 4;
+
+  // Goal target — exactly one must be set.
+  oneof target {
+    resq.shared.Location point = 5;   // INVESTIGATE_POINT
+    SearchArea area = 6;               // SEARCH_AREA
+  }
+
+  DroneSelector drones = 7;
+
+  FlightConstraints flight = 8;
+  SafetyConstraints safety = 9;
+
+  // UI hint: focus first assigned drone on execution.
+  bool request_focus_on_execute = 10;
+}
+
+// ─── Leasing / Arbitration ────────────────────────────────────────────────────
+
+// Time-bounded lock granting an operator exclusive control of a drone scope.
+message GoalLease {
+  string lease_id = 1;
+  string operator_id = 2;
+
+  DroneSelector scope = 3;
+
+  uint64 issued_at_ms = 4;
+  uint64 expires_at_ms = 5;
+  uint32 keepalive_interval_ms = 6;
+
+  repeated IntentType allowed_intents = 7;
+}
+
+// ─── Plan / Tasks ─────────────────────────────────────────────────────────────
+
+enum TaskType {
+  TASK_TYPE_UNSPECIFIED = 0;
+  GOTO_POINT = 1;
+  LOITER = 2;
+  SEARCH_SWEEP = 3;
+}
+
+message Waypoint {
+  resq.shared.Location location = 1;
+  float speed_mps = 2;
+}
+
+// Lawn-mower sweep parameters.
+message SearchSweepParams {
+  GeoPolygon polygon = 1;
+  float lane_spacing_m = 2;
+  float heading_deg = 3;
+}
+
+// A concrete task assigned to a single drone.
+message DroneTask {
+  string task_id = 1;
+  string drone_id = 2;
+
+  TaskType type = 3;
+
+  oneof payload {
+    resq.shared.Location goto_point = 4;
+    SearchSweepParams sweep = 5;
+  }
+
+  repeated Waypoint waypoints = 6;
+  uint32 estimated_duration_s = 7;
+}
+
+// Preview returned to the operator before approval.
+message PlanPreview {
+  string preview_id = 1;
+  string intent_id = 2;
+
+  repeated string assigned_drones = 3;
+  repeated DroneTask tasks = 4;
+
+  float risk_score = 5;
+  repeated string warnings = 6;
+  uint32 estimated_total_duration_s = 7;
+  float estimated_battery_margin = 8;
+}
+
+// Validated & approved mission plan.
+message MissionPlan {
+  string plan_id = 1;
+  string intent_id = 2;
+  repeated DroneTask tasks = 3;
+
+  bool dtsop_validated = 4;
+  repeated string dtsop_notes = 5;
+}
+
+enum PlanState {
+  PLAN_STATE_UNSPECIFIED = 0;
+  PREVIEW = 1;
+  APPROVED = 2;
+  EXECUTING = 3;
+  COMPLETED = 4;
+  CANCELLED = 5;
+  FAILED = 6;
+}
+
+// Live status of a plan and its constituent tasks.
+message PlanStatus {
+  string plan_id = 1;
+  PlanState state = 2;
+  repeated string notes = 3;
+  repeated DroneTaskStatus task_status = 4;
+}
+
+message DroneTaskStatus {
+  string drone_id = 1;
+  string task_id = 2;
+  PlanState state = 3;
+  float progress_0_1 = 4;
+  string last_error = 5;
+}
+
+// ─── Service (for future gRPC AEAI ↔ HCE) ────────────────────────────────────
+
+service GuidedOpsService {
+  // Lease lifecycle
+  rpc AcquireLease(AcquireLeaseRequest) returns (GoalLease);
+  rpc KeepaliveLease(KeepaliveLeaseRequest) returns (GoalLease);
+  rpc ReleaseLease(ReleaseLeaseRequest) returns (ReleaseLeaseResponse);
+
+  // Intent → plan lifecycle
+  rpc SubmitIntent(OperatorIntent) returns (PlanPreview);
+  rpc ApprovePlan(ApprovePlanRequest) returns (MissionPlan);
+  rpc ExecutePlan(ExecutePlanRequest) returns (PlanStatus);
+  rpc CancelPlan(CancelPlanRequest) returns (PlanStatus);
+  rpc GetPlanStatus(GetPlanStatusRequest) returns (PlanStatus);
+}
+
+// ─── RPC Request/Response Messages ────────────────────────────────────────────
+
+message AcquireLeaseRequest {
+  string operator_id = 1;
+  DroneSelector scope = 2;
+  uint32 ttl_ms = 3;
+  repeated IntentType allowed_intents = 4;
+}
+
+message KeepaliveLeaseRequest {
+  string lease_id = 1;
+}
+
+message ReleaseLeaseRequest {
+  string lease_id = 1;
+}
+
+message ReleaseLeaseResponse {
+  bool released = 1;
+}
+
+message ApprovePlanRequest {
+  string preview_id = 1;
+}
+
+message ExecutePlanRequest {
+  string plan_id = 1;
+}
+
+message CancelPlanRequest {
+  string plan_id = 1;
+}
+
+message GetPlanStatusRequest {
+  string plan_id = 1;
+}

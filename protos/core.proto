@@ -1,0 +1,73 @@
+/**
+ * Copyright 2026 ResQ
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto3";
+
+package resq.shared;
+
+import "google/protobuf/timestamp.proto";
+
+message Location {
+  double latitude = 1;
+  double longitude = 2;
+  double altitude = 3;
+}
+
+message IncidentReport {
+  string id = 1;
+  string type = 2; // e.g., "fire", "flood"
+  double confidence = 3;
+  Location location = 4;
+  google.protobuf.Timestamp timestamp = 5;
+  string evidence_hash = 6; // IPFS CID or similar
+}
+
+message PreAlert {
+  string id = 1;
+  string disaster_type = 2;
+  double probability = 3;
+  repeated Location impacted_area = 4;
+  google.protobuf.Timestamp estimated_time = 5;
+}
+
+message OptimizationStrategy {
+  string id = 1;
+  string source_alert_id = 2;
+  repeated string drone_ids = 3;
+  repeated MissionPoint mission_points = 4;
+}
+
+message MissionPoint {
+  Location location = 1;
+  string action = 2; // e.g., "survey", "deliver"
+}
+
+// Mission assignment
+service MissionService {
+  // Assign a mission to a drone
+  rpc SetMission(SetMissionRequest) returns (MissionResult);
+}
+
+message SetMissionRequest {
+  string drone_id = 1;
+  MissionPoint mission = 2;
+}
+
+message MissionResult {
+  string status = 1;
+  string drone_id = 2;
+}
+

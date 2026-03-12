@@ -1,0 +1,77 @@
+/**
+ * Copyright 2026 ResQ
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto3";
+
+package resq.pdie_hce;
+
+import "google/protobuf/timestamp.proto";
+
+// Severity levels for pre-alerts.
+enum AlertSeverity {
+  ALERT_SEVERITY_UNSPECIFIED = 0;
+  CRITICAL = 1;
+  HIGH = 2;
+  MEDIUM = 3;
+  LOW = 4;
+}
+
+// Status of a pre-alert lifecycle.
+enum AlertStatus {
+  ALERT_STATUS_UNSPECIFIED = 0;
+  NEW = 1;
+  SENT = 2;
+  ACKNOWLEDGED = 3;
+  FAILED = 4;
+}
+
+// A vulnerable area impacted by a predicted disaster.
+message ImpactedArea {
+  string sector_id = 1;
+  int32 population = 2;
+  bool is_critical_infrastructure = 3;
+  double latitude = 4;
+  double longitude = 5;
+}
+
+// Pre-alert message sent from PDIE to HCE for proactive deployment.
+message PreAlert {
+  string alert_id = 1;
+  string disaster_type = 2;
+  double probability = 3;
+  AlertSeverity severity = 4;
+  AlertStatus status = 5;
+  google.protobuf.Timestamp created_at = 6;
+  repeated ImpactedArea impacted_area = 7;
+  double confidence = 8;
+  double impacted_radius_meters = 9;
+  int32 estimated_time_hours = 10;
+  string source = 11;
+}
+
+// Response from HCE after receiving a pre-alert.
+message PreAlertResponse {
+  string status = 1;
+  string alert_id = 2;
+  string deployment_id = 3;
+  repeated string drones_assigned = 4;
+  int32 estimated_arrival_minutes = 5;
+}
+
+// Service for PDIE→HCE alert communication.
+service PDIEAlertService {
+  rpc SendPreAlert(PreAlert) returns (PreAlertResponse);
+}

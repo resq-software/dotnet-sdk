@@ -1,0 +1,252 @@
+/**
+ * Copyright 2026 ResQ
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto3";
+
+package resq.blockchain;
+
+import "google/protobuf/timestamp.proto";
+
+import "core.proto";
+
+// Types of events that can be recorded on the blockchain
+enum BlockchainEventType {
+  BLOCKCHAIN_EVENT_UNSPECIFIED = 0;
+  INCIDENT_DETECTED = 1;
+  INCIDENT_VERIFIED = 2;
+  MISSION_STARTED = 3;
+  MISSION_COMPLETED = 4;
+  DELIVERY_CONFIRMED = 5;
+  LOCATION_ATTESTATION = 6;
+  EVIDENCE_SUBMITTED = 7;
+  PRE_ALERT_ISSUED = 8;
+  SWARM_DEPLOYMENT = 9;
+}
+
+// Transaction status on the blockchain
+enum TransactionStatus {
+  TX_STATUS_UNSPECIFIED = 0;
+  TX_PENDING = 1;
+  TX_CONFIRMED = 2;
+  TX_FAILED = 3;
+}
+
+// Immutable event record for blockchain storage
+message BlockchainEvent {
+  string event_id = 1;
+  BlockchainEventType event_type = 2;
+  google.protobuf.Timestamp timestamp = 3;
+  resq.shared.Location location = 4;
+  string evidence_cid = 5; // IPFS Content Identifier
+  string drone_id = 6;
+  string metadata_json = 7; // Additional JSON metadata
+}
+
+// Result of a blockchain transaction
+message TransactionResult {
+  string tx_hash = 1;
+  uint64 block_height = 2;
+  uint64 gas_consumed = 3;
+  TransactionStatus status = 4;
+  string error_message = 5; // Only set if status is TX_FAILED
+}
+
+// Request to record an event on the blockchain
+message RecordEventRequest {
+  BlockchainEvent event = 1;
+}
+
+// Request to query events from the blockchain
+message QueryEventsRequest {
+  BlockchainEventType event_type = 1; // Optional filter
+  google.protobuf.Timestamp start_time = 2;
+  google.protobuf.Timestamp end_time = 3;
+  string drone_id = 4; // Optional filter by drone
+  int32 limit = 5;
+  int32 offset = 6;
+}
+
+message QueryEventsResponse {
+  repeated BlockchainEvent events = 1;
+  int32 total_count = 2;
+}
+
+// Location attestation for verified drone positions
+message LocationAttestation {
+  string drone_id = 1;
+  resq.shared.Location location = 2;
+  google.protobuf.Timestamp timestamp = 3;
+  string signature = 4; // Cryptographic signature
+  string public_key = 5;
+}
+
+message VerifyAttestationRequest {
+  LocationAttestation attestation = 1;
+}
+
+message VerifyAttestationResponse {
+  bool is_valid = 1;
+  string verification_tx_hash = 2;
+}
+
+// Evidence record linking IPFS CID to incidents
+message EvidenceRecord {
+  string incident_id = 1;
+  string evidence_cid = 2;
+  string evidence_type = 3; // "image", "video", "thermal", "lidar", "log"
+  google.protobuf.Timestamp captured_at = 4;
+  string drone_id = 5;
+  resq.shared.Location capture_location = 6;
+  bytes content_hash = 7; // SHA-256 of content for verification
+}
+
+message RecordEvidenceRequest {
+  EvidenceRecord evidence = 1;
+}
+
+// Blockchain service for immutable logging
+service BlockchainService {
+  // Record an event on the blockchain
+  rpc RecordEvent(RecordEventRequest) returns (TransactionResult);
+
+  // Query historical events
+  rpc QueryEvents(QueryEventsRequest) returns (QueryEventsResponse);
+
+  // Get transaction status
+  rpc GetTransactionStatus(GetTransactionStatusRequest) returns (TransactionResult);
+
+  // Verify a location attestation
+  rpc VerifyAttestation(VerifyAttestationRequest) returns (VerifyAttestationResponse);
+
+  // Record evidence linked to an incident
+  rpc RecordEvidence(RecordEvidenceRequest) returns (TransactionResult);
+}
+
+message GetTransactionStatusRequest {
+  string tx_hash = 1;
+}
+
+// ─── Solana-specific types ────────────────────────────────────────────────────
+
+// Solana transaction result (replaces gas_consumed with fee_lamports)
+message SolanaTransaction {
+  string signature    = 1; // base58 transaction signature
+  uint64 slot         = 2; // confirmed slot number
+  string confirmation = 3; // "processed" | "confirmed" | "finalized"
+  uint64 fee_lamports = 4; // transaction fee paid
+}
+
+// Proof of Delivery — immutable record written by resq-delivery program
+// PDA seeds: ["delivery", drone_pda, delivered_at_le_bytes]
+message ProofOfDelivery {
+  string drone_pda    = 1; // base58 drone Program-Derived Address
+  string airspace_pda = 2; // base58 target property AirspaceAccount PDA
+  string ipfs_cid     = 3; // IPFS CID of delivery photo/evidence
+  double latitude     = 4; // decimal degrees
+  double longitude    = 5;
+  uint32 altitude_m   = 6;
+  int64  delivered_at = 7; // Unix timestamp seconds
+  SolanaTransaction tx = 8;
+}
+
+// Airspace access permit — issued by resq-airspace program
+// PDA seeds: ["permit", airspace_pda, drone_pda]
+message AirspacePermit {
+  string permit_pda   = 1; // base58 Permit account PDA
+  string airspace_pda = 2; // base58 AirspaceAccount PDA
+  string drone_pda    = 3; // base58 drone PDA
+  int64  granted_at   = 4; // Unix timestamp seconds
+  int64  expires_at   = 5; // Unix timestamp seconds (0 = no expiry)
+  SolanaTransaction tx = 6;
+}
+
+// Airspace crossing event emitted by resq-airspace program
+message AirspaceCrossing {
+  string airspace_pda = 1;
+  string drone_pda    = 2;
+  string permit_pda   = 3;
+  double latitude     = 4;
+  double longitude    = 5;
+  uint32 altitude_m   = 6;
+  int64  crossed_at   = 7; // Unix timestamp seconds
+  uint64 fee_lamports = 8; // fee paid for this crossing
+  SolanaTransaction tx = 9;
+}
+
+// Solana service methods — used by infrastructure-api Solana adapter
+service SolanaService {
+  // Write a ProofOfDelivery on-chain via the resq-delivery program
+  rpc RecordDelivery(ProofOfDelivery)              returns (SolanaTransaction);
+  // Fetch an existing DeliveryRecord account by its PDA address
+  rpc GetDelivery(GetDeliveryRequest)              returns (ProofOfDelivery);
+  // Create and initialise a new AirspaceAccount for a property
+  rpc InitializeAirspace(InitAirspaceRequest)      returns (SolanaTransaction);
+  // Issue an airspace access permit to a drone PDA
+  rpc GrantPermit(GrantPermitRequest)              returns (AirspacePermit);
+  // Record a drone crossing event and collect any per-crossing fee
+  rpc RecordCrossing(AirspaceCrossing)             returns (SolanaTransaction);
+  // Fetch the AirspaceAccount metadata for a given property
+  rpc GetAirspace(GetAirspaceRequest)              returns (AirspaceAccountInfo);
+  // List airspace permits held by a drone, optionally filtering to active-only
+  rpc ListPermits(ListPermitsRequest)              returns (ListPermitsResponse);
+}
+
+// Lookup key for a DeliveryRecord account
+message GetDeliveryRequest   { string pda = 1; }
+// Lookup key for an AirspaceAccount by external property identifier
+message GetAirspaceRequest   { string property_id = 1; }
+
+// Parameters required to initialise a new AirspaceAccount on-chain
+message InitAirspaceRequest {
+  string property_id  = 1;
+  uint32 min_alt_m    = 2;
+  uint32 max_alt_m    = 3;
+  repeated double poly_lat = 4; // parallel arrays, same length
+  repeated double poly_lon = 5;
+  string policy       = 6; // "open" | "permit" | "deny" | "auction"
+  uint64 fee_lamports = 7;
+  string treasury     = 8; // base58 treasury pubkey
+}
+
+// On-chain state of an AirspaceAccount as returned by GetAirspace
+message AirspaceAccountInfo {
+  string airspace_pda = 1;
+  string owner        = 2;
+  string property_id  = 3;
+  uint32 min_alt_m    = 4;
+  uint32 max_alt_m    = 5;
+  string policy       = 6;
+  uint64 fee_lamports = 7;
+  string treasury     = 8;
+}
+
+// Parameters to grant an airspace permit to a specific drone PDA
+message GrantPermitRequest {
+  string airspace_pda = 1;
+  string drone_pda    = 2;
+  int64  expires_at   = 3;
+}
+
+// Filter parameters for listing permits held by a drone
+message ListPermitsRequest  {
+  string drone_pda    = 1;
+  bool   active_only  = 2;
+}
+
+// Paginated list of AirspacePermit accounts for a drone
+message ListPermitsResponse {
+  repeated AirspacePermit permits = 1;
+}

@@ -1,0 +1,67 @@
+/**
+ * Copyright 2026 ResQ
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto3";
+
+package resq.simulation;
+
+import "core.proto";
+
+// Simulation-specific commands to test resilience
+message SimInfection {
+    enum Type {
+        GPS_DENIED = 0;
+        COMMS_LATENCY = 1;
+        DRONE_FAILURE = 2;
+        SENSOR_NOISE = 3;
+    }
+    Type type = 1;
+    float intensity = 2; // 0.0 to 1.0 (e.g., latency ms or noise variance)
+    string target_id = 3; // Drone ID or "ALL"
+}
+
+// Environmental progression data
+message EnvironmentUpdate {
+    enum DisasterType {
+        FLOOD = 0;
+        FIRE = 1;
+    }
+    DisasterType type = 1;
+    repeated resq.shared.Location affected_areas = 2;
+    float intensity = 3;
+}
+
+// High-frequency telemetry for the Digital Twin
+message TelemetryFrame {
+    string drone_id = 1;
+    resq.shared.Location position = 2;
+    float battery_level = 3;
+    float link_quality = 4;
+    repeated float sensor_data = 5;
+}
+
+// Simulation control
+service SimulationService {
+    // Stream environmental updates to clients
+    rpc InjectFault(SimInfection) returns (FaultResult);
+}
+
+message FaultResult {
+    string status = 1;
+    string drone_id = 2;
+    string fault_type = 3;
+}
+

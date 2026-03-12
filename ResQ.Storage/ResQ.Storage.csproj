@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>ResQ.Storage</RootNamespace>
+    <PackageId>ResQ.Storage</PackageId>
+    <Version>0.1.0</Version>
+    <Authors>ResQ Software</Authors>
+    <Description>ResQ IPFS storage client via Pinata</Description>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/resq-software/dotnet-sdk</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/resq-software/dotnet-sdk</RepositoryUrl>
+    <PackageTags>resq;drone;ipfs;storage;disaster-response</PackageTags>
+    <IsPackable>true</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Http" />
+    <PackageReference Include="Microsoft.Extensions.Http.Polly" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
+    <PackageReference Include="Polly" />
+    <PackageReference Include="System.Text.Json" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <PackageId>ResQ.Clients</PackageId>
+    <Version>0.1.0</Version>
+    <Authors>ResQ Software</Authors>
+    <Description>ResQ HTTP service clients for HCE and Infrastructure API</Description>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/resq-software/dotnet-sdk</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/resq-software/dotnet-sdk</RepositoryUrl>
+    <PackageTags>resq;drone;http;clients;disaster-response</PackageTags>
+    <IsPackable>true</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Http" />
+    <PackageReference Include="Microsoft.Extensions.Http.Polly" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Polly" />
+    <PackageReference Include="Polly.Extensions.Http" />
+  </ItemGroup>
+
+</Project>

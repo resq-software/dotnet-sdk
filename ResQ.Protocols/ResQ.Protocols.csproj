@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <RootNamespace>ResQ.Protocols</RootNamespace>
+        <PackageId>ResQ.Protocols</PackageId>
+        <Version>0.1.0</Version>
+        <Authors>ResQ Software</Authors>
+        <Description>ResQ Protobuf protocol extensions and utilities</Description>
+        <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+        <PackageProjectUrl>https://github.com/resq-software/dotnet-sdk</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/resq-software/dotnet-sdk</RepositoryUrl>
+        <PackageTags>resq;drone;protobuf;protocols;disaster-response</PackageTags>
+        <IsPackable>true</IsPackable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Google.Protobuf" />
+        <PackageReference Include="Grpc.Net.Client" />
+        <PackageReference Include="Grpc.Tools" PrivateAssets="All" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Protobuf Include="../../protos/*.proto" GrpcServices="Both" />
+    </ItemGroup>
+
+</Project>

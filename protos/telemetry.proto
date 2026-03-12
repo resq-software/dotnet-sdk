@@ -1,0 +1,235 @@
+/**
+ * Copyright 2026 ResQ
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto3";
+
+package resq.telemetry;
+
+import "google/protobuf/timestamp.proto";
+
+import "core.proto";
+
+// Drone operational status
+enum DroneStatus {
+  DRONE_STATUS_UNSPECIFIED = 0;
+  IDLE = 1;
+  ARMED = 2;
+  TAKEOFF = 3;
+  IN_FLIGHT = 4;
+  RETURNING = 5;
+  LANDING = 6;
+  LANDED = 7;
+  EMERGENCY = 8;
+  OFFLINE = 9;
+}
+
+// Navigation mode
+enum NavigationMode {
+  NAV_MODE_UNSPECIFIED = 0;
+  GPS = 1;
+  VISUAL = 2;
+  INERTIAL = 3;
+  MESH_ASSISTED = 4; // Using swarm mesh for positioning
+  MANUAL = 5;
+}
+
+// Link quality assessment
+enum LinkQuality {
+  LINK_QUALITY_UNSPECIFIED = 0;
+  EXCELLENT = 1; // >90% signal, <50ms latency
+  GOOD = 2; // >70% signal, <100ms latency
+  FAIR = 3; // >50% signal, <200ms latency
+  POOR = 4; // >30% signal, <500ms latency
+  CRITICAL = 5; // <30% signal or >500ms latency
+  LOST = 6; // No connection
+}
+
+// Velocity vector
+message Velocity {
+  double vx = 1; // m/s North
+  double vy = 2; // m/s East
+  double vz = 3; // m/s Down (positive = descending)
+}
+
+// Attitude (orientation)
+message Attitude {
+  double roll = 1; // radians
+  double pitch = 2; // radians
+  double yaw = 3; // radians (heading)
+}
+
+// Battery status
+message BatteryStatus {
+  float voltage = 1; // Volts
+  float current = 2; // Amps
+  float remaining_percent = 3; // 0-100
+  int32 remaining_time_secs = 4; // Estimated flight time remaining
+  int32 temperature_celsius = 5;
+  int32 cycle_count = 6;
+}
+
+// Sensor health status
+message SensorHealth {
+  bool gps_ok = 1;
+  bool imu_ok = 2;
+  bool compass_ok = 3;
+  bool barometer_ok = 4;
+  bool camera_ok = 5;
+  bool thermal_ok = 6;
+  bool lidar_ok = 7;
+  repeated string fault_codes = 8;
+}
+
+// Communication link status
+message LinkStatus {
+  LinkQuality quality = 1;
+  float signal_strength_dbm = 2;
+  int32 latency_ms = 3;
+  int32 packet_loss_percent = 4;
+  string connection_type = 5; // "wifi", "lora", "satcom", "mesh"
+  int32 mesh_hop_count = 6; // Hops to reach coordination layer
+}
+
+// High-frequency telemetry frame from drone
+message TelemetryPacket {
+  // Identity
+  string drone_id = 1;
+  string swarm_id = 2;
+
+  // Timestamp
+  google.protobuf.Timestamp timestamp = 3;
+  uint64 sequence_number = 4;
+
+  // Position and motion
+  resq.shared.Location position = 5;
+  Velocity velocity = 6;
+  Attitude attitude = 7;
+
+  // System status
+  DroneStatus status = 8;
+  NavigationMode nav_mode = 9;
+  BatteryStatus battery = 10;
+  SensorHealth sensors = 11;
+  LinkStatus link = 12;
+
+  // Mission context
+  string current_mission_id = 13;
+  string current_waypoint_id = 14;
+  float mission_progress_percent = 15;
+
+  // Edge AI detection summary (if any)
+  repeated DetectionSummary detections = 16;
+}
+
+// Summary of AI detection (detailed evidence uploaded separately)
+message DetectionSummary {
+  string detection_id = 1;
+  string detection_type = 2; // "fire", "flood", "person", "vehicle"
+  float confidence = 3;
+  resq.shared.Location location = 4;
+  google.protobuf.Timestamp detected_at = 5;
+  bool evidence_uploaded = 6; // Whether full evidence is on IPFS
+  string evidence_cid = 7; // IPFS CID if uploaded
+  bool evidence_face_blurred = 8; // GDPR Art. 9 - faces blurred before upload
+}
+
+// Aggregated swarm telemetry
+message SwarmTelemetry {
+  string swarm_id = 1;
+  google.protobuf.Timestamp timestamp = 2;
+
+  int32 total_drones = 3;
+  int32 active_drones = 4;
+  int32 drones_in_mission = 5;
+  int32 drones_returning = 6;
+  int32 drones_offline = 7;
+
+  // Swarm bounding box
+  resq.shared.Location centroid = 8;
+  double spread_radius_meters = 9;
+
+  // Aggregate battery
+  float min_battery_percent = 10;
+  float avg_battery_percent = 11;
+
+  // Aggregate link quality
+  LinkQuality worst_link_quality = 12;
+
+  repeated string drone_ids = 13;
+}
+
+// Request for telemetry streaming
+message TelemetryStreamRequest {
+  repeated string drone_ids = 1; // Empty = all drones
+  string swarm_id = 2;
+  int32 max_rate_hz = 3; // Max telemetry rate (default 10Hz)
+}
+
+// Historical telemetry query
+message TelemetryQueryRequest {
+  string drone_id = 1;
+  google.protobuf.Timestamp start_time = 2;
+  google.protobuf.Timestamp end_time = 3;
+  int32 sample_interval_ms = 4; // Downsample interval
+  int32 limit = 5;
+}
+
+message TelemetryQueryResponse {
+  repeated TelemetryPacket packets = 1;
+  int32 total_available = 2;
+}
+
+// Telemetry ingestion service
+service TelemetryService {
+  // Stream live telemetry from drones
+  rpc StreamTelemetry(TelemetryStreamRequest) returns (stream TelemetryPacket);
+
+  // Push telemetry from drone (used by edge nodes)
+  rpc PushTelemetry(TelemetryPacket) returns (TelemetryAck);
+
+  // Push swarm aggregate telemetry
+  rpc PushSwarmTelemetry(SwarmTelemetry) returns (TelemetryAck);
+
+  // Query historical telemetry
+  rpc QueryTelemetry(TelemetryQueryRequest) returns (TelemetryQueryResponse);
+
+  // Get current status of all drones
+  rpc GetDroneStatus(DroneStatusRequest) returns (DroneStatusResponse);
+}
+
+message TelemetryAck {
+  bool success = 1;
+  uint64 sequence_acked = 2;
+}
+
+message DroneStatusRequest {
+  repeated string drone_ids = 1; // Empty = all drones
+  string swarm_id = 2;
+}
+
+message DroneStatusResponse {
+  repeated DroneCurrentStatus drones = 1;
+}
+
+message DroneCurrentStatus {
+  string drone_id = 1;
+  DroneStatus status = 2;
+  resq.shared.Location last_known_position = 3;
+  google.protobuf.Timestamp last_contact = 4;
+  float battery_percent = 5;
+  LinkQuality link_quality = 6;
+  string current_mission_id = 7;
+}
