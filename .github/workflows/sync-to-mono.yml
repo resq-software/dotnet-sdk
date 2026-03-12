@@ -1,0 +1,58 @@
+name: Sync to Monorepo
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - ".github/**"
+      - ".gitignore"
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: standalone
+
+      - uses: actions/checkout@v4
+        with:
+          repository: resq-software/resQ
+          token: ${{ secrets.SYNC_TOKEN }}
+          path: monorepo
+
+      - name: Sync dotnet-sdk → libs/dotnet
+        run: |
+          rsync -av \
+            --exclude='.git/' \
+            --exclude='.github/' \
+            --exclude='.gitignore' \
+            --exclude='**/bin/' \
+            --exclude='**/obj/' \
+            standalone/ \
+            monorepo/libs/dotnet/
+
+      - name: Create PR in monorepo
+        env:
+          GH_TOKEN: ${{ secrets.SYNC_TOKEN }}
+          STANDALONE_SHA: ${{ github.sha }}
+        working-directory: monorepo
+        run: |
+          git config user.name  "resq-sync[bot]"
+          git config user.email "sync@resq.software"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to sync"
+            exit 0
+          fi
+          SHORT="${STANDALONE_SHA:0:7}"
+          BRANCH="sync/dotnet-sdk-${SHORT}"
+          git checkout -b "${BRANCH}"
+          git commit -m "chore(dotnet): sync from resq-software/dotnet-sdk@${SHORT}"
+          git push origin "${BRANCH}"
+          gh pr create \
+            --repo resq-software/resQ \
+            --base main \
+            --head "${BRANCH}" \
+            --title "chore(dotnet): sync from resq-software/dotnet-sdk@${SHORT}" \
+            --body "Automated sync from resq-software/dotnet-sdk@${STANDALONE_SHA}."
