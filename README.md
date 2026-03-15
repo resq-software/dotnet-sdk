@@ -36,7 +36,7 @@ The ResQ .NET SDK provides typed client libraries, domain models, and protocol b
 The SDK is organized into modular libraries. The `ResQ.Clients` and `ResQ.Blockchain` layers consume `ResQ.Core` models, while `ResQ.Protocols` provides the shared gRPC contract definitions.
 
 ```mermaid
-c4Context
+C4Context
     title ResQ Platform Ecosystem & SDK Dependencies
 
     Person(operator, "Operator")
@@ -135,6 +135,38 @@ await drone.ExecuteFlightPathAsync(waypoints);
 | `NEO_RPC_URL` | Neo N3 RPC endpoint | `http://localhost:10332` |
 | `NEO_MOCK_MODE` | Toggle mock blockchain for local dev | `true` |
 
+The SDK supports configuration via environment variables and standard .NET configuration providers (e.g., `appsettings.json`). For libraries, settings should be injected via `IOptions<T>` pattern.
+
+For example, to configure the `InfrastructureApiClient` via `appsettings.json`:
+
+```json
+{
+  "ResQ": {
+    "InfrastructureApiUrl": "https://your-api.example.com",
+    "Resilience": {
+      "MaxRetries": 5,
+      "RequestTimeoutSec": 15
+    }
+  }
+}
+```
+
+Then, in your application's `Startup.cs` or equivalent:
+
+```csharp
+services.Configure&lt;PinataOptions&gt;(Configuration.GetSection("PinataOptions")); // Example for Pinata
+
+// For InfrastructureApiClient, you would typically configure the HttpClient registration
+services.AddHttpClient&lt;InfrastructureApiClient&gt;(c =>
+{
+    // Configure base address, headers, etc. from configuration
+    c.BaseAddress = new Uri(Configuration["ResQ:InfrastructureApiUrl"] ?? "https://api.resq.software");
+    // Resilience settings could be applied here using Polly if not handled internally
+})
+.ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler()) // Optional: customize handler
+.AddPolicyHandler(PollyPolicies.GetCircuitBreakerPolicy()); // Example of adding Polly policies
+```
+
 ## API Reference
 
 - **`ResQ.Core`**: Contains shared domain entities (`Location`, `Telemetry`, `IncidentType`) and service interfaces.
@@ -142,6 +174,37 @@ await drone.ExecuteFlightPathAsync(waypoints);
 - **`ResQ.Clients`**: Provides high-level abstractions for infrastructure APIs, including built-in Polly-based retry/circuit-breaker logic.
 - **`ResQ.Storage`**: Implements IPFS storage adapters using Pinata.
 - **Error Handling & Retries**: Clients utilize `Polly.ResiliencePipeline` to handle 429 (Rate Limit), 408 (Timeout), and 5xx (Server) errors with exponential backoff and circuit-breaking strategies.
+
+## Testing
+
+The SDK includes comprehensive unit and integration tests for its various components. You can run these tests using the `dotnet test` command.
+
+```bash
+dotnet test -c Release
+```
+
+The `ResQ.Clients.Tests` project uses `MockHttpMessageHandler` to simulate HTTP responses, allowing for thorough testing of resilience policies like retries and circuit breakers without actual network calls.
+
+The `ResQ.Blockchain` project provides `MockNeoClient` for testing blockchain interactions in memory.
+
+To facilitate testing of your own code that uses the ResQ SDK, you can leverage these mock implementations:
+
+1.  **Dependency Injection**: Register mock implementations in your test setup.
+    ```csharp
+    // In your test setup
+    services.AddSingleton&lt;INeoClient, MockNeoClient&gt;();
+    services.AddSingleton&lt;IStorageClient, MockPinataClient&gt;(); // Assuming a mock for storage
+    services.AddSingleton&lt;CoordinationHceClient&gt;(); // Use DI for clients too
+    ```
+
+2.  **Mocking HTTP Handlers**: For clients like `InfrastructureApiClient` and `CoordinationHceClient`, inject a `MockHttpMessageHandler` to control HTTP responses.
+    ```csharp
+    var mockHandler = new MockHttpMessageHandler();
+    mockHandler.QueueJsonResponse(System.Net.HttpStatusCode.OK, "{\"Token\": \"fake-jwt-token\"}");
+    var client = new CoordinationHceClient("http://localhost", mockHandler);
+    ```
+
+This allows you to isolate your code's logic from external dependencies and verify its behavior under various conditions, including error scenarios.
 
 ## Development
 
@@ -167,10 +230,10 @@ The ResQ SDK follows [Semantic Versioning (SemVer)](https://semver.org/).
 
 We strictly follow the [Conventional Commits](https://www.conventionalcommits.org/) specification.
 
-1. **Fork** the repository.
-2. **Branch** your changes: `feat/my-feature` or `fix/my-bug`.
-3. **Commit** using clear, imperative messages.
-4. **Push** and open a Pull Request.
+1.  **Fork** the repository.
+2.  **Branch** your changes: `feat/my-feature` or `fix/my-bug`.
+3.  **Commit** using clear, imperative messages.
+4.  **Push** and open a Pull Request.
 
 All changes must pass existing CI workflows and include tests for new functionality.
 
