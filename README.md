@@ -1,7 +1,7 @@
 # ResQ .NET SDK
 
 <p align="center">
-  .NET 9 client libraries for integrating with the ResQ autonomous disaster-response platform.
+  A collection of .NET 9 client libraries for interacting with the ResQ autonomous disaster-response platform.
 </p>
 
 <p align="center">
@@ -19,42 +19,46 @@
   </a>
 </p>
 
----
-
-## Table of Contents
-
-- [Overview](#overview)
-- [Features](#features)
-- [Architecture](#architecture)
-- [Quick Start](#quick-start)
-- [Usage](#usage)
-- [Configuration](#configuration)
-- [API Overview](#api-overview)
-- [Development](#development)
-- [Contributing](#contributing)
-- [Roadmap](#roadmap)
-- [License](#license)
-
----
-
 ## Overview
 
 The ResQ .NET SDK provides typed client libraries, domain models, and protocol bindings for the [ResQ platform](https://resq.software). It targets .NET 9 and facilitates high-performance communication with autonomous drone fleets, blockchain-based telemetry anchoring, and disaster simulation environments.
 
 ## Features
 
-- **Typed Clients:** Ready-to-use gRPC and REST wrappers for core infrastructure.
-- **Blockchain Integration:** Built-in Neo N3 support for mission integrity and IPFS data anchoring.
-- **Protobuf Native:** Fully generated message types from standardized `.proto` definitions.
-- **Simulation Harness:** Tools to run SITL (Software-in-the-Loop) tests with virtual drones.
-- **Cross-Platform:** Built for .NET 9 with Linux/macOS support via Nix.
+- **Neo N3 Blockchain Support:** Integrated auditing and data anchoring for mission-critical telemetry.
+- **SITL Simulation Harness:** Native tools to run Software-in-the-Loop simulations with virtual drone fleets.
+- **Protobuf-Native:** High-performance binary serialization using standardized `.proto` definitions.
+- **Typed Service Clients:** Robust wrappers for the ResQ Infrastructure and Coordination (HCE) APIs.
+- **Cross-Platform:** Built for .NET 9 with Nix-based development environment consistency.
 
 ## Architecture
 
-The SDK is structured into modular libraries to minimize footprint and dependency bloat.
+The SDK is organized into modular libraries. The `ResQ.Clients` and `ResQ.Blockchain` layers consume `ResQ.Core` models, while `ResQ.Protocols` provides the shared gRPC contract definitions.
 
 ```mermaid
-graph TD
+c4Context
+    title ResQ Platform Ecosystem & SDK Dependencies
+
+    Person(operator, "Operator")
+    System_Boundary(resq_sdk, "ResQ .NET SDK") {
+        Component(clients, "ResQ.Clients", "HTTP/REST", "Service communication")
+        Component(blockchain, "ResQ.Blockchain", "Neo N3", "Audit trail anchoring")
+        Component(storage, "ResQ.Storage", "IPFS/Pinata", "Evidence persistence")
+    }
+    
+    System_Boundary(platform, "ResQ Infrastructure") {
+        System(neo, "Neo N3 Ledger", "Immutable records")
+        System(api, "Infrastructure API", "Backend services")
+    }
+
+    Rel(operator, clients, "Uses")
+    Rel(clients, api, "REST/JSON")
+    Rel(blockchain, neo, "Transaction submission")
+    Rel(storage, api, "Pinning")
+```
+
+```mermaid
+flowchart TD
     App[Consumer Application] --> Clients[ResQ.Clients]
     App --> Storage[ResQ.Storage]
     App --> Sim[ResQ.Simulation]
@@ -62,47 +66,58 @@ graph TD
     Clients --> Core[ResQ.Core]
     Clients --> Protocols[ResQ.Protocols]
     
-    Blockchain[ResQ.Blockchain] --> Core
-    Blockchain --> Protocols
-    
     Protocols --> Protos[Protobuf Definitions]
+    
+    subgraph CoreLayer
+        Core
+        Protocols
+    end
+```
+
+## Installation
+
+Add the necessary packages to your .NET 9 project via CLI:
+
+```bash
+# Core domain models and interfaces
+dotnet add package ResQ.Core
+
+# Typed HTTP clients
+dotnet add package ResQ.Clients
+
+# Blockchain integration
+dotnet add package ResQ.Blockchain
 ```
 
 ## Quick Start
-
-Add the core packages via CLI:
-
-```bash
-dotnet add package ResQ.Core
-dotnet add package ResQ.Clients
-```
 
 Initialize a client and fetch fleet telemetry:
 
 ```csharp
 using ResQ.Clients;
 
+// Initialize the API client
 var client = new InfrastructureApiClient("https://api.resq.software");
-var telemetry = await client.GetTelemetryAsync("drone-01");
 
+// Perform a request
+var telemetry = await client.GetTelemetryAsync("drone-01");
 Console.WriteLine($"Current Battery: {telemetry.BatteryLevel}%");
 ```
 
 ## Usage
 
 ### Blockchain Anchoring
-Easily pin mission data to the Neo N3 ledger to ensure auditability:
+Secure mission data on the Neo N3 ledger:
 
 ```csharp
 using ResQ.Blockchain;
 
 var neo = new NeoClient(new NeoClientOptions { RpcUrl = "http://localhost:10332" });
 var tx = await neo.AnchorMissionAsync(missionId: "mission-99", dataHash: "ipfs://...");
-Console.WriteLine($"Mission anchored: {tx.Hash}");
 ```
 
 ### Simulation Testing
-Use the `VirtualDrone` harness for testing flight paths without deploying hardware:
+Use the SITL harness to validate flight paths without physical hardware:
 
 ```csharp
 using ResQ.Simulation;
@@ -120,19 +135,20 @@ await drone.ExecuteFlightPathAsync(waypoints);
 | `NEO_RPC_URL` | Neo N3 RPC endpoint | `http://localhost:10332` |
 | `NEO_MOCK_MODE` | Toggle mock blockchain for local dev | `true` |
 
-## API Overview
+## API Reference
 
-- **`ResQ.Core`**: Common domain entities (`Location`, `Telemetry`, `IncidentType`).
-- **`ResQ.Protocols`**: gRPC service definitions for `DroneService`, `SimulationService`, and `TelemetryService`.
-- **`ResQ.Clients`**: High-level abstractions for interaction, handling serialization and error retries.
-- **`ResQ.Storage`**: Pinata/IPFS adapters for mission artifacts.
+- **`ResQ.Core`**: Contains shared domain entities (`Location`, `Telemetry`, `IncidentType`) and service interfaces.
+- **`ResQ.Protocols`**: Houses auto-generated gRPC contracts and protocol-specific extension methods.
+- **`ResQ.Clients`**: Provides high-level abstractions for infrastructure APIs, including built-in Polly-based retry/circuit-breaker logic.
+- **`ResQ.Storage`**: Implements IPFS storage adapters using Pinata.
+- **Error Handling & Retries**: Clients utilize `Polly.ResiliencePipeline` to handle 429 (Rate Limit), 408 (Timeout), and 5xx (Server) errors with exponential backoff and circuit-breaking strategies.
 
 ## Development
 
 ### Prerequisites
 - .NET 9.0 SDK
 - Docker (for packaging and integration tests)
-- Nix (optional, for development environment consistency)
+- Nix (optional, for development environment parity)
 
 ### Setup
 ```bash
@@ -141,11 +157,11 @@ git clone https://github.com/resq-software/dotnet-sdk.git
 dotnet build
 ```
 
-### Testing
-We use a suite of unit and integration tests. Run them using:
-```bash
-dotnet test
-```
+### Versioning and Compatibility Policy
+The ResQ SDK follows [Semantic Versioning (SemVer)](https://semver.org/).
+- **Major:** Breaking API changes.
+- **Minor:** New features, non-breaking.
+- **Patch:** Bug fixes and security patches.
 
 ## Contributing
 
@@ -156,13 +172,7 @@ We strictly follow the [Conventional Commits](https://www.conventionalcommits.or
 3. **Commit** using clear, imperative messages.
 4. **Push** and open a Pull Request.
 
-All changes must pass existing CI workflows and include tests for new functionality. Check the `tests/` directory for existing patterns.
-
-## Roadmap
-
-- [ ] **v1.1.0:** Enhanced gRPC streaming support for real-time telemetry.
-- [ ] **v1.2.0:** Auto-generated Swagger/OpenAPI definitions for Infrastructure API.
-- [ ] **v2.0.0:** Native AOT compatibility across all library modules.
+All changes must pass existing CI workflows and include tests for new functionality.
 
 ## License
 
