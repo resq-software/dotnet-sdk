@@ -1,4 +1,4 @@
-<h1 align="center">ResQ .NET SDK</h1>
+# ResQ .NET SDK
 
 <p align="center">
   .NET 9 client libraries for integrating with the ResQ autonomous disaster-response platform.
@@ -24,201 +24,146 @@
 ## Table of Contents
 
 - [Overview](#overview)
-- [Packages](#packages)
-- [Install](#install)
+- [Features](#features)
+- [Architecture](#architecture)
 - [Quick Start](#quick-start)
 - [Usage](#usage)
 - [Configuration](#configuration)
+- [API Overview](#api-overview)
+- [Development](#development)
 - [Contributing](#contributing)
-- [Changelog](#changelog)
+- [Roadmap](#roadmap)
 - [License](#license)
 
 ---
 
 ## Overview
 
-The ResQ .NET SDK provides typed client libraries, domain models, and protocol bindings for the [ResQ platform](https://resq.software). It targets .NET 9 and covers the full surface of the ResQ API: blockchain anchoring, drone client abstractions, Protobuf protocol contracts, simulation harnesses, and storage adapters.
+The ResQ .NET SDK provides typed client libraries, domain models, and protocol bindings for the [ResQ platform](https://resq.software). It targets .NET 9 and facilitates high-performance communication with autonomous drone fleets, blockchain-based telemetry anchoring, and disaster simulation environments.
 
-**Related projects:**
+## Features
 
-| Repo | Description |
-|------|-------------|
-| [resq-software/resQ](https://github.com/resq-software/resQ) | Core platform monorepo |
-| [resq-software/cli](https://github.com/resq-software/cli) | CLI tooling |
-| [resq-software/mcp](https://github.com/resq-software/mcp) | MCP server |
+- **Typed Clients:** Ready-to-use gRPC and REST wrappers for core infrastructure.
+- **Blockchain Integration:** Built-in Neo N3 support for mission integrity and IPFS data anchoring.
+- **Protobuf Native:** Fully generated message types from standardized `.proto` definitions.
+- **Simulation Harness:** Tools to run SITL (Software-in-the-Loop) tests with virtual drones.
+- **Cross-Platform:** Built for .NET 9 with Linux/macOS support via Nix.
 
----
+## Architecture
 
-## Packages
+The SDK is structured into modular libraries to minimize footprint and dependency bloat.
 
-| Package | NuGet | Description |
-|---------|-------|-------------|
-| `ResQ.Core` | [![NuGet](https://img.shields.io/nuget/v/ResQ.Core?style=flat-square)](https://www.nuget.org/packages/ResQ.Core) | Core domain models — location, enums, blockchain models, shared utilities |
-| `ResQ.Blockchain` | [![NuGet](https://img.shields.io/nuget/v/ResQ.Blockchain?style=flat-square)](https://www.nuget.org/packages/ResQ.Blockchain) | Neo N3 blockchain client and IPFS anchoring |
-| `ResQ.Clients` | [![NuGet](https://img.shields.io/nuget/v/ResQ.Clients?style=flat-square)](https://www.nuget.org/packages/ResQ.Clients) | Typed HTTP and gRPC clients for ResQ services |
-| `ResQ.Protocols` | [![NuGet](https://img.shields.io/nuget/v/ResQ.Protocols?style=flat-square)](https://www.nuget.org/packages/ResQ.Protocols) | Protobuf-generated message types and contracts |
-| `ResQ.Simulation` | [![NuGet](https://img.shields.io/nuget/v/ResQ.Simulation?style=flat-square)](https://www.nuget.org/packages/ResQ.Simulation) | PX4 SITL simulation harness and test fixtures |
-| `ResQ.Storage` | [![NuGet](https://img.shields.io/nuget/v/ResQ.Storage?style=flat-square)](https://www.nuget.org/packages/ResQ.Storage) | Storage adapters for mission data and telemetry |
-
----
-
-## Install
-
-Add whichever packages you need:
-
-```sh
-dotnet add package ResQ.Core
-dotnet add package ResQ.Clients
-dotnet add package ResQ.Protocols
+```mermaid
+graph TD
+    App[Consumer Application] --> Clients[ResQ.Clients]
+    App --> Storage[ResQ.Storage]
+    App --> Sim[ResQ.Simulation]
+    
+    Clients --> Core[ResQ.Core]
+    Clients --> Protocols[ResQ.Protocols]
+    
+    Blockchain[ResQ.Blockchain] --> Core
+    Blockchain --> Protocols
+    
+    Protocols --> Protos[Protobuf Definitions]
 ```
-
-### From source
-
-```sh
-git clone https://github.com/resq-software/dotnet-sdk.git
-cd dotnet-sdk
-dotnet build -c Release
-```
-
-### Docker (build + test)
-
-```sh
-docker build -t resq-dotnet-sdk .
-# Produce NuGet packages:
-docker build --target pack -t resq-dotnet-sdk:pack .
-docker run --rm -v $(pwd)/artifacts:/app/artifacts resq-dotnet-sdk:pack
-```
-
-### Dev environment (Nix)
-
-```sh
-# Install Nix if needed, then:
-nix develop        # enters shell with dotnet-sdk 9, protobuf (Linux)
-# or:
-./scripts/setup.sh # installs Nix + Docker; note: dotnet not in nixpkgs for macOS
-```
-
----
 
 ## Quick Start
 
-```csharp
-using ResQ.Clients;
-using ResQ.Core;
+Add the core packages via CLI:
 
-var client = new ResQDroneClient("https://api.resq.software");
-var drones = await client.GetActiveDronesAsync();
-
-foreach (var drone in drones)
-{
-    Console.WriteLine($"{drone.Id}: {drone.Location}");
-}
+```bash
+dotnet add package ResQ.Core
+dotnet add package ResQ.Clients
 ```
 
----
+Initialize a client and fetch fleet telemetry:
+
+```csharp
+using ResQ.Clients;
+
+var client = new InfrastructureApiClient("https://api.resq.software");
+var telemetry = await client.GetTelemetryAsync("drone-01");
+
+Console.WriteLine($"Current Battery: {telemetry.BatteryLevel}%");
+```
 
 ## Usage
 
-### Domain models (`ResQ.Core`)
-
-```csharp
-using ResQ.Core;
-
-var location = new Location(latitude: 37.7749, longitude: -122.4194, altitude: 120.0);
-var incident = new IncidentReport(type: IncidentType.Wildfire, location: location);
-```
-
-### Blockchain anchoring (`ResQ.Blockchain`)
+### Blockchain Anchoring
+Easily pin mission data to the Neo N3 ledger to ensure auditability:
 
 ```csharp
 using ResQ.Blockchain;
 
-var neo = new NeoClient(config.NeoRpcUrl);
-var txHash = await neo.AnchorMissionAsync(missionId, telemetryHash);
+var neo = new NeoClient(new NeoClientOptions { RpcUrl = "http://localhost:10332" });
+var tx = await neo.AnchorMissionAsync(missionId: "mission-99", dataHash: "ipfs://...");
+Console.WriteLine($"Mission anchored: {tx.Hash}");
 ```
 
-### Protobuf contracts (`ResQ.Protocols`)
+### Simulation Testing
+Use the `VirtualDrone` harness for testing flight paths without deploying hardware:
 
 ```csharp
-// Generated from protos/ — use directly with gRPC channels
-using ResQ.Protocols;
+using ResQ.Simulation;
 
-var channel = GrpcChannel.ForAddress("https://api.resq.software");
-var client  = new DroneService.DroneServiceClient(channel);
-var reply   = await client.GetStatusAsync(new DroneStatusRequest { DroneId = "drone-01" });
+var drone = new VirtualDrone("drone-id");
+await drone.ConnectAsync();
+await drone.ExecuteFlightPathAsync(waypoints);
 ```
-
-Full API reference: [`docs/`](./docs/)
-
----
 
 ## Configuration
 
-| Variable / Setting | Default | Description |
-|--------------------|---------|-------------|
-| `RESQ_API_URL` | `https://api.resq.software` | Base URL for ResQ service endpoints |
-| `NEO_RPC_URL` | `http://localhost:10332` | Neo N3 RPC endpoint |
-| `NEO_MOCK_MODE` | `true` | Use in-memory Neo mock for local development |
+| Environment Variable | Description | Default |
+| :--- | :--- | :--- |
+| `RESQ_API_URL` | Base endpoint for ResQ services | `https://api.resq.software` |
+| `NEO_RPC_URL` | Neo N3 RPC endpoint | `http://localhost:10332` |
+| `NEO_MOCK_MODE` | Toggle mock blockchain for local dev | `true` |
 
-Configuration can be provided via environment variables or `appsettings.json`:
+## API Overview
 
-```json
-{
-  "ResQ": {
-    "ApiUrl": "https://api.resq.software",
-    "NeoMockMode": true
-  }
-}
+- **`ResQ.Core`**: Common domain entities (`Location`, `Telemetry`, `IncidentType`).
+- **`ResQ.Protocols`**: gRPC service definitions for `DroneService`, `SimulationService`, and `TelemetryService`.
+- **`ResQ.Clients`**: High-level abstractions for interaction, handling serialization and error retries.
+- **`ResQ.Storage`**: Pinata/IPFS adapters for mission artifacts.
+
+## Development
+
+### Prerequisites
+- .NET 9.0 SDK
+- Docker (for packaging and integration tests)
+- Nix (optional, for development environment consistency)
+
+### Setup
+```bash
+git clone https://github.com/resq-software/dotnet-sdk.git
+./scripts/setup.sh
+dotnet build
 ```
 
----
+### Testing
+We use a suite of unit and integration tests. Run them using:
+```bash
+dotnet test
+```
 
 ## Contributing
 
-We welcome contributions. Please read [`CONTRIBUTING.md`](./CONTRIBUTING.md) before opening a PR.
+We strictly follow the [Conventional Commits](https://www.conventionalcommits.org/) specification.
 
-**Local setup:**
+1. **Fork** the repository.
+2. **Branch** your changes: `feat/my-feature` or `fix/my-bug`.
+3. **Commit** using clear, imperative messages.
+4. **Push** and open a Pull Request.
 
-```sh
-git clone https://github.com/resq-software/dotnet-sdk.git
-cd dotnet-sdk
-./scripts/setup.sh   # installs Nix + Docker; provides dotnet-sdk 9 via nix develop
-```
+All changes must pass existing CI workflows and include tests for new functionality. Check the `tests/` directory for existing patterns.
 
-**Run tests:**
+## Roadmap
 
-```sh
-dotnet test -c Release
-```
-
-**Regenerate Protobuf bindings** (after editing `protos/`):
-
-```sh
-dotnet build  # MSBuild runs protoc automatically via the .csproj targets
-```
-
-**Commit convention:** This project uses [Conventional Commits](https://www.conventionalcommits.org/).
-All PRs must follow the `type(scope): subject` format — see the table below.
-
-| Prefix | Effect on version |
-|--------|------------------|
-| `feat:` | Minor bump (`0.x.0`) |
-| `fix:` / `perf:` | Patch bump (`0.0.x`) |
-| `BREAKING CHANGE` footer or `!` suffix | Major bump (`x.0.0`) |
-| `docs:` `style:` `refactor:` `test:` `chore:` | No version bump |
-
-Releases are driven by git tags — `git tag v1.2.3 && git push --tags` triggers the publish workflow.
-
----
-
-## Changelog
-
-See [CHANGELOG.md](./CHANGELOG.md) for the full release history.
-
----
+- [ ] **v1.1.0:** Enhanced gRPC streaming support for real-time telemetry.
+- [ ] **v1.2.0:** Auto-generated Swagger/OpenAPI definitions for Infrastructure API.
+- [ ] **v2.0.0:** Native AOT compatibility across all library modules.
 
 ## License
 
-Copyright 2026 ResQ
-
-Licensed under the [Apache License, Version 2.0](./LICENSE).
+Copyright 2026 ResQ. Licensed under the [Apache License, Version 2.0](./LICENSE).
