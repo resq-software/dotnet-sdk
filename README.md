@@ -140,7 +140,7 @@ var txHash = await neo.AnchorMissionAsync(missionId, telemetryHash);
 ### Protobuf contracts (`ResQ.Protocols`)
 
 ```csharp
-// Generated from protos/ — use directly with gRPC channels
+// Generated from the synced protos/ cache — use directly with gRPC channels
 using ResQ.Protocols;
 
 var channel = GrpcChannel.ForAddress("https://api.resq.software");
@@ -191,9 +191,10 @@ cd dotnet-sdk
 dotnet test -c Release
 ```
 
-**Regenerate Protobuf bindings** (after editing `protos/`):
+**Regenerate Protobuf bindings** (after updating `proto-source.lock` to a published `resq-proto` revision):
 
 ```sh
+bash scripts/sync-protos.sh
 dotnet build  # MSBuild runs protoc automatically via the .csproj targets
 ```
 

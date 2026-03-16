@@ -19,6 +19,22 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Determine proto sync mode
+        id: proto_source
+        run: |
+          if grep -q 'BOOTSTRAP_PENDING_FIRST_PUBLISH' proto-source.lock; then
+            echo "needs_buf=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "needs_buf=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Setup Buf
+        if: steps.proto_source.outputs.needs_buf == 'true'
+        uses: bufbuild/buf-action@v1
+        with:
+          token: ${{ secrets.BUF_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
       - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: "9.0.x"
@@ -26,6 +42,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+
+      - name: Sync protobuf definitions
+        run: bash scripts/sync-protos.sh
+
+      - name: Check for synced proto drift
+        run: git diff --exit-code -- protos
 
       - name: Install semantic-release
         run: |
