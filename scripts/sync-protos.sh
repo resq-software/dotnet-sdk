@@ -12,15 +12,23 @@ if [[ "${SOURCE_REF}" == *"${PLACEHOLDER}"* ]]; then
   exit 0
 fi
 
-if ! command -v buf >/dev/null 2>&1; then
-  echo "buf CLI is required to sync shared schemas from the Buf Schema Registry." >&2
-  exit 1
-fi
-
 TMP_DIR="$(mktemp -d)"
 trap 'rm -rf "${TMP_DIR}"' EXIT
 
-buf export "${SOURCE_REF}" --output "${TMP_DIR}/export"
+if command -v buf >/dev/null 2>&1; then
+  buf export "${SOURCE_REF}" --output "${TMP_DIR}/export"
+elif command -v docker >/dev/null 2>&1; then
+  docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -e HOME=/tmp \
+    -e XDG_CACHE_HOME=/tmp/.cache \
+    -v "${TMP_DIR}:/out" \
+    bufbuild/buf:latest \
+    export "${SOURCE_REF}" --output /out/export
+else
+  echo "buf CLI or docker is required to sync shared schemas from the Buf Schema Registry." >&2
+  exit 1
+fi
 
 shopt -s nullglob
 proto_files=("${TMP_DIR}/export/"*.proto)
