@@ -1,3 +1,10 @@
+# [0.3.0](https://github.com/resq-software/dotnet-sdk/compare/v0.2.0...v0.3.0) (2026-03-17)
+
+
+### Features
+
+* **proto:** consume private schemas from resq-proto ([502bd1a](https://github.com/resq-software/dotnet-sdk/commit/502bd1a62ad99f28f6788d34c0f2e90b50fc7f4f))
+
 # [0.2.0](https://github.com/resq-software/dotnet-sdk/compare/v0.1.0...v0.2.0) (2026-03-13)
 
 
