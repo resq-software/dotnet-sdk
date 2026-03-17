@@ -213,8 +213,7 @@ The checked-in `protos/` directory is a synced local cache of the canonical sche
 When updating shared contracts:
 
 ```bash
-bash scripts/sync-protos.sh
-dotnet build ResQ.Protocols/ResQ.Protocols.csproj
+bash scripts/sync-protos.sh && dotnet build ResQ.Protocols/ResQ.Protocols.csproj
 ```
 
 ## Development
