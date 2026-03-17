@@ -206,6 +206,16 @@ To facilitate testing of your own code that uses the ResQ SDK, you can leverage 
 
 This allows you to isolate your code's logic from external dependencies and verify its behavior under various conditions, including error scenarios.
 
+## Shared Protobuf Source
+
+The checked-in `protos/` directory is a synced local cache of the canonical schemas published from `buf.build/resq-software/resq-proto`.
+
+When updating shared contracts:
+
+```bash
+bash scripts/sync-protos.sh && dotnet build ResQ.Protocols/ResQ.Protocols.csproj
+```
+
 ## Development
 
 ### Prerequisites
