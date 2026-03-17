@@ -19,6 +19,11 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      - uses: bufbuild/buf-setup-action@v1
+        with:
+          buf_user: ${{ secrets.BUF_USER }}
+          buf_api_token: ${{ secrets.BUF_API_TOKEN }}
+
       - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: "9.0.x"
@@ -26,6 +31,12 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 22
+
+      - env:
+          BUF_TOKEN: ${{ secrets.BUF_API_TOKEN }}
+        run: bash scripts/sync-protos.sh
+
+      - run: git diff --exit-code -- protos
 
       - name: Install semantic-release
         run: |
