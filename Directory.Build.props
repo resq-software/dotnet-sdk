@@ -8,6 +8,7 @@
     <Company>ResQ Software</Company>
     <Copyright>Copyright (c) 2026 ResQ</Copyright>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageReadmeFile>NUGET_README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/resq-software/dotnet-sdk</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     
@@ -24,4 +25,8 @@
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
   </PropertyGroup>
+
+  <ItemGroup Condition="'$(IsPackable)' == 'true'">
+    <None Include="$(MSBuildThisFileDirectory)NUGET_README.md" Pack="true" PackagePath="\" Visible="false" />
+  </ItemGroup>
 </Project>
