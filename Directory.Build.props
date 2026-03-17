@@ -3,7 +3,7 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>0.3.0</Version>
+    <Version>0.3.1</Version>
     <Authors>ResQ Team</Authors>
     <Company>ResQ Software</Company>
     <Copyright>Copyright (c) 2026 ResQ</Copyright>

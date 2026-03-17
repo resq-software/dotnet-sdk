@@ -1,3 +1,10 @@
+## [0.3.1](https://github.com/resq-software/dotnet-sdk/compare/v0.3.0...v0.3.1) (2026-03-17)
+
+
+### Bug Fixes
+
+* **packaging:** add shared NuGet package readme ([#8](https://github.com/resq-software/dotnet-sdk/issues/8)) ([47f51de](https://github.com/resq-software/dotnet-sdk/commit/47f51de0ff660d71d3366105d7552bffa94f9ae8))
+
 # [0.3.0](https://github.com/resq-software/dotnet-sdk/compare/v0.2.0...v0.3.0) (2026-03-17)
 
 
