@@ -17,6 +17,9 @@ ResQ provides .NET 9 packages for integrating with the ResQ autonomous disaster-
 dotnet add package ResQ.Core
 dotnet add package ResQ.Clients
 dotnet add package ResQ.Protocols
+dotnet add package ResQ.Blockchain
+dotnet add package ResQ.Storage
+dotnet add package ResQ.Simulation
 ```
 
 ## Source and Docs
