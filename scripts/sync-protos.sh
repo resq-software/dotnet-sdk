@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-SOURCE_REF="$(tr -d '\n' < "${ROOT_DIR}/proto-source.lock")"
+read SOURCE_REF < "${ROOT_DIR}/proto-source.lock"
 TARGET_DIR="${ROOT_DIR}/protos"
 
 if [[ -z "${SOURCE_REF//[[:space:]]/}" ]]; then
