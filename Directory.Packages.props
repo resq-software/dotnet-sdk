@@ -18,9 +18,9 @@
     <PackageVersion Include="Grpc.Tools" Version="2.78.0" />
 
     <!-- Service Clients & HTTP -->
-    <PackageVersion Include="Microsoft.Extensions.Http" Version="9.0.14" />
+    <PackageVersion Include="Microsoft.Extensions.Http" Version="10.0.5" />
     <PackageVersion Include="Microsoft.Extensions.Http.Polly" Version="9.0.14" />
-    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.14" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.5" />
     <PackageVersion Include="Microsoft.Extensions.Options" Version="9.0.14" />
     <PackageVersion Include="Polly" Version="8.6.6" />
     <PackageVersion Include="Polly.Extensions.Http" Version="3.0.0" />
