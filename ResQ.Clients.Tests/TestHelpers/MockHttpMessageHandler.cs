@@ -31,21 +31,34 @@ public class MockHttpMessageHandler : HttpMessageHandler
     private readonly Queue<HttpResponseMessage> _responses = new();
     private readonly Queue<Exception> _exceptions = new();
     private readonly List<HttpRequestMessage> _requests = new();
+    private readonly object _sync = new();
 
     /// <summary>
     /// All HTTP requests that were sent through this handler.
     /// </summary>
-    public IReadOnlyList<HttpRequestMessage> Requests => _requests.AsReadOnly();
+    public IReadOnlyList<HttpRequestMessage> Requests
+    {
+        get
+        {
+            lock (_sync)
+            {
+                return _requests.ToList().AsReadOnly();
+            }
+        }
+    }
 
     /// <summary>
     /// Queues a successful response to be returned for the next request.
     /// </summary>
     public void QueueResponse(HttpStatusCode statusCode, string content = "")
     {
-        _responses.Enqueue(new HttpResponseMessage(statusCode)
+        lock (_sync)
         {
-            Content = new StringContent(content)
-        });
+            _responses.Enqueue(new HttpResponseMessage(statusCode)
+            {
+                Content = new StringContent(content)
+            });
+        }
     }
 
     /// <summary>
@@ -53,10 +66,13 @@ public class MockHttpMessageHandler : HttpMessageHandler
     /// </summary>
     public void QueueJsonResponse(HttpStatusCode statusCode, string json)
     {
-        _responses.Enqueue(new HttpResponseMessage(statusCode)
+        lock (_sync)
         {
-            Content = new StringContent(json, System.Text.Encoding.UTF8, "application/json")
-        });
+            _responses.Enqueue(new HttpResponseMessage(statusCode)
+            {
+                Content = new StringContent(json, System.Text.Encoding.UTF8, "application/json")
+            });
+        }
     }
 
     /// <summary>
@@ -64,7 +80,10 @@ public class MockHttpMessageHandler : HttpMessageHandler
     /// </summary>
     public void QueueException(Exception exception)
     {
-        _exceptions.Enqueue(exception);
+        lock (_sync)
+        {
+            _exceptions.Enqueue(exception);
+        }
     }
 
     /// <summary>
@@ -72,7 +91,10 @@ public class MockHttpMessageHandler : HttpMessageHandler
     /// </summary>
     public void QueueTimeout()
     {
-        _exceptions.Enqueue(new TaskCanceledException("Request timed out"));
+        lock (_sync)
+        {
+            _exceptions.Enqueue(new TaskCanceledException("Request timed out"));
+        }
     }
 
     /// <summary>
@@ -80,24 +102,40 @@ public class MockHttpMessageHandler : HttpMessageHandler
     /// </summary>
     public void QueueNetworkError()
     {
-        _exceptions.Enqueue(new HttpRequestException("Network error"));
+        lock (_sync)
+        {
+            _exceptions.Enqueue(new HttpRequestException("Network error"));
+        }
     }
 
     protected override Task<HttpResponseMessage> SendAsync(
         HttpRequestMessage request,
         CancellationToken cancellationToken)
     {
-        // Store request for verification
-        _requests.Add(request);
+        Exception? exception = null;
+        HttpResponseMessage? response = null;
 
-        // Throw exception if queued
-        if (_exceptions.TryDequeue(out var exception))
+        lock (_sync)
+        {
+            // Store request for verification
+            _requests.Add(request);
+
+            if (_exceptions.TryDequeue(out var queuedException))
+            {
+                exception = queuedException;
+            }
+            else if (_responses.TryDequeue(out var queuedResponse))
+            {
+                response = queuedResponse;
+            }
+        }
+
+        if (exception != null)
         {
             throw exception;
         }
 
-        // Return response if queued
-        if (_responses.TryDequeue(out var response))
+        if (response != null)
         {
             return Task.FromResult(response);
         }
@@ -114,8 +152,11 @@ public class MockHttpMessageHandler : HttpMessageHandler
     /// </summary>
     public void Reset()
     {
-        _responses.Clear();
-        _exceptions.Clear();
-        _requests.Clear();
+        lock (_sync)
+        {
+            _responses.Clear();
+            _exceptions.Clear();
+            _requests.Clear();
+        }
     }
 }
