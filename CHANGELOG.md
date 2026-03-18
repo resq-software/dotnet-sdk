@@ -1,3 +1,10 @@
+## [0.3.2](https://github.com/resq-software/dotnet-sdk/compare/v0.3.1...v0.3.2) (2026-03-18)
+
+
+### Bug Fixes
+
+* **test:** 🔒 ensure thread safety in MockHttpMessageHandler ([5854441](https://github.com/resq-software/dotnet-sdk/commit/5854441f0f68fea512b0c08a8afc4548f4cdb042))
+
 ## [0.3.1](https://github.com/resq-software/dotnet-sdk/compare/v0.3.0...v0.3.1) (2026-03-17)
 
 
