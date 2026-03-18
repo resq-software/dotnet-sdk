@@ -19,6 +19,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Polly;
 using Polly.Retry;
 using Polly.CircuitBreaker;
+using System.Net.Http.Headers;
 
 namespace ResQ.Clients;
 
@@ -30,8 +31,10 @@ public abstract class BaseServiceClient : IDisposable
 {
     protected readonly HttpClient Http;
     protected readonly string BaseUrl;
-    protected readonly ResiliencePipeline<HttpResponseMessage> ResiliencePipeline;
+    protected readonly ResiliencePipeline<HttpResponseMessage> RetryingPipeline;
+    protected readonly ResiliencePipeline<HttpResponseMessage> NonRetryingPipeline;
     protected readonly ILogger Logger;
+    private readonly AsyncLocal<AuthenticationHeaderValue?> _authorizationHeader = new();
 
     // Resilience configuration (can be overridden by derived classes)
     protected virtual int MaxRetries => 3;
@@ -66,16 +69,29 @@ public abstract class BaseServiceClient : IDisposable
             ? new HttpClient(handler) { BaseAddress = new Uri(baseUrl) }
             : new HttpClient { BaseAddress = new Uri(baseUrl) };
 
-        ResiliencePipeline = BuildResiliencePipeline();
+        RetryingPipeline = BuildResiliencePipeline(enableRetries: true);
+        NonRetryingPipeline = BuildResiliencePipeline(enableRetries: false);
     }
 
     /// <summary>
-    /// Builds the resilience pipeline with retry, circuit breaker, and timeout.
+    /// Gets or sets the authorization header for the current async flow.
     /// </summary>
-    private ResiliencePipeline<HttpResponseMessage> BuildResiliencePipeline()
+    protected AuthenticationHeaderValue? AuthorizationHeader
     {
-        return new ResiliencePipelineBuilder<HttpResponseMessage>()
-            .AddRetry(new RetryStrategyOptions<HttpResponseMessage>
+        get => _authorizationHeader.Value;
+        set => _authorizationHeader.Value = value;
+    }
+
+    /// <summary>
+    /// Builds the resilience pipeline with circuit breaker, timeout, and optional retries.
+    /// </summary>
+    private ResiliencePipeline<HttpResponseMessage> BuildResiliencePipeline(bool enableRetries)
+    {
+        var builder = new ResiliencePipelineBuilder<HttpResponseMessage>();
+
+        if (enableRetries)
+        {
+            builder.AddRetry(new RetryStrategyOptions<HttpResponseMessage>
             {
                 MaxRetryAttempts = MaxRetries,
                 BackoffType = DelayBackoffType.Exponential,
@@ -95,7 +111,10 @@ public abstract class BaseServiceClient : IDisposable
                         ServiceName, args.AttemptNumber, MaxRetries, args.RetryDelay.TotalMilliseconds);
                     return ValueTask.CompletedTask;
                 }
-            })
+            });
+        }
+
+        return builder
             .AddCircuitBreaker(new CircuitBreakerStrategyOptions<HttpResponseMessage>
             {
                 FailureRatio = 0.5,
@@ -124,15 +143,55 @@ public abstract class BaseServiceClient : IDisposable
     }
 
     /// <summary>
-    /// Executes an HTTP request with resilience handling.
+    /// Executes an HTTP request with a resilience policy appropriate for the HTTP method.
     /// </summary>
     protected async Task<HttpResponseMessage> ExecuteWithResilienceAsync(
+        HttpMethod method,
         Func<CancellationToken, Task<HttpResponseMessage>> action,
         CancellationToken cancellationToken = default)
     {
-        return await ResiliencePipeline.ExecuteAsync(
+        var pipeline = IsIdempotent(method) ? RetryingPipeline : NonRetryingPipeline;
+
+        return await pipeline.ExecuteAsync(
             async ct => await action(ct).ConfigureAwait(false),
             cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Sends an HTTP request, applying authorization from the current async flow when present.
+    /// </summary>
+    protected async Task<HttpResponseMessage> SendAsync(
+        HttpMethod method,
+        string requestUri,
+        HttpContent? content = null,
+        CancellationToken cancellationToken = default,
+        bool includeAuthorization = true)
+    {
+        return await ExecuteWithResilienceAsync(
+            method,
+            async ct =>
+            {
+                using var request = new HttpRequestMessage(method, requestUri)
+                {
+                    Content = content
+                };
+
+                if (includeAuthorization && AuthorizationHeader != null)
+                {
+                    request.Headers.Authorization = AuthorizationHeader;
+                }
+
+                return await Http.SendAsync(request, ct).ConfigureAwait(false);
+            },
+            cancellationToken).ConfigureAwait(false);
+    }
+
+    private static bool IsIdempotent(HttpMethod method)
+    {
+        return method == HttpMethod.Get
+            || method == HttpMethod.Head
+            || method == HttpMethod.Options
+            || method == HttpMethod.Trace;
     }
 
     /// <summary>

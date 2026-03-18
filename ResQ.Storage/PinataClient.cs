@@ -22,7 +22,6 @@ using System.Text.Json.Serialization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly;
-using Polly.Retry;
 using Polly.CircuitBreaker;
 
 namespace ResQ.Storage;
@@ -119,34 +118,11 @@ public class PinataClient : IStorageClient
     }
 
     /// <summary>
-    /// Builds the resilience pipeline with retry and circuit breaker policies.
+    /// Builds the resilience pipeline with circuit breaker and timeout policies.
     /// </summary>
     private ResiliencePipeline<HttpResponseMessage> BuildResiliencePipeline()
     {
         return new ResiliencePipelineBuilder<HttpResponseMessage>()
-            .AddRetry(new RetryStrategyOptions<HttpResponseMessage>
-            {
-                MaxRetryAttempts = 3,
-                BackoffType = DelayBackoffType.Exponential,
-                Delay = TimeSpan.FromMilliseconds(100),
-                ShouldHandle = new PredicateBuilder<HttpResponseMessage>()
-                    .Handle<HttpRequestException>()
-                    .Handle<TaskCanceledException>()
-                    .HandleResult(r => !r.IsSuccessStatusCode && (
-                        (int)r.StatusCode >= 500 ||
-                        r.StatusCode == System.Net.HttpStatusCode.TooManyRequests ||
-                        r.StatusCode == System.Net.HttpStatusCode.RequestTimeout
-                    )),
-                OnRetry = args =>
-                {
-                    _logger.LogWarning(
-                        "Pinata upload retry {AttemptNumber}/3 after {RetryDelay}ms due to {Outcome}",
-                        args.AttemptNumber,
-                        args.RetryDelay.TotalMilliseconds,
-                        args.Outcome.Exception?.Message ?? args.Outcome.Result?.StatusCode.ToString() ?? "Unknown");
-                    return ValueTask.CompletedTask;
-                }
-            })
             .AddCircuitBreaker(new CircuitBreakerStrategyOptions<HttpResponseMessage>
             {
                 FailureRatio = 0.5,
@@ -266,7 +242,7 @@ public class PinataClient : IStorageClient
             pinataMetadataJson = JsonSerializer.Serialize(pinataMetadata);
         }
 
-        // Use resilience pipeline for retry and circuit breaker
+        // Use circuit-breaker and timeout handling without replaying the upload
         var response = await _resiliencePipeline.ExecuteAsync(
             async ct =>
             {

@@ -133,7 +133,7 @@ await drone.ExecuteFlightPathAsync(waypoints);
 | :--- | :--- | :--- |
 | `RESQ_API_URL` | Base endpoint for ResQ services | `https://api.resq.software` |
 | `NEO_RPC_URL` | Neo N3 RPC endpoint | `http://localhost:10332` |
-| `NEO_MOCK_MODE` | Toggle mock blockchain for local dev | `true` |
+| `NEO_MOCK_MODE` | Toggle mock blockchain for local dev | `false` |
 
 The SDK supports configuration via environment variables and standard .NET configuration providers (e.g., `appsettings.json`). For libraries, settings should be injected via `IOptions<T>` pattern.
 

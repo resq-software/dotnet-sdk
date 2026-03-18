@@ -163,7 +163,7 @@ public class PinataOptions
     /// <summary>
     /// Gets or sets a value indicating whether to use mock mode for testing.
     /// </summary>
-    /// <value>True to use mock implementation; false to use real Pinata API. Default is true.</value>
+    /// <value>True to use mock implementation; false to use real Pinata API. Default is false.</value>
     /// <remarks>
     /// When enabled, the client will generate fake CIDs and not make actual API calls.
     /// This is useful for development and testing without consuming Pinata credits
@@ -183,7 +183,7 @@ public class PinataOptions
     /// options.MockMode = false;
     /// </code>
     /// </example>
-    public bool MockMode { get; set; } = true;
+    public bool MockMode { get; set; } = false;
 
     /// <summary>
     /// Gets or sets the maximum file size allowed for uploads.

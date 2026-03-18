@@ -23,7 +23,7 @@ namespace ResQ.Clients;
 /// <summary>
 /// HTTP client for infrastructure-api (Rust/Axum) service.
 /// Provides methods to upload evidence, record blockchain events, and manage incidents.
-/// Inherits resilience patterns (retry, circuit breaker, timeout) from BaseServiceClient.
+/// Inherits resilience patterns from <see cref="BaseServiceClient"/>.
 /// </summary>
 public class InfrastructureApiClient : BaseServiceClient
 {
@@ -48,7 +48,7 @@ public class InfrastructureApiClient : BaseServiceClient
             if (!response.IsSuccessStatusCode)
             {
                 // P6-SI-01: clear stale Authorization on non-success — symmetric with exception path
-                Http.DefaultRequestHeaders.Authorization = null;
+                AuthorizationHeader = null;
                 return false;
             }
 
@@ -57,25 +57,24 @@ public class InfrastructureApiClient : BaseServiceClient
 
             if (result?.Token != null)
             {
-                Http.DefaultRequestHeaders.Authorization =
-                    new AuthenticationHeaderValue("Bearer", result.Token);
+                AuthorizationHeader = new AuthenticationHeaderValue("Bearer", result.Token);
                 return true;
             }
 
-            Http.DefaultRequestHeaders.Authorization = null; // N5: clear stale token on re-auth failure
+            AuthorizationHeader = null; // N5: clear stale token on re-auth failure
             return false;
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
             // P4-SI-02: clear stale Authorization header on any auth failure
-            Http.DefaultRequestHeaders.Authorization = null;
+            AuthorizationHeader = null;
             return false;
         }
     }
 
     /// <summary>
     /// Uploads an image to IPFS via infrastructure-api.
-    /// Includes retry logic with exponential backoff for transient failures.
+    /// Uses timeout and circuit-breaker handling without replaying the upload on failure.
     /// </summary>
     public async Task<UploadResponse> UploadImageAsync(byte[] imageData, string fileName)
     {
@@ -88,13 +87,14 @@ public class InfrastructureApiClient : BaseServiceClient
         if (string.IsNullOrWhiteSpace(fileName))
             throw new ArgumentException("File name cannot be empty", nameof(fileName));
 
-        // N6: create fresh MultipartFormDataContent inside the lambda so retries don't re-send a consumed body
-        var response = await ExecuteWithResilienceAsync(ct =>
-            {
-                var freshContent = new MultipartFormDataContent();
-                freshContent.Add(new ByteArrayContent(imageData), "file", fileName);
-                return Http.PostAsync("/uploadImage", freshContent, ct);
-            })
+        // Non-idempotent uploads are no longer retried, so a single multipart body is safe here.
+        var content = new MultipartFormDataContent();
+        content.Add(new ByteArrayContent(imageData), "file", fileName);
+
+        var response = await SendAsync(
+            HttpMethod.Post,
+            "/uploadImage",
+            content)
             .ConfigureAwait(false);
 
         response.EnsureSuccessStatusCode();
@@ -106,14 +106,16 @@ public class InfrastructureApiClient : BaseServiceClient
 
     /// <summary>
     /// Records a blockchain event via infrastructure-api Neo N3 adapter.
-    /// Includes retry logic with exponential backoff for transient failures.
+    /// Uses timeout and circuit-breaker handling without replaying the mutation on failure.
     /// </summary>
     public async Task<BlockchainEventResponse> RecordEventAsync(BlockchainEventRequest evt)
     {
         ArgumentNullException.ThrowIfNull(evt, nameof(evt));
 
-        var response = await ExecuteWithResilienceAsync(
-            ct => Http.PostAsJsonAsync("/blockchain/events", new
+        var response = await SendAsync(
+            HttpMethod.Post,
+            "/blockchain/events",
+            JsonContent.Create(new
             {
                 event_id = evt.EventId,
                 event_type = evt.EventType,
@@ -121,7 +123,7 @@ public class InfrastructureApiClient : BaseServiceClient
                 evidence_cid = evt.IpfsCid,
                 drone_id = evt.DroneId,
                 timestamp = evt.Timestamp
-            }, ct))
+            }))
             .ConfigureAwait(false);
 
         response.EnsureSuccessStatusCode();
@@ -132,14 +134,16 @@ public class InfrastructureApiClient : BaseServiceClient
 
     /// <summary>
     /// Creates an incident record.
-    /// Includes retry logic with exponential backoff for transient failures.
+    /// Uses timeout and circuit-breaker handling without replaying the mutation on failure.
     /// </summary>
     public async Task<IncidentResponse> CreateIncidentAsync(CreateIncidentRequest request)
     {
         ArgumentNullException.ThrowIfNull(request, nameof(request));
 
-        var response = await ExecuteWithResilienceAsync(
-            ct => Http.PostAsJsonAsync("/incidents", request, ct))
+        var response = await SendAsync(
+            HttpMethod.Post,
+            "/incidents",
+            JsonContent.Create(request))
             .ConfigureAwait(false);
 
         response.EnsureSuccessStatusCode();
@@ -150,12 +154,11 @@ public class InfrastructureApiClient : BaseServiceClient
 
     /// <summary>
     /// Gets infrastructure-api health status.
-    /// Includes retry logic with exponential backoff for transient failures.
+    /// Includes retry logic for transient read failures.
     /// </summary>
     public async Task<HealthResponse> GetHealthAsync()
     {
-        var response = await ExecuteWithResilienceAsync(
-            ct => Http.GetAsync("/health", ct))
+        var response = await SendAsync(HttpMethod.Get, "/health")
             .ConfigureAwait(false);
 
         response.EnsureSuccessStatusCode();

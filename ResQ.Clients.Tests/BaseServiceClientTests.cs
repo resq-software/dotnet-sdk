@@ -328,6 +328,7 @@ public class BaseServiceClientTests : IDisposable
         public async Task<HttpResponseMessage> TestGetAsync(CancellationToken cancellationToken = default)
         {
             return await ExecuteWithResilienceAsync(
+                HttpMethod.Get,
                 ct => Http.GetAsync("/test", ct),
                 cancellationToken);
         }

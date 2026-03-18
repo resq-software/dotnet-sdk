@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\ResQ.Blockchain\ResQ.Blockchain.csproj" />
+    <ProjectReference Include="..\..\ResQ.Core\ResQ.Core.csproj" />
   </ItemGroup>
 
 </Project>

@@ -133,7 +133,7 @@ public class NeoClientOptions
     /// <summary>
     /// Gets or sets a value indicating whether to use mock mode for testing.
     /// </summary>
-    /// <value>True to use mock implementation; false to use real blockchain. Default is true.</value>
+    /// <value>True to use mock implementation; false to use real blockchain. Default is false.</value>
     /// <remarks>
     /// When enabled, the client will use <see cref="MockNeoClient"/> instead of making real
     /// blockchain calls. This is useful for development and testing without requiring a live
@@ -148,7 +148,7 @@ public class NeoClientOptions
     /// options.MockMode = false;
     /// </code>
     /// </example>
-    public bool MockMode { get; set; } = true;
+    public bool MockMode { get; set; } = false;
 
     /// <summary>
     /// Gets or sets the timeout for waiting for transaction confirmation.

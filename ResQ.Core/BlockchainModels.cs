@@ -128,5 +128,5 @@ public record NeoConfig
     public uint NetworkMagic { get; init; } = 877933390;
 
     /// <summary>Enable mock mode for testing.</summary>
-    public bool MockMode { get; init; } = true;
+    public bool MockMode { get; init; } = false;
 }

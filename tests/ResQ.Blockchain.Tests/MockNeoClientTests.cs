@@ -37,6 +37,26 @@ public class MockNeoClientTests
     }
 
     [Fact]
+    public void NeoClientOptions_DefaultToProductionMode()
+    {
+        // Act
+        var options = new NeoClientOptions();
+
+        // Assert
+        options.MockMode.Should().BeFalse();
+    }
+
+    [Fact]
+    public void NeoConfig_DefaultsToProductionMode()
+    {
+        // Act
+        var config = new ResQ.Core.NeoConfig();
+
+        // Assert
+        config.MockMode.Should().BeFalse();
+    }
+
+    [Fact]
     public async Task RecordEventAsync_ShouldReturnValidTransactionResult()
     {
         // Arrange

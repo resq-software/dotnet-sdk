@@ -53,6 +53,16 @@ public class PinataClientTests : IDisposable
     }
 
     [Fact]
+    public void PinataOptions_DefaultsToProductionMode()
+    {
+        // Act
+        var options = new PinataOptions();
+
+        // Assert
+        options.MockMode.Should().BeFalse();
+    }
+
+    [Fact]
     public async Task UploadAsync_WithValidStream_ShouldReturnSuccessResult()
     {
         // Arrange
@@ -145,12 +155,12 @@ public class PinataClientTests : IDisposable
     }
 
     [Fact]
-    public async Task UploadAsync_WithNetworkError_ShouldThrowException()
+    public async Task UploadAsync_WithServerError_DoesNotRetry()
     {
         // Arrange
-        _mockHttp
-            .When(HttpMethod.Post, "*/pinning/pinFileToIPFS")
-            .Respond(HttpStatusCode.InternalServerError);
+        var uploadRequest = _mockHttp
+            .When(HttpMethod.Post, "*/pinning/pinFileToIPFS");
+        uploadRequest.Respond(HttpStatusCode.InternalServerError);
 
         var client = new PinataClient(_httpClient, Options.Create(_options), _mockLogger.Object);
 
@@ -160,6 +170,7 @@ public class PinataClientTests : IDisposable
         await Assert.ThrowsAsync<HttpRequestException>(
             async () => await client.UploadAsync(stream, "test.txt", "text/plain")
         );
+        _mockHttp.GetMatchCount(uploadRequest).Should().Be(1, "non-idempotent uploads must not be retried");
     }
 
     [Fact]

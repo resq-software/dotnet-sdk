@@ -67,35 +67,33 @@ public class InfrastructureApiClientTests : IDisposable
     }
 
     [Fact]
-    public async Task UploadImageAsync_ServerError_RetriesAndSucceeds()
+    public async Task UploadImageAsync_ServerError_DoesNotRetryAndThrows()
     {
         // Arrange
         _mockHandler.QueueJsonResponse(HttpStatusCode.InternalServerError, "Server error");
         var expected = new UploadResponse("Qm1", 100, "https://gw.example.com/ipfs/Qm1");
         _mockHandler.QueueJsonResponse(HttpStatusCode.OK, JsonSerializer.Serialize(expected));
 
-        // Act
-        var result = await _client.UploadImageAsync(new byte[] { 0x01 }, "image.png");
+        // Act & Assert
+        await _client.Invoking(c => c.UploadImageAsync(new byte[] { 0x01 }, "image.png"))
+            .Should().ThrowAsync<HttpRequestException>();
 
-        // Assert
-        result.Cid.Should().Be("Qm1");
-        _mockHandler.Requests.Should().HaveCount(2, "should retry after 500 error");
+        _mockHandler.Requests.Should().HaveCount(1, "non-idempotent uploads must not be retried");
     }
 
     [Fact]
-    public async Task UploadImageAsync_NetworkError_RetriesAndSucceeds()
+    public async Task UploadImageAsync_NetworkError_DoesNotRetryAndThrows()
     {
         // Arrange
         _mockHandler.QueueNetworkError();
         var expected = new UploadResponse("Qm2", 200, "url");
         _mockHandler.QueueJsonResponse(HttpStatusCode.OK, JsonSerializer.Serialize(expected));
 
-        // Act
-        var result = await _client.UploadImageAsync(new byte[] { 0x01 }, "pic.jpg");
+        // Act & Assert
+        await _client.Invoking(c => c.UploadImageAsync(new byte[] { 0x01 }, "pic.jpg"))
+            .Should().ThrowAsync<HttpRequestException>();
 
-        // Assert
-        result.Cid.Should().Be("Qm2");
-        _mockHandler.Requests.Should().HaveCount(2, "should retry after network error");
+        _mockHandler.Requests.Should().HaveCount(1, "non-idempotent uploads must not be retried");
     }
 
     // ---- RecordEventAsync ----
@@ -206,5 +204,44 @@ public class InfrastructureApiClientTests : IDisposable
     {
         var act = () => new InfrastructureApiClient("not-a-url");
         act.Should().Throw<ArgumentException>();
+    }
+
+    [Fact]
+    public async Task AuthenticateAsync_SeparateAsyncFlows_KeepSeparateAuthorizationHeaders()
+    {
+        // Arrange
+        _mockHandler.QueueJsonResponse(HttpStatusCode.OK, JsonSerializer.Serialize(new InfraAuthResponse("token-1")));
+        _mockHandler.QueueJsonResponse(HttpStatusCode.OK, JsonSerializer.Serialize(new InfraAuthResponse("token-2")));
+        _mockHandler.QueueJsonResponse(HttpStatusCode.OK, JsonSerializer.Serialize(new HealthResponse("ok", true, true, true)));
+        _mockHandler.QueueJsonResponse(HttpStatusCode.OK, JsonSerializer.Serialize(new HealthResponse("ok", true, true, true)));
+
+        var firstAuthenticated = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var secondAuthenticated = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        var flowOne = Task.Run(async () =>
+        {
+            (await _client.AuthenticateAsync("user-1", "password-1")).Should().BeTrue();
+            firstAuthenticated.SetResult();
+            await secondAuthenticated.Task;
+            await _client.GetHealthAsync();
+        });
+
+        var flowTwo = Task.Run(async () =>
+        {
+            await firstAuthenticated.Task;
+            (await _client.AuthenticateAsync("user-2", "password-2")).Should().BeTrue();
+            secondAuthenticated.SetResult();
+            await _client.GetHealthAsync();
+        });
+
+        await Task.WhenAll(flowOne, flowTwo);
+
+        var healthRequests = _mockHandler.Requests
+            .Where(r => r.RequestUri?.AbsolutePath == "/health")
+            .ToList();
+
+        healthRequests.Should().HaveCount(2);
+        healthRequests[0].Headers.Authorization?.Parameter.Should().Be("token-1");
+        healthRequests[1].Headers.Authorization?.Parameter.Should().Be("token-2");
     }
 }

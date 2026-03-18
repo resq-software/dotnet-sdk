@@ -23,12 +23,11 @@ namespace ResQ.Clients;
 /// <summary>
 /// HTTP client for coordination-hce (Node.js/Elysia) service.
 /// Provides methods to send telemetry, report incidents, and query fleet status.
-/// Inherits resilience patterns (retry, circuit breaker, timeout) from BaseServiceClient.
+/// Inherits resilience patterns from <see cref="BaseServiceClient"/>.
 /// </summary>
 public class CoordinationHceClient : BaseServiceClient
 {
     protected override string ServiceName => "Coordination HCE";
-    private string? _jwtToken;
 
     public CoordinationHceClient(string baseUrl = "http://localhost:3000", HttpMessageHandler? handler = null, ILogger? logger = null)
         : base(baseUrl, handler, logger)
@@ -48,41 +47,38 @@ public class CoordinationHceClient : BaseServiceClient
             if (!response.IsSuccessStatusCode)
             {
                 // P6-SI-01: clear stale credentials on 401/403 — symmetric with exception path
-                _jwtToken = null;
-                Http.DefaultRequestHeaders.Authorization = null;
+                AuthorizationHeader = null;
                 return false;
             }
 
             var result = await response.Content.ReadFromJsonAsync<AuthResponse>()
                 .ConfigureAwait(false);
-            _jwtToken = result?.Token;
+            var jwtToken = result?.Token;
 
-            if (_jwtToken != null)
+            if (jwtToken != null)
             {
-                Http.DefaultRequestHeaders.Authorization =
-                    new AuthenticationHeaderValue("Bearer", _jwtToken);
+                AuthorizationHeader = new AuthenticationHeaderValue("Bearer", jwtToken);
             }
             else
             {
                 // Clear any stale token from a previous successful auth
-                Http.DefaultRequestHeaders.Authorization = null;
+                AuthorizationHeader = null;
             }
 
-            return _jwtToken != null;
+            return jwtToken != null;
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
             // P4-SI-01: clear stale token on any auth failure so subsequent requests
             // don't silently use an expired/revoked credential
-            _jwtToken = null;
-            Http.DefaultRequestHeaders.Authorization = null;
+            AuthorizationHeader = null;
             return false;
         }
     }
 
     /// <summary>
     /// Sends a batch of telemetry packets from a drone.
-    /// Includes retry logic with exponential backoff for transient failures.
+    /// Uses timeout and circuit-breaker handling without replaying the mutation on failure.
     /// </summary>
     public async Task SendTelemetryBatchAsync(TelemetryBatchRequest batch)
     {
@@ -100,8 +96,10 @@ public class CoordinationHceClient : BaseServiceClient
             throw new ArgumentException("Packets cannot be null or empty", nameof(batch.Packets));
         }
 
-        var response = await ExecuteWithResilienceAsync(
-            ct => Http.PostAsJsonAsync("/v1/telemetry/batch", batch, ct))
+        var response = await SendAsync(
+            HttpMethod.Post,
+            "/v1/telemetry/batch",
+            JsonContent.Create(batch))
             .ConfigureAwait(false);
 
         response.EnsureSuccessStatusCode();
@@ -109,7 +107,7 @@ public class CoordinationHceClient : BaseServiceClient
 
     /// <summary>
     /// Reports an incident to HCE.
-    /// Includes retry logic with exponential backoff for transient failures.
+    /// Uses timeout and circuit-breaker handling without replaying the mutation on failure.
     /// </summary>
     public async Task<IncidentAck> ReportIncidentAsync(ReportIncidentRequest incident)
     {
@@ -135,8 +133,10 @@ public class CoordinationHceClient : BaseServiceClient
                 "Longitude must be between -180 and 180 degrees");
         }
 
-        var response = await ExecuteWithResilienceAsync(
-            ct => Http.PostAsJsonAsync("/v1/incident", incident, ct))
+        var response = await SendAsync(
+            HttpMethod.Post,
+            "/v1/incident",
+            JsonContent.Create(incident))
             .ConfigureAwait(false);
 
         response.EnsureSuccessStatusCode();
@@ -147,7 +147,7 @@ public class CoordinationHceClient : BaseServiceClient
 
     /// <summary>
     /// Gets the status of a fleet.
-    /// Includes retry logic with exponential backoff for transient failures.
+    /// Includes retry logic for transient read failures.
     /// </summary>
     public async Task<FleetStatus> GetFleetStatusAsync(string fleetId)
     {
@@ -156,8 +156,9 @@ public class CoordinationHceClient : BaseServiceClient
         if (string.IsNullOrWhiteSpace(fleetId))
             throw new ArgumentException("fleetId cannot be empty", nameof(fleetId));
 
-        var response = await ExecuteWithResilienceAsync(
-            ct => Http.GetAsync($"/fleet/{Uri.EscapeDataString(fleetId)}", ct))
+        var response = await SendAsync(
+            HttpMethod.Get,
+            $"/fleet/{Uri.EscapeDataString(fleetId)}")
             .ConfigureAwait(false);
 
         response.EnsureSuccessStatusCode();
@@ -168,12 +169,11 @@ public class CoordinationHceClient : BaseServiceClient
 
     /// <summary>
     /// Gets HCE health status.
-    /// Includes retry logic with exponential backoff for transient failures.
+    /// Includes retry logic for transient read failures.
     /// </summary>
     public async Task<HceHealthResponse> GetHealthAsync()
     {
-        var response = await ExecuteWithResilienceAsync(
-            ct => Http.GetAsync("/health", ct))
+        var response = await SendAsync(HttpMethod.Get, "/health")
             .ConfigureAwait(false);
 
         response.EnsureSuccessStatusCode();

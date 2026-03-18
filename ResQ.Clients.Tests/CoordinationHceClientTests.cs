@@ -75,7 +75,7 @@ public class CoordinationHceClientTests : IDisposable
     }
 
     [Fact]
-    public async Task SendTelemetryBatchAsync_NetworkError_RetriesAndSucceeds()
+    public async Task SendTelemetryBatchAsync_NetworkError_DoesNotRetryAndThrows()
     {
         // Arrange
         _mockHandler.QueueNetworkError();
@@ -89,11 +89,11 @@ public class CoordinationHceClientTests : IDisposable
             }
         );
 
-        // Act
-        await _client.SendTelemetryBatchAsync(batch);
+        // Act & Assert
+        await _client.Invoking(c => c.SendTelemetryBatchAsync(batch))
+            .Should().ThrowAsync<HttpRequestException>();
 
-        // Assert
-        _mockHandler.Requests.Should().HaveCount(2, "should retry after network error");
+        _mockHandler.Requests.Should().HaveCount(1, "non-idempotent telemetry posts must not be retried");
     }
 
     [Fact]
@@ -123,7 +123,7 @@ public class CoordinationHceClientTests : IDisposable
     }
 
     [Fact]
-    public async Task ReportIncidentAsync_500Error_RetriesAndSucceeds()
+    public async Task ReportIncidentAsync_500Error_DoesNotRetryAndThrows()
     {
         // Arrange
         _mockHandler.QueueJsonResponse(HttpStatusCode.InternalServerError, "Server error");
@@ -136,12 +136,11 @@ public class CoordinationHceClientTests : IDisposable
             Description: "Fire detected"
         );
 
-        // Act
-        var result = await _client.ReportIncidentAsync(incident);
+        // Act & Assert
+        await _client.Invoking(c => c.ReportIncidentAsync(incident))
+            .Should().ThrowAsync<HttpRequestException>();
 
-        // Assert
-        result.IncidentId.Should().Be("inc-001");
-        _mockHandler.Requests.Should().HaveCount(2, "should retry 5xx errors");
+        _mockHandler.Requests.Should().HaveCount(1, "non-idempotent incident reports must not be retried");
     }
 
     [Fact]
@@ -234,5 +233,44 @@ public class CoordinationHceClientTests : IDisposable
         await _client.Invoking(c => c.ReportIncidentAsync(incident))
             .Should().ThrowAsync<ArgumentOutOfRangeException>()
             .WithMessage("*Longitude*between -180 and 180*");
+    }
+
+    [Fact]
+    public async Task AuthenticateAsync_SeparateAsyncFlows_KeepSeparateAuthorizationHeaders()
+    {
+        // Arrange
+        _mockHandler.QueueJsonResponse(HttpStatusCode.OK, JsonSerializer.Serialize(new AuthResponse("token-1")));
+        _mockHandler.QueueJsonResponse(HttpStatusCode.OK, JsonSerializer.Serialize(new AuthResponse("token-2")));
+        _mockHandler.QueueJsonResponse(HttpStatusCode.OK, JsonSerializer.Serialize(new HceHealthResponse("ok")));
+        _mockHandler.QueueJsonResponse(HttpStatusCode.OK, JsonSerializer.Serialize(new HceHealthResponse("ok")));
+
+        var firstAuthenticated = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var secondAuthenticated = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        var flowOne = Task.Run(async () =>
+        {
+            (await _client.AuthenticateAsync("user-1", "password-1")).Should().BeTrue();
+            firstAuthenticated.SetResult();
+            await secondAuthenticated.Task;
+            await _client.GetHealthAsync();
+        });
+
+        var flowTwo = Task.Run(async () =>
+        {
+            await firstAuthenticated.Task;
+            (await _client.AuthenticateAsync("user-2", "password-2")).Should().BeTrue();
+            secondAuthenticated.SetResult();
+            await _client.GetHealthAsync();
+        });
+
+        await Task.WhenAll(flowOne, flowTwo);
+
+        var healthRequests = _mockHandler.Requests
+            .Where(r => r.RequestUri?.AbsolutePath == "/health")
+            .ToList();
+
+        healthRequests.Should().HaveCount(2);
+        healthRequests[0].Headers.Authorization?.Parameter.Should().Be("token-1");
+        healthRequests[1].Headers.Authorization?.Parameter.Should().Be("token-2");
     }
 }
