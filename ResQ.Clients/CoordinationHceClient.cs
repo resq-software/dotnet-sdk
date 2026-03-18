@@ -45,7 +45,13 @@ public class CoordinationHceClient : BaseServiceClient
             var response = await Http.PostAsJsonAsync("/auth/login", new { username, password })
                 .ConfigureAwait(false);
 
-            if (!response.IsSuccessStatusCode) return false;
+            if (!response.IsSuccessStatusCode)
+            {
+                // P6-SI-01: clear stale credentials on 401/403 — symmetric with exception path
+                _jwtToken = null;
+                Http.DefaultRequestHeaders.Authorization = null;
+                return false;
+            }
 
             var result = await response.Content.ReadFromJsonAsync<AuthResponse>()
                 .ConfigureAwait(false);
@@ -56,12 +62,20 @@ public class CoordinationHceClient : BaseServiceClient
                 Http.DefaultRequestHeaders.Authorization =
                     new AuthenticationHeaderValue("Bearer", _jwtToken);
             }
+            else
+            {
+                // Clear any stale token from a previous successful auth
+                Http.DefaultRequestHeaders.Authorization = null;
+            }
 
-            return true;
+            return _jwtToken != null;
         }
-        catch
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            // Auth endpoint might not exist (not enabled)
+            // P4-SI-01: clear stale token on any auth failure so subsequent requests
+            // don't silently use an expired/revoked credential
+            _jwtToken = null;
+            Http.DefaultRequestHeaders.Authorization = null;
             return false;
         }
     }
@@ -137,8 +151,13 @@ public class CoordinationHceClient : BaseServiceClient
     /// </summary>
     public async Task<FleetStatus> GetFleetStatusAsync(string fleetId)
     {
+        // P5-F01: validate and URL-encode fleetId
+        ArgumentNullException.ThrowIfNull(fleetId);
+        if (string.IsNullOrWhiteSpace(fleetId))
+            throw new ArgumentException("fleetId cannot be empty", nameof(fleetId));
+
         var response = await ExecuteWithResilienceAsync(
-            ct => Http.GetAsync($"/fleet/{fleetId}", ct))
+            ct => Http.GetAsync($"/fleet/{Uri.EscapeDataString(fleetId)}", ct))
             .ConfigureAwait(false);
 
         response.EnsureSuccessStatusCode();

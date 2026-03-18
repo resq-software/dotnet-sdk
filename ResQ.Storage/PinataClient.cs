@@ -199,6 +199,13 @@ public class PinataClient : IStorageClient
             _httpClient.DefaultRequestHeaders.Add("pinata_api_key", _options.ApiKey);
             _httpClient.DefaultRequestHeaders.Add("pinata_secret_api_key", _options.ApiSecret);
         }
+        else if (!_options.MockMode)
+        {
+            // N15: fail fast rather than silently sending unauthenticated requests to Pinata
+            throw new InvalidOperationException(
+                "Pinata credentials are required when MockMode is false. " +
+                "Set JwtToken or both ApiKey and ApiSecret in PinataOptions.");
+        }
     }
 
     /// <inheritdoc />
@@ -223,12 +230,11 @@ public class PinataClient : IStorageClient
             throw new ArgumentException("File name cannot be empty", nameof(fileName));
         }
 
-        // File size validation (max 5GB as per Pinata limits)
-        const long MaxFileSize = 5L * 1024 * 1024 * 1024; // 5GB
-        if (content.CanSeek && content.Length > MaxFileSize)
+        // File size validation — uses the configured limit from PinataOptions.MaxFileSizeBytes
+        if (content.CanSeek && content.Length > _options.MaxFileSizeBytes)
         {
             throw new ArgumentException(
-                $"File size ({content.Length / 1024.0 / 1024.0:F2} MB) exceeds maximum allowed size (5GB)",
+                $"File size ({content.Length / 1024.0 / 1024.0:F2} MB) exceeds maximum allowed size ({_options.MaxFileSizeBytes / 1024.0 / 1024.0:F0} MB)",
                 nameof(content));
         }
 
@@ -237,37 +243,55 @@ public class PinataClient : IStorageClient
             return await MockUploadAsync(content, fileName, contentType, metadata).ConfigureAwait(false);
         }
 
-        using var formContent = new MultipartFormDataContent();
+        // P3-F06: Buffer stream to bytes before the resilience pipeline.
+        // StreamContent wrapping a Stream is consumed after the first send attempt — Polly retries
+        // would re-send an exhausted stream (EOF), uploading zero bytes silently.
+        using var ms = new MemoryStream();
+        await content.CopyToAsync(ms, cancellationToken).ConfigureAwait(false);
+        var contentBytes = ms.ToArray();
 
-        var streamContent = new StreamContent(content);
-        streamContent.Headers.ContentType = new MediaTypeHeaderValue(contentType);
-        formContent.Add(streamContent, "file", fileName);
+        // Validate actual buffered size (also catches non-seekable streams skipped by the early check)
+        if (contentBytes.LongLength > _options.MaxFileSizeBytes)
+        {
+            throw new ArgumentException(
+                $"File size ({contentBytes.LongLength / 1024.0 / 1024.0:F2} MB) exceeds maximum allowed size ({_options.MaxFileSizeBytes / 1024.0 / 1024.0:F0} MB)",
+                nameof(content));
+        }
 
+        // Serialize metadata once outside the retry loop (immutable string is safe to reuse)
+        string? pinataMetadataJson = null;
         if (metadata != null)
         {
-            var pinataMetadata = new PinataMetadataRequest
-            {
-                Name = fileName,
-                KeyValues = metadata
-            };
-            formContent.Add(
-                new StringContent(JsonSerializer.Serialize(pinataMetadata)),
-                "pinataMetadata");
+            var pinataMetadata = new PinataMetadataRequest { Name = fileName, KeyValues = metadata };
+            pinataMetadataJson = JsonSerializer.Serialize(pinataMetadata);
         }
 
         // Use resilience pipeline for retry and circuit breaker
         var response = await _resiliencePipeline.ExecuteAsync(
-            async ct => await _httpClient.PostAsync("/pinning/pinFileToIPFS", formContent, ct).ConfigureAwait(false),
+            async ct =>
+            {
+                // Fresh MultipartFormDataContent per attempt — ByteArrayContent is reusable across retries
+                var freshForm = new MultipartFormDataContent();
+                var sc = new ByteArrayContent(contentBytes);
+                sc.Headers.ContentType = new MediaTypeHeaderValue(contentType);
+                freshForm.Add(sc, "file", fileName);
+                if (pinataMetadataJson != null)
+                {
+                    freshForm.Add(new StringContent(pinataMetadataJson), "pinataMetadata");
+                }
+                return await _httpClient.PostAsync("/pinning/pinFileToIPFS", freshForm, ct).ConfigureAwait(false);
+            },
             cancellationToken).ConfigureAwait(false);
 
         response.EnsureSuccessStatusCode();
 
         var result = await response.Content.ReadFromJsonAsync<PinataUploadResponse>(
-            cancellationToken: cancellationToken).ConfigureAwait(false);
+            cancellationToken: cancellationToken).ConfigureAwait(false)
+            ?? throw new InvalidOperationException("Upload response was null");
 
         _logger.LogInformation(
             "Uploaded {FileName} to IPFS, CID: {Cid}, Size: {Size}",
-            fileName, result!.IpfsHash, result.PinSize);
+            fileName, result.IpfsHash, result.PinSize);
 
         return new UploadResult(
             result.IpfsHash,
@@ -303,6 +327,10 @@ public class PinataClient : IStorageClient
         string cid,
         CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(cid);
+        if (string.IsNullOrWhiteSpace(cid))
+            throw new ArgumentException("CID cannot be empty", nameof(cid));
+
         if (_options.MockMode)
         {
             _logger.LogInformation("MOCK: Retrieving CID {Cid}", cid);
@@ -325,6 +353,10 @@ public class PinataClient : IStorageClient
         string cid,
         CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(cid);
+        if (string.IsNullOrWhiteSpace(cid))
+            throw new ArgumentException("CID cannot be empty", nameof(cid));
+
         if (_options.MockMode)
         {
             _logger.LogInformation("MOCK: Checking pin status for {Cid}", cid);
@@ -332,7 +364,7 @@ public class PinataClient : IStorageClient
         }
 
         var response = await _httpClient.GetAsync(
-            $"/data/pinList?hashContains={cid}",
+            $"/data/pinList?hashContains={Uri.EscapeDataString(cid)}",
             cancellationToken).ConfigureAwait(false);
 
         if (!response.IsSuccessStatusCode)
@@ -353,6 +385,10 @@ public class PinataClient : IStorageClient
         string cid,
         CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(cid);
+        if (string.IsNullOrWhiteSpace(cid))
+            throw new ArgumentException("CID cannot be empty", nameof(cid));
+
         if (_options.MockMode)
         {
             _logger.LogInformation("MOCK: Unpinning {Cid}", cid);
@@ -360,7 +396,7 @@ public class PinataClient : IStorageClient
         }
 
         var response = await _httpClient.DeleteAsync(
-            $"/pinning/unpin/{cid}",
+            $"/pinning/unpin/{Uri.EscapeDataString(cid)}",
             cancellationToken).ConfigureAwait(false);
 
         if (response.IsSuccessStatusCode)
@@ -383,6 +419,9 @@ public class PinataClient : IStorageClient
         int limit = 100,
         CancellationToken cancellationToken = default)
     {
+        if (limit <= 0 || limit > 1000)
+            throw new ArgumentOutOfRangeException(nameof(limit), limit, "Limit must be between 1 and 1000");
+
         if (_options.MockMode)
         {
             _logger.LogInformation("MOCK: Listing pins with prefix {Prefix}", namePrefix);
@@ -417,7 +456,7 @@ public class PinataClient : IStorageClient
     /// </remarks>
     public string GetGatewayUrl(string cid)
     {
-        return $"{_options.GatewayUrl}/ipfs/{cid}";
+        return $"{_options.GatewayUrl}/ipfs/{Uri.EscapeDataString(cid)}";
     }
 
     /// <summary>

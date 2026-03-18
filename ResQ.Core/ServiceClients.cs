@@ -60,6 +60,8 @@ public sealed class HceClient : IDisposable
         TelemetryPacket packet,
         CancellationToken ct = default)
     {
+        ArgumentNullException.ThrowIfNull(packet, nameof(packet));
+
         var json = JsonSerializer.Serialize(packet);
         var content = new StringContent(json, Encoding.UTF8, "application/json");
 
@@ -80,6 +82,10 @@ public sealed class HceClient : IDisposable
         string droneId,
         CancellationToken ct = default)
     {
+        // P5-F02: validate inputs before serialization
+        ArgumentNullException.ThrowIfNull(detection, nameof(detection));
+        ArgumentNullException.ThrowIfNull(droneId, nameof(droneId));
+
         var payload = new { detection, droneId };
         var json = JsonSerializer.Serialize(payload);
         var content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -135,7 +141,7 @@ public sealed class PdieClient : IDisposable
         CancellationToken ct = default)
     {
         var url = sectorId != null
-            ? $"/api/v1/alerts?sector={sectorId}"
+            ? $"/api/v1/alerts?sector={Uri.EscapeDataString(sectorId)}"
             : "/api/v1/alerts";
 
         var response = await _httpClient.GetAsync(url, ct).ConfigureAwait(false);
@@ -188,7 +194,7 @@ public sealed class DtsopClient : IDisposable
         CancellationToken ct = default)
     {
         var response = await _httpClient.GetAsync(
-            $"/api/v1/strategies/{scenarioId}", ct).ConfigureAwait(false);
+            $"/api/v1/strategies/{Uri.EscapeDataString(scenarioId)}", ct).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
 
         var json = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);

@@ -67,6 +67,8 @@ public sealed class NeoClient : IDisposable
         BlockchainEvent evt,
         CancellationToken ct = default)
     {
+        ArgumentNullException.ThrowIfNull(evt, nameof(evt));
+
         if (_config.MockMode)
         {
             await Task.Delay(100, ct).ConfigureAwait(false);
@@ -114,6 +116,10 @@ public sealed class NeoClient : IDisposable
         DateTimeOffset timestamp,
         CancellationToken ct = default)
     {
+        // P5-F04: validate inputs before use
+        ArgumentNullException.ThrowIfNull(droneId, nameof(droneId));
+        ArgumentNullException.ThrowIfNull(location, nameof(location));
+
         if (_config.MockMode)
         {
             await Task.Delay(50, ct).ConfigureAwait(false);
@@ -152,9 +158,14 @@ public sealed class NeoClient : IDisposable
         string evidenceType,
         CancellationToken ct = default)
     {
+        // P5-F03: validate inputs before building the event
+        ArgumentNullException.ThrowIfNull(incidentId, nameof(incidentId));
+        ArgumentNullException.ThrowIfNull(evidenceCid, nameof(evidenceCid));
+        ArgumentNullException.ThrowIfNull(evidenceType, nameof(evidenceType));
+
         var evt = new BlockchainEvent
         {
-            EventId = $"ev-{incidentId}-{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}",
+            EventId = $"ev-{incidentId}-{Guid.NewGuid():N}",
             EventType = BlockchainEventType.EvidenceSubmitted,
             EvidenceCid = evidenceCid,
             Metadata = new Dictionary<string, object>
@@ -177,6 +188,9 @@ public sealed class NeoClient : IDisposable
         string txHash,
         CancellationToken ct = default)
     {
+        // P5-F05: validate txHash before use
+        ArgumentNullException.ThrowIfNull(txHash, nameof(txHash));
+
         if (_config.MockMode)
         {
             await Task.Delay(50, ct).ConfigureAwait(false);
@@ -197,7 +211,7 @@ public sealed class NeoClient : IDisposable
                        TransactionStatus.Pending;
             }
         }
-        catch
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             // Transaction not yet included in a block
         }
@@ -225,15 +239,16 @@ public sealed class NeoClient : IDisposable
         response.EnsureSuccessStatusCode();
 
         var responseJson = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
-        var doc = JsonDocument.Parse(responseJson);
+        using var doc = JsonDocument.Parse(responseJson);
 
         if (doc.RootElement.TryGetProperty("error", out var error))
         {
-            var message = error.GetProperty("message").GetString();
+            var message = error.TryGetProperty("message", out var msg) ? msg.GetString() : "unknown error";
             throw new InvalidOperationException($"Neo RPC error: {message}");
         }
 
-        return doc.RootElement.GetProperty("result");
+        // Clone before disposing doc so the returned JsonElement owns its own backing memory
+        return doc.RootElement.GetProperty("result").Clone();
     }
 
     /// <inheritdoc />

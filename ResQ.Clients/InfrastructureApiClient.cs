@@ -45,7 +45,12 @@ public class InfrastructureApiClient : BaseServiceClient
             var response = await Http.PostAsJsonAsync("/login", new { username, password })
                 .ConfigureAwait(false);
 
-            if (!response.IsSuccessStatusCode) return false;
+            if (!response.IsSuccessStatusCode)
+            {
+                // P6-SI-01: clear stale Authorization on non-success — symmetric with exception path
+                Http.DefaultRequestHeaders.Authorization = null;
+                return false;
+            }
 
             var result = await response.Content.ReadFromJsonAsync<InfraAuthResponse>()
                 .ConfigureAwait(false);
@@ -57,10 +62,13 @@ public class InfrastructureApiClient : BaseServiceClient
                 return true;
             }
 
+            Http.DefaultRequestHeaders.Authorization = null; // N5: clear stale token on re-auth failure
             return false;
         }
-        catch
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
+            // P4-SI-02: clear stale Authorization header on any auth failure
+            Http.DefaultRequestHeaders.Authorization = null;
             return false;
         }
     }
@@ -71,11 +79,22 @@ public class InfrastructureApiClient : BaseServiceClient
     /// </summary>
     public async Task<UploadResponse> UploadImageAsync(byte[] imageData, string fileName)
     {
-        using var content = new MultipartFormDataContent();
-        content.Add(new ByteArrayContent(imageData), "file", fileName);
+        ArgumentNullException.ThrowIfNull(imageData, nameof(imageData));
+        ArgumentNullException.ThrowIfNull(fileName, nameof(fileName));
 
-        var response = await ExecuteWithResilienceAsync(
-            ct => Http.PostAsync("/uploadImage", content, ct))
+        if (imageData.Length == 0)
+            throw new ArgumentException("Image data cannot be empty", nameof(imageData));
+
+        if (string.IsNullOrWhiteSpace(fileName))
+            throw new ArgumentException("File name cannot be empty", nameof(fileName));
+
+        // N6: create fresh MultipartFormDataContent inside the lambda so retries don't re-send a consumed body
+        var response = await ExecuteWithResilienceAsync(ct =>
+            {
+                var freshContent = new MultipartFormDataContent();
+                freshContent.Add(new ByteArrayContent(imageData), "file", fileName);
+                return Http.PostAsync("/uploadImage", freshContent, ct);
+            })
             .ConfigureAwait(false);
 
         response.EnsureSuccessStatusCode();
@@ -91,6 +110,8 @@ public class InfrastructureApiClient : BaseServiceClient
     /// </summary>
     public async Task<BlockchainEventResponse> RecordEventAsync(BlockchainEventRequest evt)
     {
+        ArgumentNullException.ThrowIfNull(evt, nameof(evt));
+
         var response = await ExecuteWithResilienceAsync(
             ct => Http.PostAsJsonAsync("/blockchain/events", new
             {
@@ -115,6 +136,8 @@ public class InfrastructureApiClient : BaseServiceClient
     /// </summary>
     public async Task<IncidentResponse> CreateIncidentAsync(CreateIncidentRequest request)
     {
+        ArgumentNullException.ThrowIfNull(request, nameof(request));
+
         var response = await ExecuteWithResilienceAsync(
             ct => Http.PostAsJsonAsync("/incidents", request, ct))
             .ConfigureAwait(false);

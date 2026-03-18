@@ -16,6 +16,7 @@
 
 using System.Collections.Concurrent;
 using System.Security.Cryptography;
+using System.Text.Json;
 using Microsoft.Extensions.Logging;
 
 namespace ResQ.Blockchain;
@@ -47,8 +48,8 @@ namespace ResQ.Blockchain;
 public class MockNeoClient : INeoClient
 {
     private readonly ILogger<MockNeoClient> _logger;
-    private readonly ConcurrentDictionary<string, List<BlockchainEvent>> _eventsByIncident = new();
-    private ulong _blockHeight = 1000000;
+    private readonly ConcurrentDictionary<string, ConcurrentBag<BlockchainEvent>> _eventsByIncident = new();
+    private long _blockHeight = 1000000;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="MockNeoClient"/> class.
@@ -104,29 +105,24 @@ public class MockNeoClient : INeoClient
         BlockchainEvent evt,
         CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(evt, nameof(evt));
         cancellationToken.ThrowIfCancellationRequested();
 
         var txHash = GenerateTxHash();
-        _blockHeight++;
+        var blockHeight = (ulong)Interlocked.Increment(ref _blockHeight);
 
         _logger.LogInformation(
             "MOCK: Recorded event {EventId} of type {EventType}, TxHash: {TxHash}",
             evt.EventId, evt.EventType, txHash);
 
-        // Extract incident ID from payload if present
-        if (!string.IsNullOrEmpty(evt.Payload) && evt.Payload.Contains("incident"))
-        {
-            var incidentId = ExtractIncidentId(evt.Payload) ?? evt.EventId;
-            _eventsByIncident.AddOrUpdate(
-                incidentId,
-                _ => new List<BlockchainEvent> { evt },
-                (_, list) => { list.Add(evt); return list; });
-        }
+        // Index by incident ID extracted from payload, falling back to EventId
+        var incidentId = ExtractIncidentId(evt.Payload) ?? evt.EventId;
+        _eventsByIncident.GetOrAdd(incidentId, _ => new ConcurrentBag<BlockchainEvent>()).Add(evt);
 
         return Task.FromResult(new TransactionResult(
             txHash,
             IsConfirmed: true,
-            _blockHeight,
+            blockHeight,
             DateTimeOffset.UtcNow));
     }
 
@@ -176,7 +172,7 @@ public class MockNeoClient : INeoClient
                 "Longitude must be between -180 and 180 degrees");
 
         var txHash = GenerateTxHash();
-        _blockHeight++;
+        var blockHeight = (ulong)Interlocked.Increment(ref _blockHeight);
 
         _logger.LogInformation(
             "MOCK: Recorded location attestation for {DroneId} at ({Lat}, {Lon}), TxHash: {TxHash}",
@@ -185,7 +181,7 @@ public class MockNeoClient : INeoClient
         return Task.FromResult(new TransactionResult(
             txHash,
             IsConfirmed: true,
-            _blockHeight,
+            blockHeight,
             DateTimeOffset.UtcNow));
     }
 
@@ -274,17 +270,28 @@ public class MockNeoClient : INeoClient
         EvidenceRecord evidence,
         CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(evidence, nameof(evidence));
+
         var txHash = GenerateTxHash();
-        _blockHeight++;
+        var blockHeight = (ulong)Interlocked.Increment(ref _blockHeight);
 
         _logger.LogInformation(
             "MOCK: Recorded evidence for incident {IncidentId}, CID: {Cid}, TxHash: {TxHash}",
             evidence.IncidentId, evidence.IpfsCid, txHash);
 
+        // Index the evidence event under its incident ID so GetEventsByIncidentAsync can find it
+        var evidenceEvent = new BlockchainEvent(
+            EventId: txHash,
+            EventType: "EvidenceRecorded",
+            Payload: JsonSerializer.Serialize(new { evidence.IncidentId, evidence.IpfsCid, evidence.ContentType }),
+            IpfsCid: evidence.IpfsCid,
+            Timestamp: DateTimeOffset.UtcNow);
+        _eventsByIncident.GetOrAdd(evidence.IncidentId, _ => new ConcurrentBag<BlockchainEvent>()).Add(evidenceEvent);
+
         return Task.FromResult(new TransactionResult(
             txHash,
             IsConfirmed: true,
-            _blockHeight,
+            blockHeight,
             DateTimeOffset.UtcNow));
     }
 
@@ -316,9 +323,11 @@ public class MockNeoClient : INeoClient
         string incidentId,
         CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(incidentId, nameof(incidentId));
+
         if (_eventsByIncident.TryGetValue(incidentId, out var events))
         {
-            return Task.FromResult<IReadOnlyList<BlockchainEvent>>(events.AsReadOnly());
+            return Task.FromResult<IReadOnlyList<BlockchainEvent>>(events.ToArray());
         }
 
         return Task.FromResult<IReadOnlyList<BlockchainEvent>>(Array.Empty<BlockchainEvent>());
@@ -346,7 +355,7 @@ public class MockNeoClient : INeoClient
     /// </example>
     public Task<ulong> GetBlockHeightAsync(CancellationToken cancellationToken = default)
     {
-        return Task.FromResult(_blockHeight);
+        return Task.FromResult((ulong)Interlocked.Read(ref _blockHeight));
     }
 
     /// <summary>
@@ -367,29 +376,27 @@ public class MockNeoClient : INeoClient
     /// Extracts an incident ID from a JSON payload string.
     /// </summary>
     /// <param name="payload">The JSON payload to parse.</param>
-    /// <returns>The extracted incident ID, or null if not found.</returns>
-    /// <remarks>
-    /// This is a simple string-based extraction that looks for the pattern "incident":"value" or "incidentId":"value"
-    /// in the payload. In production, proper JSON parsing should be used.
-    /// </remarks>
-    private static string? ExtractIncidentId(string payload)
+    /// <returns>The extracted incident ID from "incidentId" or "incident" fields, or null if not found.</returns>
+    private static string? ExtractIncidentId(string? payload)
     {
-        // Simple extraction - in production would use proper JSON parsing
-        var startIndex = payload.IndexOf("incident", StringComparison.OrdinalIgnoreCase);
-        if (startIndex < 0) return null;
+        if (string.IsNullOrEmpty(payload)) return null;
 
-        var colonIndex = payload.IndexOf(':', startIndex);
-        if (colonIndex < 0) return null;
+        try
+        {
+            using var doc = JsonDocument.Parse(payload);
+            var root = doc.RootElement;
 
-        // Skip whitespace and opening quote
-        var valueStart = colonIndex + 1;
-        while (valueStart < payload.Length && (char.IsWhiteSpace(payload[valueStart]) || payload[valueStart] == '"'))
-            valueStart++;
+            if (root.TryGetProperty("incidentId", out var incidentId))
+                return incidentId.GetString();
 
-        // Find the closing quote or end delimiter
-        var valueEnd = payload.IndexOfAny(new[] { '"', ',', '}' }, valueStart);
-        if (valueEnd < 0) valueEnd = payload.Length;
+            if (root.TryGetProperty("incident", out var incident))
+                return incident.GetString();
 
-        return payload[valueStart..valueEnd].Trim();
+            return null;
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
     }
 }

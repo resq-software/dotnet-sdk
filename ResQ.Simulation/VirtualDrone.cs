@@ -52,7 +52,7 @@ public class VirtualDrone
     private Location _location;
     private double _batteryPercent = 100.0;
     private string _flightMode = "IDLE";
-    private bool _isRunning = false;
+    private volatile bool _isRunning = false;
     private int _telemetryCount = 0;
     private int _detectionCount = 0;
 
@@ -149,7 +149,7 @@ public class VirtualDrone
 
                 await Task.Delay(TELEMETRY_INTERVAL_MS, ct);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 Console.WriteLine($"[{_droneId}] ❌ Error in main loop: {ex.Message}");
                 await Task.Delay(ERROR_RETRY_DELAY_MS, ct); // Continue despite errors
@@ -168,8 +168,8 @@ public class VirtualDrone
         var currentAlt = _location.Altitude ?? MIN_ALTITUDE_METERS;
 
         _location = new Location(
-            _location.Latitude + latDelta,
-            _location.Longitude + lonDelta,
+            Math.Clamp(_location.Latitude + latDelta, -90.0, 90.0),
+            Math.Clamp(_location.Longitude + lonDelta, -180.0, 180.0),
             Math.Clamp(currentAlt + altDelta, MIN_ALTITUDE_METERS, MAX_ALTITUDE_METERS)
         );
     }
@@ -201,7 +201,7 @@ public class VirtualDrone
                 Console.WriteLine($"[{_droneId}] 📡 Telemetry: ({_location.Latitude:F6},{_location.Longitude:F6}) | {_batteryPercent:F1}% | {_flightMode}");
             }
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             Console.WriteLine($"[{_droneId}] ❌ Telemetry failed: {ex.Message}");
         }
@@ -246,7 +246,7 @@ public class VirtualDrone
 
             _detectionCount++;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             Console.WriteLine($"[{_droneId}] ❌ Detection processing failed: {ex.Message}");
         }

@@ -31,7 +31,7 @@ public class ScenarioRunner
     private const double MAX_LATITUDE = 90.0;
     private const double MIN_LONGITUDE = -180.0;
     private const double MAX_LONGITUDE = 180.0;
-    private const double MIN_ALTITUDE = 0.0;
+    private const double MIN_ALTITUDE = 10.0; // N19: matches VirtualDrone.MIN_ALTITUDE_METERS to prevent false-valid then constructor crash
     private const double MAX_ALTITUDE = 500.0; // 500m max altitude
 
     private readonly CoordinationHceClient _hce;
@@ -203,6 +203,7 @@ public class ScenarioRunner
             await semaphore.WaitAsync();
 
             var droneId = $"stress-{i:D3}";
+            var capturedI = i; // capture loop variable before Task.Run to avoid closure bug
             var task = Task.Run(async () =>
             {
                 try
@@ -210,8 +211,8 @@ public class ScenarioRunner
                     var drone = new VirtualDrone(
                         droneId,
                         new Location(
-                            37.77 + (i % 10) * 0.01,
-                            -122.41 + (i / 10) * 0.01,
+                            37.77 + (capturedI % 10) * 0.01,
+                            -122.41 + (capturedI / 10) * 0.01,
                             50.0
                         ),
                         _hce,
@@ -314,10 +315,24 @@ public class ScenarioRunner
         }
 
         // Authenticate with infrastructure-api for protected endpoints (upload, blockchain)
-        var infraUser = Environment.GetEnvironmentVariable("INFRA_ADMIN_USERNAME") ?? "admin";
-        var infraPass = Environment.GetEnvironmentVariable("INFRA_ADMIN_PASSWORD") ?? "admin123";
+        var infraUser = Environment.GetEnvironmentVariable("INFRA_ADMIN_USERNAME");
+        var infraPass = Environment.GetEnvironmentVariable("INFRA_ADMIN_PASSWORD");
+
+        if (string.IsNullOrEmpty(infraUser) || string.IsNullOrEmpty(infraPass))
+        {
+            Console.WriteLine("  ❌ infrastructure-api auth: INFRA_ADMIN_USERNAME and INFRA_ADMIN_PASSWORD must be set");
+            Console.WriteLine();
+            return false;
+        }
+
         var authed = await _infra.AuthenticateAsync(infraUser, infraPass);
-        Console.WriteLine($"  {(authed ? "✅" : "⚠️ ")} infrastructure-api auth: {(authed ? "JWT acquired" : "failed (detections will be skipped)")}");
+        Console.WriteLine($"  {(authed ? "✅" : "❌")} infrastructure-api auth: {(authed ? "JWT acquired" : "failed")}");
+
+        if (!authed)
+        {
+            Console.WriteLine();
+            return false;
+        }
 
         Console.WriteLine();
         return true;
