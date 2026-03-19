@@ -69,7 +69,10 @@ public static class ResQExtensions
     /// A detection is considered critical if it has high confidence (>= 0.85)
     /// and is of a critical type (Fire, Person, or Flood).
     /// </remarks>
-    public static bool IsCritical(this Detection detection) =>
-        detection.Confidence >= 0.85f &&
-        detection.Type is DetectionType.Fire or DetectionType.Person or DetectionType.Flood;
+    public static bool IsCritical(this Detection detection)
+    {
+        ArgumentNullException.ThrowIfNull(detection, nameof(detection));
+        return detection.Confidence >= 0.85f &&
+               detection.Type is DetectionType.Fire or DetectionType.Person or DetectionType.Flood;
+    }
 }

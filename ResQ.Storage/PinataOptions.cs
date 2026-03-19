@@ -96,7 +96,7 @@ public class PinataOptions
     /// options.GatewayUrl = "https://ipfs.io/ipfs";
     /// </code>
     /// </example>
-    public string GatewayUrl { get; set; } = "https://gateway.pinata.cloud/ipfs";
+    public string GatewayUrl { get; set; } = "https://gateway.pinata.cloud";
 
     /// <summary>
     /// Gets or sets the Pinata JWT token for authentication.

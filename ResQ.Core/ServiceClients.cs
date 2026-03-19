@@ -47,6 +47,9 @@ public sealed class HceClient : IDisposable
     /// <param name="baseUrl">Base URL of the HCE service.</param>
     public HceClient(string baseUrl = "http://localhost:3000")
     {
+        ArgumentNullException.ThrowIfNull(baseUrl, nameof(baseUrl));
+        if (!Uri.TryCreate(baseUrl, UriKind.Absolute, out _))
+            throw new ArgumentException("Invalid base URL format", nameof(baseUrl));
         _httpClient = new HttpClient { BaseAddress = new Uri(baseUrl) };
     }
 
@@ -127,6 +130,9 @@ public sealed class PdieClient : IDisposable
     /// <param name="baseUrl">Base URL of the PDIE service.</param>
     public PdieClient(string baseUrl = "http://localhost:8000")
     {
+        ArgumentNullException.ThrowIfNull(baseUrl, nameof(baseUrl));
+        if (!Uri.TryCreate(baseUrl, UriKind.Absolute, out _))
+            throw new ArgumentException("Invalid base URL format", nameof(baseUrl));
         _httpClient = new HttpClient { BaseAddress = new Uri(baseUrl) };
     }
 
@@ -180,6 +186,9 @@ public sealed class DtsopClient : IDisposable
     /// <param name="baseUrl">Base URL of the DTSOP service.</param>
     public DtsopClient(string baseUrl = "http://localhost:9000")
     {
+        ArgumentNullException.ThrowIfNull(baseUrl, nameof(baseUrl));
+        if (!Uri.TryCreate(baseUrl, UriKind.Absolute, out _))
+            throw new ArgumentException("Invalid base URL format", nameof(baseUrl));
         _httpClient = new HttpClient { BaseAddress = new Uri(baseUrl) };
     }
 
@@ -193,6 +202,7 @@ public sealed class DtsopClient : IDisposable
         string scenarioId,
         CancellationToken ct = default)
     {
+        ArgumentNullException.ThrowIfNull(scenarioId, nameof(scenarioId));
         var response = await _httpClient.GetAsync(
             $"/api/v1/strategies/{Uri.EscapeDataString(scenarioId)}", ct).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
