@@ -140,7 +140,7 @@ public class ScenarioRunner
     /// Tests coordination and concurrent telemetry.
     /// </summary>
     /// <param name="droneCount">Number of drones to simulate (1-10,000)</param>
-    public async Task RunSwarmSurveyAsync(int droneCount = 10)
+    public async Task RunSwarmSurveyAsync(int droneCount = 10, CancellationToken ct = default)
     {
         ValidateDroneCount(droneCount, nameof(droneCount));
 
@@ -172,7 +172,7 @@ public class ScenarioRunner
             tasks.Add(task);
 
             // Stagger starts (100ms between each drone)
-            await Task.Delay(100);
+            await Task.Delay(100, ct);
         }
 
         await Task.WhenAll(tasks);
@@ -185,7 +185,7 @@ public class ScenarioRunner
     /// Tests system limits and concurrent load handling.
     /// </summary>
     /// <param name="droneCount">Number of drones to simulate (1-10,000)</param>
-    public async Task RunStressTestAsync(int droneCount = 100)
+    public async Task RunStressTestAsync(int droneCount = 100, CancellationToken ct = default)
     {
         ValidateDroneCount(droneCount, nameof(droneCount));
 
@@ -231,7 +231,7 @@ public class ScenarioRunner
             tasks.Add(task);
 
             // Stagger starts (100ms = 10 drones/sec)
-            await Task.Delay(100);
+            await Task.Delay(100, ct);
         }
 
         await Task.WhenAll(tasks);
@@ -285,16 +285,16 @@ public class ScenarioRunner
     /// Verifies connectivity to both coordination-hce and infrastructure-api services.
     /// Outputs health status to console.
     /// </remarks>
-    public async Task<bool> CheckServicesAsync()
+    public async Task<bool> CheckServicesAsync(CancellationToken ct = default)
     {
         Console.WriteLine("Checking service health...");
 
         try
         {
-            var hceHealth = await _hce.GetHealthAsync();
+            var hceHealth = await _hce.GetHealthAsync(ct);
             Console.WriteLine($"  ✅ coordination-hce: {hceHealth.Status}");
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             Console.WriteLine($"  ❌ coordination-hce: {ex.Message}");
             return false;
@@ -302,13 +302,13 @@ public class ScenarioRunner
 
         try
         {
-            var infraHealth = await _infra.GetHealthAsync();
+            var infraHealth = await _infra.GetHealthAsync(ct);
             Console.WriteLine($"  ✅ infrastructure-api: {infraHealth.Status}");
             Console.WriteLine($"     - Pinata: {(infraHealth.Pinata ? "✅" : "❌")}");
             Console.WriteLine($"     - Gemini: {(infraHealth.Gemini ? "✅" : "❌")}");
             Console.WriteLine($"     - Blockchain: {(infraHealth.Blockchain ? "✅" : "❌")}");
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             Console.WriteLine($"  ❌ infrastructure-api: {ex.Message}");
             return false;
@@ -325,7 +325,7 @@ public class ScenarioRunner
             return false;
         }
 
-        var authed = await _infra.AuthenticateAsync(infraUser, infraPass);
+        var authed = await _infra.AuthenticateAsync(infraUser, infraPass, ct);
         Console.WriteLine($"  {(authed ? "✅" : "❌")} infrastructure-api auth: {(authed ? "JWT acquired" : "failed")}");
 
         if (!authed)

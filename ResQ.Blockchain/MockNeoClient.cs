@@ -158,6 +158,7 @@ public class MockNeoClient : INeoClient
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(attestation);
+        cancellationToken.ThrowIfCancellationRequested();
 
         if (attestation.Latitude < -90.0 || attestation.Latitude > 90.0)
             throw new ArgumentOutOfRangeException(
@@ -217,6 +218,7 @@ public class MockNeoClient : INeoClient
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(attestation);
+        cancellationToken.ThrowIfCancellationRequested();
 
         if (attestation.Latitude < -90.0 || attestation.Latitude > 90.0)
             throw new ArgumentOutOfRangeException(
@@ -271,6 +273,7 @@ public class MockNeoClient : INeoClient
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(evidence, nameof(evidence));
+        cancellationToken.ThrowIfCancellationRequested();
 
         var txHash = GenerateTxHash();
         var blockHeight = (ulong)Interlocked.Increment(ref _blockHeight);
@@ -324,6 +327,7 @@ public class MockNeoClient : INeoClient
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(incidentId, nameof(incidentId));
+        cancellationToken.ThrowIfCancellationRequested();
 
         if (_eventsByIncident.TryGetValue(incidentId, out var events))
         {
@@ -355,6 +359,7 @@ public class MockNeoClient : INeoClient
     /// </example>
     public Task<ulong> GetBlockHeightAsync(CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         return Task.FromResult((ulong)Interlocked.Read(ref _blockHeight));
     }
 

@@ -38,11 +38,19 @@ public class InfrastructureApiClient : BaseServiceClient
     /// Authenticates with infrastructure-api to get a JWT token.
     /// Sets the Authorization header for subsequent requests.
     /// </summary>
-    public async Task<bool> AuthenticateAsync(string username, string password)
+    public async Task<bool> AuthenticateAsync(string username, string password, CancellationToken ct = default)
     {
+        // F-P9-02: fail fast on null credentials
+        ArgumentNullException.ThrowIfNull(username, nameof(username));
+        ArgumentNullException.ThrowIfNull(password, nameof(password));
+
         try
         {
-            var response = await Http.PostAsJsonAsync("/login", new { username, password })
+            // F-P9-01: route through resilience pipeline (10s timeout + circuit breaker, no retry)
+            var response = await ExecuteWithResilienceAsync(
+                HttpMethod.Post,
+                token => Http.PostAsJsonAsync("/login", new { username, password }, token),
+                ct)
                 .ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -76,7 +84,7 @@ public class InfrastructureApiClient : BaseServiceClient
     /// Uploads an image to IPFS via infrastructure-api.
     /// Uses timeout and circuit-breaker handling without replaying the upload on failure.
     /// </summary>
-    public async Task<UploadResponse> UploadImageAsync(byte[] imageData, string fileName)
+    public async Task<UploadResponse> UploadImageAsync(byte[] imageData, string fileName, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(imageData, nameof(imageData));
         ArgumentNullException.ThrowIfNull(fileName, nameof(fileName));
@@ -94,12 +102,13 @@ public class InfrastructureApiClient : BaseServiceClient
         var response = await SendAsync(
             HttpMethod.Post,
             "/uploadImage",
-            content)
+            content,
+            ct)
             .ConfigureAwait(false);
 
         response.EnsureSuccessStatusCode();
 
-        var result = await response.Content.ReadFromJsonAsync<UploadResponse>()
+        var result = await response.Content.ReadFromJsonAsync<UploadResponse>(cancellationToken: ct)
             .ConfigureAwait(false);
         return result ?? throw new InvalidOperationException("Upload response was null");
     }
@@ -108,7 +117,7 @@ public class InfrastructureApiClient : BaseServiceClient
     /// Records a blockchain event via infrastructure-api Neo N3 adapter.
     /// Uses timeout and circuit-breaker handling without replaying the mutation on failure.
     /// </summary>
-    public async Task<BlockchainEventResponse> RecordEventAsync(BlockchainEventRequest evt)
+    public async Task<BlockchainEventResponse> RecordEventAsync(BlockchainEventRequest evt, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(evt, nameof(evt));
 
@@ -123,11 +132,12 @@ public class InfrastructureApiClient : BaseServiceClient
                 evidence_cid = evt.IpfsCid,
                 drone_id = evt.DroneId,
                 timestamp = evt.Timestamp
-            }))
+            }),
+            ct)
             .ConfigureAwait(false);
 
         response.EnsureSuccessStatusCode();
-        var result = await response.Content.ReadFromJsonAsync<BlockchainEventResponse>()
+        var result = await response.Content.ReadFromJsonAsync<BlockchainEventResponse>(cancellationToken: ct)
             .ConfigureAwait(false);
         return result ?? throw new InvalidOperationException("Blockchain response was null");
     }
@@ -136,18 +146,19 @@ public class InfrastructureApiClient : BaseServiceClient
     /// Creates an incident record.
     /// Uses timeout and circuit-breaker handling without replaying the mutation on failure.
     /// </summary>
-    public async Task<IncidentResponse> CreateIncidentAsync(CreateIncidentRequest request)
+    public async Task<IncidentResponse> CreateIncidentAsync(CreateIncidentRequest request, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(request, nameof(request));
 
         var response = await SendAsync(
             HttpMethod.Post,
             "/incidents",
-            JsonContent.Create(request))
+            JsonContent.Create(request),
+            ct)
             .ConfigureAwait(false);
 
         response.EnsureSuccessStatusCode();
-        var result = await response.Content.ReadFromJsonAsync<IncidentResponse>()
+        var result = await response.Content.ReadFromJsonAsync<IncidentResponse>(cancellationToken: ct)
             .ConfigureAwait(false);
         return result ?? throw new InvalidOperationException("Incident response was null");
     }
@@ -156,13 +167,13 @@ public class InfrastructureApiClient : BaseServiceClient
     /// Gets infrastructure-api health status.
     /// Includes retry logic for transient read failures.
     /// </summary>
-    public async Task<HealthResponse> GetHealthAsync()
+    public async Task<HealthResponse> GetHealthAsync(CancellationToken ct = default)
     {
-        var response = await SendAsync(HttpMethod.Get, "/health")
+        var response = await SendAsync(HttpMethod.Get, "/health", cancellationToken: ct)
             .ConfigureAwait(false);
 
         response.EnsureSuccessStatusCode();
-        var result = await response.Content.ReadFromJsonAsync<HealthResponse>()
+        var result = await response.Content.ReadFromJsonAsync<HealthResponse>(cancellationToken: ct)
             .ConfigureAwait(false);
         return result ?? throw new InvalidOperationException("Health response was null");
     }

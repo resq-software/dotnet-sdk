@@ -125,12 +125,12 @@ public class VirtualDrone
                 _batteryPercent -= BATTERY_DRAIN_PER_SECOND;
 
                 // Send telemetry
-                await SendTelemetryAsync();
+                await SendTelemetryAsync(ct);
 
                 // Random detection
                 if (Random.Shared.NextDouble() < DETECTION_PROBABILITY)
                 {
-                    await SimulateDetectionAsync();
+                    await SimulateDetectionAsync(ct);
                 }
 
                 // Check battery failsafe
@@ -174,7 +174,7 @@ public class VirtualDrone
         );
     }
 
-    private async Task SendTelemetryAsync()
+    private async Task SendTelemetryAsync(CancellationToken ct)
     {
         var packet = new TelemetryPacket(
             DroneId: _droneId,
@@ -193,7 +193,7 @@ public class VirtualDrone
 
         try
         {
-            await _hce.SendTelemetryBatchAsync(batch);
+            await _hce.SendTelemetryBatchAsync(batch, ct);
             _telemetryCount++;
 
             if (_telemetryCount % LOG_EVERY_N_TELEMETRY == 0)
@@ -207,7 +207,7 @@ public class VirtualDrone
         }
     }
 
-    private async Task SimulateDetectionAsync()
+    private async Task SimulateDetectionAsync(CancellationToken ct)
     {
         var detectionTypes = new[] { "FIRE", "FLOOD", "PERSON", "VEHICLE" };
         var type = detectionTypes[Random.Shared.Next(detectionTypes.Length)];
@@ -220,7 +220,7 @@ public class VirtualDrone
             // 1. Upload evidence image to infrastructure-api
             var fakeImage = GenerateFakeImage(type);
             var fileName = $"{_droneId}_{type}_{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}.jpg";
-            var upload = await _infra.UploadImageAsync(fakeImage, fileName);
+            var upload = await _infra.UploadImageAsync(fakeImage, fileName, ct);
 
             Console.WriteLine($"[{_droneId}] 📤 Evidence uploaded: {upload.Cid}");
 
@@ -240,7 +240,7 @@ public class VirtualDrone
                 Timestamp: DateTimeOffset.UtcNow.ToUnixTimeSeconds()
             );
 
-            await _infra.RecordEventAsync(evt);
+            await _infra.RecordEventAsync(evt, ct);
 
             Console.WriteLine($"[{_droneId}] ⛓️  Blockchain event recorded");
 

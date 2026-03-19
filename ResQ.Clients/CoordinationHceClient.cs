@@ -37,11 +37,19 @@ public class CoordinationHceClient : BaseServiceClient
     /// <summary>
     /// Authenticates with HCE to get JWT token (if auth is enabled).
     /// </summary>
-    public async Task<bool> AuthenticateAsync(string username, string password)
+    public async Task<bool> AuthenticateAsync(string username, string password, CancellationToken ct = default)
     {
+        // F-P9-02: fail fast on null credentials
+        ArgumentNullException.ThrowIfNull(username, nameof(username));
+        ArgumentNullException.ThrowIfNull(password, nameof(password));
+
         try
         {
-            var response = await Http.PostAsJsonAsync("/auth/login", new { username, password })
+            // F-P9-01: route through resilience pipeline (10s timeout + circuit breaker, no retry)
+            var response = await ExecuteWithResilienceAsync(
+                HttpMethod.Post,
+                token => Http.PostAsJsonAsync("/auth/login", new { username, password }, token),
+                ct)
                 .ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -80,7 +88,7 @@ public class CoordinationHceClient : BaseServiceClient
     /// Sends a batch of telemetry packets from a drone.
     /// Uses timeout and circuit-breaker handling without replaying the mutation on failure.
     /// </summary>
-    public async Task SendTelemetryBatchAsync(TelemetryBatchRequest batch)
+    public async Task SendTelemetryBatchAsync(TelemetryBatchRequest batch, CancellationToken ct = default)
     {
         // Input validation
         ArgumentNullException.ThrowIfNull(batch);
@@ -99,7 +107,8 @@ public class CoordinationHceClient : BaseServiceClient
         var response = await SendAsync(
             HttpMethod.Post,
             "/v1/telemetry/batch",
-            JsonContent.Create(batch))
+            JsonContent.Create(batch),
+            ct)
             .ConfigureAwait(false);
 
         response.EnsureSuccessStatusCode();
@@ -109,7 +118,7 @@ public class CoordinationHceClient : BaseServiceClient
     /// Reports an incident to HCE.
     /// Uses timeout and circuit-breaker handling without replaying the mutation on failure.
     /// </summary>
-    public async Task<IncidentAck> ReportIncidentAsync(ReportIncidentRequest incident)
+    public async Task<IncidentAck> ReportIncidentAsync(ReportIncidentRequest incident, CancellationToken ct = default)
     {
         // Input validation
         ArgumentNullException.ThrowIfNull(incident);
@@ -136,11 +145,12 @@ public class CoordinationHceClient : BaseServiceClient
         var response = await SendAsync(
             HttpMethod.Post,
             "/v1/incident",
-            JsonContent.Create(incident))
+            JsonContent.Create(incident),
+            ct)
             .ConfigureAwait(false);
 
         response.EnsureSuccessStatusCode();
-        var result = await response.Content.ReadFromJsonAsync<IncidentAck>()
+        var result = await response.Content.ReadFromJsonAsync<IncidentAck>(cancellationToken: ct)
             .ConfigureAwait(false);
         return result ?? throw new InvalidOperationException("Incident ack was null");
     }
@@ -149,7 +159,7 @@ public class CoordinationHceClient : BaseServiceClient
     /// Gets the status of a fleet.
     /// Includes retry logic for transient read failures.
     /// </summary>
-    public async Task<FleetStatus> GetFleetStatusAsync(string fleetId)
+    public async Task<FleetStatus> GetFleetStatusAsync(string fleetId, CancellationToken ct = default)
     {
         // P5-F01: validate and URL-encode fleetId
         ArgumentNullException.ThrowIfNull(fleetId);
@@ -158,11 +168,12 @@ public class CoordinationHceClient : BaseServiceClient
 
         var response = await SendAsync(
             HttpMethod.Get,
-            $"/fleet/{Uri.EscapeDataString(fleetId)}")
+            $"/fleet/{Uri.EscapeDataString(fleetId)}",
+            cancellationToken: ct)
             .ConfigureAwait(false);
 
         response.EnsureSuccessStatusCode();
-        var result = await response.Content.ReadFromJsonAsync<FleetStatus>()
+        var result = await response.Content.ReadFromJsonAsync<FleetStatus>(cancellationToken: ct)
             .ConfigureAwait(false);
         return result ?? throw new InvalidOperationException("Fleet status was null");
     }
@@ -171,13 +182,13 @@ public class CoordinationHceClient : BaseServiceClient
     /// Gets HCE health status.
     /// Includes retry logic for transient read failures.
     /// </summary>
-    public async Task<HceHealthResponse> GetHealthAsync()
+    public async Task<HceHealthResponse> GetHealthAsync(CancellationToken ct = default)
     {
-        var response = await SendAsync(HttpMethod.Get, "/health")
+        var response = await SendAsync(HttpMethod.Get, "/health", cancellationToken: ct)
             .ConfigureAwait(false);
 
         response.EnsureSuccessStatusCode();
-        var result = await response.Content.ReadFromJsonAsync<HceHealthResponse>()
+        var result = await response.Content.ReadFromJsonAsync<HceHealthResponse>(cancellationToken: ct)
             .ConfigureAwait(false);
         return result ?? throw new InvalidOperationException("Health response was null");
     }

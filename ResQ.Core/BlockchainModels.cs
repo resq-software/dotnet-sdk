@@ -129,4 +129,7 @@ public record NeoConfig
 
     /// <summary>Enable mock mode for testing.</summary>
     public bool MockMode { get; init; } = false;
+
+    /// <summary>HTTP request timeout in seconds. Defaults to 30.</summary>
+    public int TimeoutSeconds { get; init; } = 30;
 }

@@ -290,6 +290,8 @@ public class PinataClient : IStorageClient
         Dictionary<string, string>? metadata = null,
         CancellationToken cancellationToken = default)
     {
+        // F-P14-02: explicit guard so the exception names the public parameter, not MemoryStream's internal 'buffer'
+        ArgumentNullException.ThrowIfNull(data, nameof(data));
         using var stream = new MemoryStream(data);
         return await UploadAsync(stream, fileName, contentType, metadata, cancellationToken).ConfigureAwait(false);
     }
@@ -314,7 +316,10 @@ public class PinataClient : IStorageClient
         }
 
         var gatewayUrl = GetGatewayUrl(cid);
-        var response = await _httpClient.GetAsync(gatewayUrl, cancellationToken).ConfigureAwait(false);
+        // F-P13-03: apply circuit breaker + timeout to all non-upload operations
+        var response = await _resiliencePipeline.ExecuteAsync(
+            async ct => await _httpClient.GetAsync(gatewayUrl, ct).ConfigureAwait(false),
+            cancellationToken).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
 
         return await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
@@ -339,8 +344,10 @@ public class PinataClient : IStorageClient
             return true;
         }
 
-        var response = await _httpClient.GetAsync(
-            $"/data/pinList?hashContains={Uri.EscapeDataString(cid)}",
+        // F-P13-03: apply circuit breaker + timeout
+        var response = await _resiliencePipeline.ExecuteAsync(
+            async ct => await _httpClient.GetAsync(
+                $"/data/pinList?hashContains={Uri.EscapeDataString(cid)}", ct).ConfigureAwait(false),
             cancellationToken).ConfigureAwait(false);
 
         if (!response.IsSuccessStatusCode)
@@ -371,8 +378,10 @@ public class PinataClient : IStorageClient
             return true;
         }
 
-        var response = await _httpClient.DeleteAsync(
-            $"/pinning/unpin/{Uri.EscapeDataString(cid)}",
+        // F-P13-03: apply circuit breaker + timeout
+        var response = await _resiliencePipeline.ExecuteAsync(
+            async ct => await _httpClient.DeleteAsync(
+                $"/pinning/unpin/{Uri.EscapeDataString(cid)}", ct).ConfigureAwait(false),
             cancellationToken).ConfigureAwait(false);
 
         if (response.IsSuccessStatusCode)
@@ -410,7 +419,10 @@ public class PinataClient : IStorageClient
             url += $"&metadata[name]={Uri.EscapeDataString(namePrefix)}";
         }
 
-        var response = await _httpClient.GetAsync(url, cancellationToken).ConfigureAwait(false);
+        // F-P13-03: apply circuit breaker + timeout
+        var response = await _resiliencePipeline.ExecuteAsync(
+            async ct => await _httpClient.GetAsync(url, ct).ConfigureAwait(false),
+            cancellationToken).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
 
         var result = await response.Content.ReadFromJsonAsync<PinataPinListResponse>(
@@ -454,6 +466,9 @@ public class PinataClient : IStorageClient
         string contentType,
         Dictionary<string, string>? metadata)
     {
+        // F-P13-04: capture length before consuming the stream; non-seekable streams throw on .Length
+        var length = content.CanSeek ? content.Length : 0L;
+
         // Generate a fake CID based on content hash
         using var sha256 = SHA256.Create();
         var hash = sha256.ComputeHash(content);
@@ -466,7 +481,7 @@ public class PinataClient : IStorageClient
         return Task.FromResult(new UploadResult(
             cid,
             fileName,
-            content.Length,
+            length,
             contentType,
             IsPinned: true,
             DateTimeOffset.UtcNow));

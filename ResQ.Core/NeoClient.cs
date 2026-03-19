@@ -54,7 +54,12 @@ public sealed class NeoClient : IDisposable
     public NeoClient(NeoConfig? config = null)
     {
         _config = config ?? new NeoConfig();
-        _httpClient = new HttpClient { BaseAddress = new Uri(_config.RpcUrl) };
+        _httpClient = new HttpClient
+        {
+            BaseAddress = new Uri(_config.RpcUrl),
+            // F-P14-01: apply configurable timeout (default 30s) instead of HttpClient default 100s
+            Timeout = TimeSpan.FromSeconds(_config.TimeoutSeconds)
+        };
     }
 
     /// <summary>
