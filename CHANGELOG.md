@@ -1,3 +1,10 @@
+## [0.4.1](https://github.com/resq-software/dotnet-sdk/compare/v0.4.0...v0.4.1) (2026-03-21)
+
+
+### Bug Fixes
+
+* **ci:** pin actions to SHA hashes and add permissions ([e7de772](https://github.com/resq-software/dotnet-sdk/commit/e7de772303d38e8289c8217c9a0a7a179ec2f263))
+
 # [0.4.0](https://github.com/resq-software/dotnet-sdk/compare/v0.3.2...v0.4.0) (2026-03-19)
 
 
