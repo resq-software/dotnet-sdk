@@ -1,3 +1,10 @@
+## [0.4.2](https://github.com/resq-software/dotnet-sdk/compare/v0.4.1...v0.4.2) (2026-03-21)
+
+
+### Performance Improvements
+
+* **ci:** sync directly to monorepo main instead of creating PRs ([3f94725](https://github.com/resq-software/dotnet-sdk/commit/3f94725dba71db53f5e00dfaeac23a8e0977fbad))
+
 ## [0.4.1](https://github.com/resq-software/dotnet-sdk/compare/v0.4.0...v0.4.1) (2026-03-21)
 
 
