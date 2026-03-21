@@ -5,16 +5,18 @@ on:
     branches: [main]
   pull_request:
 
+permissions: {}
+
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-      - uses: bufbuild/buf-setup-action@v1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: bufbuild/buf-setup-action@cdbc3bce47997bef0db7f08db0f221c28ce141e8 # v1
         with:
           buf_user: ${{ secrets.BUF_USER }}
           buf_api_token: ${{ secrets.BUF_API_TOKEN }}
-      - uses: actions/setup-dotnet@v5
+      - uses: actions/setup-dotnet@c2fa09f4bde5ebb9d1777cf28262a3eb3db3ced7 # v5
         with:
           dotnet-version: "9.0.x"
       - env:
@@ -26,7 +28,7 @@ jobs:
       - run: dotnet test --no-build --configuration Release --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage
       - name: Upload coverage to Codecov
         if: always()
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@1af58845a975a7985b0beb0cbe6fbbb71a41dbad # v5
         with:
           directory: ./coverage
           fail_ci_if_error: false

@@ -14,21 +14,21 @@ jobs:
     runs-on: ubuntu-latest
     concurrency: release
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: bufbuild/buf-setup-action@v1
+      - uses: bufbuild/buf-setup-action@cdbc3bce47997bef0db7f08db0f221c28ce141e8 # v1
         with:
           buf_user: ${{ secrets.BUF_USER }}
           buf_api_token: ${{ secrets.BUF_API_TOKEN }}
 
-      - uses: actions/setup-dotnet@v5
+      - uses: actions/setup-dotnet@c2fa09f4bde5ebb9d1777cf28262a3eb3db3ced7 # v5
         with:
           dotnet-version: "9.0.x"
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
         with:
           node-version: 22
 
