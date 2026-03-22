@@ -202,7 +202,7 @@ public sealed class DtsopClient : IDisposable
         string scenarioId,
         CancellationToken ct = default)
     {
-        ArgumentNullException.ThrowIfNull(scenarioId, nameof(scenarioId));
+        ArgumentException.ThrowIfNullOrWhiteSpace(scenarioId, nameof(scenarioId));
         var response = await _httpClient.GetAsync(
             $"/api/v1/strategies/{Uri.EscapeDataString(scenarioId)}", ct).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();

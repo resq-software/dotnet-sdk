@@ -8,6 +8,8 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    env:
+      BUF_API_TOKEN: ${{ secrets.BUF_API_TOKEN }}
     steps:
       - uses: actions/checkout@v6
       - uses: bufbuild/buf-setup-action@v1
@@ -17,12 +19,12 @@ jobs:
       - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: "9.0.x"
-      - if: ${{ secrets.BUF_API_TOKEN != '' }}
+      - if: ${{ env.BUF_API_TOKEN != '' }}
         env:
           BUF_TOKEN: ${{ secrets.BUF_API_TOKEN }}
         run: bash scripts/sync-protos.sh
       - name: Check for synced proto drift
-        if: ${{ secrets.BUF_API_TOKEN != '' }}
+        if: ${{ env.BUF_API_TOKEN != '' }}
         run: |
           if [[ -n "$(git status --porcelain -- protos)" ]]; then
             echo "Proto drift detected:"
