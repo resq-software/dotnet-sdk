@@ -17,12 +17,21 @@ jobs:
       - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: "9.0.x"
-      - env:
+      - if: ${{ secrets.BUF_API_TOKEN != '' }}
+        env:
           BUF_TOKEN: ${{ secrets.BUF_API_TOKEN }}
         run: bash scripts/sync-protos.sh
-      - run: git diff --exit-code -- protos
+      - name: Check for synced proto drift
+        if: ${{ secrets.BUF_API_TOKEN != '' }}
+        run: |
+          if [[ -n "$(git status --porcelain -- protos)" ]]; then
+            echo "Proto drift detected:"
+            git status --short -- protos
+            exit 1
+          fi
       - run: dotnet restore
       - run: dotnet build --no-restore --configuration Release
+      - run: dotnet format --verify-no-changes
       - run: dotnet test --no-build --configuration Release --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage
       - name: Upload coverage to Codecov
         if: always()

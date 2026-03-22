@@ -36,7 +36,13 @@ jobs:
           BUF_TOKEN: ${{ secrets.BUF_API_TOKEN }}
         run: bash scripts/sync-protos.sh
 
-      - run: git diff --exit-code -- protos
+      - name: Check for synced proto drift
+        run: |
+          if [[ -n "$(git status --porcelain -- protos)" ]]; then
+            echo "Proto drift detected:"
+            git status --short -- protos
+            exit 1
+          fi
 
       - name: Install semantic-release
         run: |

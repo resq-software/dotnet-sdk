@@ -13,6 +13,11 @@ fi
 TMP_DIR="$(mktemp -d)"
 trap 'rm -rf "${TMP_DIR}"' EXIT
 
+if [[ -z "${BUF_TOKEN:-}" ]]; then
+  echo "Warning: BUF_TOKEN is not set. Authentication to private BSR modules will fail." >&2
+  echo "If running in CI on a fork PR, this is expected — skip proto sync or use cached protos." >&2
+fi
+
 if command -v buf >/dev/null 2>&1; then
   buf export "${SOURCE_REF}" --output "${TMP_DIR}/export"
 elif command -v docker >/dev/null 2>&1; then
@@ -29,7 +34,7 @@ elif command -v docker >/dev/null 2>&1; then
   fi
 
   docker "${docker_args[@]}" \
-    bufbuild/buf:latest \
+    bufbuild/buf:1.66.1 \
     export "${SOURCE_REF}" --output /out/export
 else
   echo "buf CLI or docker is required to sync shared schemas from the Buf Schema Registry." >&2
