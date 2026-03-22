@@ -154,17 +154,15 @@ For example, to configure the `InfrastructureApiClient` via `appsettings.json`:
 Then, in your application's `Startup.cs` or equivalent:
 
 ```csharp
-services.Configure&lt;PinataOptions&gt;(Configuration.GetSection("PinataOptions")); // Example for Pinata
-
-// For InfrastructureApiClient, you would typically configure the HttpClient registration
-services.AddHttpClient&lt;InfrastructureApiClient&gt;(c =>
+// Register InfrastructureApiClient with base address from config
+services.AddHttpClient<InfrastructureApiClient>(c =>
 {
-    // Configure base address, headers, etc. from configuration
-    c.BaseAddress = new Uri(Configuration["ResQ:InfrastructureApiUrl"] ?? "https://api.resq.software");
-    // Resilience settings could be applied here using Polly if not handled internally
-})
-.ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler()) // Optional: customize handler
-.AddPolicyHandler(PollyPolicies.GetCircuitBreakerPolicy()); // Example of adding Polly policies
+    c.BaseAddress = new Uri(
+        Configuration["ResQ:InfrastructureApiUrl"] ?? "https://api.resq.software");
+});
+
+// Optional: bind strongly-typed options
+services.Configure<PinataOptions>(Configuration.GetSection("PinataOptions"));
 ```
 
 ## API Reference
