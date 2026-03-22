@@ -1,3 +1,10 @@
+## [0.4.3](https://github.com/resq-software/dotnet-sdk/compare/v0.4.2...v0.4.3) (2026-03-22)
+
+
+### Bug Fixes
+
+* **ci:** address PR review suggestions for proto sync and CI hardening ([#15](https://github.com/resq-software/dotnet-sdk/issues/15)) ([8d64e7b](https://github.com/resq-software/dotnet-sdk/commit/8d64e7bcea655872ccc969b90b62365993f0499a))
+
 ## [0.4.2](https://github.com/resq-software/dotnet-sdk/compare/v0.4.1...v0.4.2) (2026-03-21)
 
 
