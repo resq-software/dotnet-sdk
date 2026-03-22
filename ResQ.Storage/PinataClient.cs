@@ -444,7 +444,7 @@ public class PinataClient : IStorageClient
     /// </remarks>
     public string GetGatewayUrl(string cid)
     {
-        ArgumentNullException.ThrowIfNull(cid, nameof(cid));
+        ArgumentException.ThrowIfNullOrWhiteSpace(cid, nameof(cid));
         return $"{_options.GatewayUrl}/ipfs/{Uri.EscapeDataString(cid)}";
     }
 
