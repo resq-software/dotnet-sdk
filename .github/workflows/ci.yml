@@ -10,6 +10,8 @@ permissions: {}
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    env:
+      BUF_API_TOKEN: ${{ secrets.BUF_API_TOKEN }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - uses: bufbuild/buf-setup-action@cdbc3bce47997bef0db7f08db0f221c28ce141e8 # v1
@@ -19,12 +21,21 @@ jobs:
       - uses: actions/setup-dotnet@c2fa09f4bde5ebb9d1777cf28262a3eb3db3ced7 # v5
         with:
           dotnet-version: "9.0.x"
-      - env:
+      - if: ${{ env.BUF_API_TOKEN != '' }}
+        env:
           BUF_TOKEN: ${{ secrets.BUF_API_TOKEN }}
         run: bash scripts/sync-protos.sh
-      - run: git diff --exit-code -- protos
+      - name: Check for synced proto drift
+        if: ${{ env.BUF_API_TOKEN != '' }}
+        run: |
+          if [[ -n "$(git status --porcelain -- protos)" ]]; then
+            echo "Proto drift detected:"
+            git status --short -- protos
+            exit 1
+          fi
       - run: dotnet restore
       - run: dotnet build --no-restore --configuration Release
+      - run: dotnet format --verify-no-changes
       - run: dotnet test --no-build --configuration Release --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage
       - name: Upload coverage to Codecov
         if: always()

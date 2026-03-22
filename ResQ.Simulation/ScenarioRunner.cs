@@ -32,7 +32,7 @@ public class ScenarioRunner
     private const double MIN_LONGITUDE = -180.0;
     private const double MAX_LONGITUDE = 180.0;
     private const double MIN_ALTITUDE = 10.0; // N19: matches VirtualDrone.MIN_ALTITUDE_METERS to prevent false-valid then constructor crash
-    private const double MAX_ALTITUDE = 500.0; // 500m max altitude
+    private const double MAX_ALTITUDE = 120.0; // N20: matches VirtualDrone.MAX_ALTITUDE_METERS to prevent ValidateLocation passing altitudes that would crash VirtualDrone constructor
 
     private readonly CoordinationHceClient _hce;
     private readonly InfrastructureApiClient _infra;
