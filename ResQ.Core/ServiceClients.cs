@@ -87,7 +87,7 @@ public sealed class HceClient : IDisposable
     {
         // P5-F02: validate inputs before serialization
         ArgumentNullException.ThrowIfNull(detection, nameof(detection));
-        ArgumentNullException.ThrowIfNull(droneId, nameof(droneId));
+        ArgumentException.ThrowIfNullOrWhiteSpace(droneId, nameof(droneId));
 
         var payload = new { detection, droneId };
         var json = JsonSerializer.Serialize(payload);

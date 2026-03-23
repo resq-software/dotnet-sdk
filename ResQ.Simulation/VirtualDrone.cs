@@ -71,13 +71,10 @@ public class VirtualDrone
         CoordinationHceClient hce,
         InfrastructureApiClient infra)
     {
-        ArgumentNullException.ThrowIfNull(droneId, nameof(droneId));
+        ArgumentException.ThrowIfNullOrWhiteSpace(droneId, nameof(droneId));
         ArgumentNullException.ThrowIfNull(startLocation, nameof(startLocation));
         ArgumentNullException.ThrowIfNull(hce, nameof(hce));
         ArgumentNullException.ThrowIfNull(infra, nameof(infra));
-
-        if (string.IsNullOrWhiteSpace(droneId))
-            throw new ArgumentException("Drone ID cannot be empty", nameof(droneId));
 
         // Validate GPS coordinates
         if (startLocation.Latitude < -90.0 || startLocation.Latitude > 90.0)
