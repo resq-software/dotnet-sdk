@@ -19,7 +19,7 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: bufbuild/buf-setup-action@cdbc3bce47997bef0db7f08db0f221c28ce141e8 # v1
+      - uses: bufbuild/buf-setup-action@a47c93e0b1648d5651a065437926377d060baa99 # v1
         with:
           buf_user: ${{ secrets.BUF_USER }}
           buf_api_token: ${{ secrets.BUF_API_TOKEN }}
