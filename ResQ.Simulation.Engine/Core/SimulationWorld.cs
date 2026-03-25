@@ -34,6 +34,7 @@ public sealed class SimulationWorld
 {
     private readonly List<SimulatedDrone> _drones = new();
     private readonly List<Structure> _structures = new();
+    private readonly FlightModelType _flightModelType;
 
     /// <summary>
     /// Initializes a new <see cref="SimulationWorld"/> from an <see cref="IOptions{TOptions}"/> wrapper.
@@ -58,6 +59,7 @@ public sealed class SimulationWorld
         Terrain = terrain;
         Weather = weather;
         Random = new Random(config.Seed);
+        _flightModelType = config.FlightModel;
     }
 
     /// <summary>Gets the simulation clock that tracks elapsed simulation time.</summary>
@@ -96,7 +98,7 @@ public sealed class SimulationWorld
         if (_drones.Exists(d => d.Id == id))
             throw new ArgumentException($"A drone with id '{id}' already exists.", nameof(id));
 
-        var drone = new SimulatedDrone(id, startPosition, FlightModelType.Kinematic);
+        var drone = new SimulatedDrone(id, startPosition, _flightModelType);
         _drones.Add(drone);
         return drone;
     }

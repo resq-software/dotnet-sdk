@@ -122,16 +122,39 @@ public class SimulationWorldTests
         world.Structures[0].Id.Should().Be("bldg-1");
     }
 
-    // 7. When the clock is paused, Step does not advance elapsed time.
+    // 7. When the clock is paused, Step does not advance elapsed time or step weather.
     [Fact]
     public void Step_WhenPaused_DoesNotAdvance()
     {
-        var world = CreateWorld();
+        var config = new SimulationConfig { ClockMode = ClockMode.Stepped, Seed = 42 };
+        var terrain = Substitute.For<ITerrain>();
+        var weather = Substitute.For<IWeatherSystem>();
+        weather.GetWind(Arg.Any<double>(), Arg.Any<double>(), Arg.Any<double>()).Returns(Vector3.Zero);
+        var world = new SimulationWorld(config, terrain, weather);
+
         world.AddDrone("d1", new Vector3(0f, 10f, 0f));
         world.Clock.Pause();
 
         world.Step();
 
         world.Clock.ElapsedTime.Should().Be(0.0);
+        weather.DidNotReceive().Step(Arg.Any<double>());
+    }
+
+    // 8. AddDrone uses configured FlightModelType (Quadrotor).
+    [Fact]
+    public void AddDrone_UsesConfiguredFlightModel()
+    {
+        var config = new SimulationConfig
+        {
+            ClockMode = ClockMode.Stepped,
+            Seed = 42,
+            FlightModel = FlightModelType.Quadrotor
+        };
+        var world = CreateWorld(config);
+
+        var drone = world.AddDrone("q1", new Vector3(0f, 50f, 0f));
+
+        drone.FlightModel.Should().BeOfType<ResQ.Simulation.Engine.Physics.QuadrotorFlightModel>();
     }
 }

@@ -122,4 +122,18 @@ public class QuadrotorFlightModelTests
 
         act.Should().Throw<ArgumentOutOfRangeException>();
     }
+
+    // 8. Drag limits max velocity — velocity should be bounded after sustained thrust
+    [Fact]
+    public void Drag_LimitsMaxVelocity()
+    {
+        var model = new QuadrotorFlightModel(StartAt50m, Mass);
+        model.ApplyCommand(FlightCommand.GoTo(new Vector3(10000f, 50f, 0f)));
+
+        // Run for 10 seconds to approach terminal velocity
+        for (var i = 0; i < 500; i++)
+            model.Step(0.02, NoWind);
+
+        model.State.Velocity.Length().Should().BeLessThan(30f);
+    }
 }
