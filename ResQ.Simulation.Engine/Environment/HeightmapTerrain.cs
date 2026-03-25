@@ -126,9 +126,9 @@ public sealed class HeightmapTerrain : ITerrain
         double h11 = _heights[r1, c1];
 
         return h00 * (1 - tx) * (1 - tz)
-             + h01 * tx       * (1 - tz)
+             + h01 * tx * (1 - tz)
              + h10 * (1 - tx) * tz
-             + h11 * tx       * tz;
+             + h11 * tx * tz;
     }
 
     /// <summary>
