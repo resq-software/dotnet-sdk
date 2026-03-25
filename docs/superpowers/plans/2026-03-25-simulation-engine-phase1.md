@@ -2,11 +2,13 @@
 
 > **For agentic workers:** REQUIRED: Use superpowers:subagent-driven-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build the foundational simulation engine with clock management, dual flight models (kinematic + quadrotor), terrain, weather, collision via BepuPhysics2, and a working sim loop that can step drones through an environment deterministically.
+**Goal:** Build the foundational simulation engine with clock management, dual flight models (kinematic + quadrotor), terrain, weather, and a working sim loop that can step drones through an environment deterministically. BepuPhysics2 collision and hazard systems are deferred to Phase 2.
 
-**Architecture:** Pure .NET 9 library (`ResQ.Simulation.Engine`) with no external runtime dependencies beyond BepuPhysics2. The engine owns the simulation loop, physics, and environment. It references `ResQ.Core` for shared models. Tests use stepped clock mode for deterministic assertions.
+**Architecture:** Pure .NET 9 library (`ResQ.Simulation.Engine`) with no external runtime dependencies. The engine owns the simulation loop, physics, and environment. It references `ResQ.Core` for shared models. Tests use stepped clock mode for deterministic assertions.
 
-**Tech Stack:** .NET 9, BepuPhysics2 (collision/rigid body), System.Numerics (Vector3/Quaternion), xUnit, FluentAssertions, NSubstitute
+**Tech Stack:** .NET 9, System.Numerics (Vector3/Quaternion), xUnit, FluentAssertions, NSubstitute
+
+**Deferred to Phase 2:** BepuPhysics2 collision system (`CollisionSystem.cs`), gRPC API, hazard simulations, scenario loading, headless runner.
 
 **Spec:** `docs/superpowers/specs/2026-03-25-simulation-suite-design.md`
 
@@ -18,7 +20,7 @@
 
 | File | Responsibility |
 |------|---------------|
-| `ResQ.Simulation.Engine/ResQ.Simulation.Engine.csproj` | Project file, references ResQ.Core + BepuPhysics2 |
+| `ResQ.Simulation.Engine/ResQ.Simulation.Engine.csproj` | Project file, references ResQ.Core |
 | `tests/ResQ.Simulation.Engine.Tests/ResQ.Simulation.Engine.Tests.csproj` | Test project |
 
 ### Core (Clock + World + Config)
@@ -41,10 +43,10 @@
 | `ResQ.Simulation.Engine/Physics/IFlightModel.cs` | Interface: State, ApplyCommand, Step(dt, wind) |
 | `ResQ.Simulation.Engine/Physics/KinematicFlightModel.cs` | Fast point-to-point with speed/turn constraints |
 | `ResQ.Simulation.Engine/Physics/QuadrotorFlightModel.cs` | 6DOF rigid body with thrust, drag, wind |
-| `ResQ.Simulation.Engine/Physics/CollisionSystem.cs` | BepuPhysics2 wrapper: terrain heightfield, structure shapes, drone spheres |
 | `tests/ResQ.Simulation.Engine.Tests/Physics/KinematicFlightModelTests.cs` | Kinematic model tests |
 | `tests/ResQ.Simulation.Engine.Tests/Physics/QuadrotorFlightModelTests.cs` | Quadrotor model tests |
-| `tests/ResQ.Simulation.Engine.Tests/Physics/CollisionSystemTests.cs` | Collision detection tests |
+
+> **Deferred:** `CollisionSystem.cs` (BepuPhysics2 wrapper) moves to Phase 2 when rigid body collision with terrain/structures is needed.
 
 ### Environment (Terrain + Weather)
 
@@ -123,11 +125,10 @@ Add these entries to the `<ItemGroup>` in `Directory.Packages.props`:
 
 ```xml
 <!-- Simulation Engine -->
-<PackageVersion Include="BepuPhysics" Version="2.4.0" />
-<PackageVersion Include="BepuUtilities" Version="2.4.0" />
 <PackageVersion Include="NSubstitute" Version="5.3.0" />
-<PackageVersion Include="Grpc.AspNetCore" Version="2.76.0" />
 ```
+
+> **Deferred:** BepuPhysics2 and Grpc.AspNetCore will be added in Phase 2 when collision and gRPC API are implemented.
 
 - [ ] **Step 2: Create ResQ.Simulation.Engine.csproj**
 
@@ -138,7 +139,6 @@ Add these entries to the `<ItemGroup>` in `Directory.Packages.props`:
     <LangVersion>latest</LangVersion>
     <PackageId>ResQ.Simulation.Engine</PackageId>
     <Version>0.1.0</Version>
-    <Authors>ResQ Software</Authors>
     <Description>ResQ simulation engine — physics, environment, and scenario execution</Description>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/resq-software/dotnet-sdk</PackageProjectUrl>
@@ -152,8 +152,6 @@ Add these entries to the `<ItemGroup>` in `Directory.Packages.props`:
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="BepuPhysics" />
-    <PackageReference Include="BepuUtilities" />
     <PackageReference Include="Microsoft.Extensions.Options" />
   </ItemGroup>
 
@@ -378,6 +376,39 @@ public class SimulationClockTests
         var clock = new SimulationClock(ClockMode.Stepped);
         clock.ElapsedTime.Should().Be(0.0);
     }
+
+    [Fact]
+    public void Accelerated_AdvanceUsesAccelerationFactor()
+    {
+        var clock = new SimulationClock(ClockMode.Accelerated, deltaTime: 1.0 / 60.0, accelerationFactor: 10.0);
+
+        clock.Advance();
+
+        clock.ElapsedTime.Should().BeApproximately(10.0 / 60.0, 1e-9);
+    }
+
+    [Fact]
+    public void Accelerated_EffectiveDeltaTimeReflectsFactor()
+    {
+        var clock = new SimulationClock(ClockMode.Accelerated, deltaTime: 1.0 / 60.0, accelerationFactor: 100.0);
+
+        clock.EffectiveDeltaTime.Should().BeApproximately(100.0 / 60.0, 1e-9);
+    }
+
+    [Fact]
+    public void Stepped_EffectiveDeltaTimeIgnoresFactor()
+    {
+        var clock = new SimulationClock(ClockMode.Stepped, deltaTime: 1.0 / 60.0, accelerationFactor: 100.0);
+
+        clock.EffectiveDeltaTime.Should().BeApproximately(1.0 / 60.0, 1e-9);
+    }
+
+    [Fact]
+    public void Constructor_InvalidAccelerationFactor_Throws()
+    {
+        var act = () => new SimulationClock(ClockMode.Accelerated, accelerationFactor: 0);
+        act.Should().Throw<ArgumentOutOfRangeException>();
+    }
 }
 ```
 
@@ -414,27 +445,44 @@ public sealed class SimulationClock : ISimulationClock
     /// <inheritdoc />
     public bool IsPaused { get; private set; }
 
+    /// <summary>Acceleration factor (only used in Accelerated mode).</summary>
+    public double AccelerationFactor { get; }
+
     /// <summary>
     /// Initializes a new simulation clock.
     /// </summary>
     /// <param name="mode">The clock mode.</param>
     /// <param name="deltaTime">Fixed timestep in seconds. Defaults to 1/60.</param>
+    /// <param name="accelerationFactor">Speed multiplier for Accelerated mode. Default: 1.0.</param>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when deltaTime is not positive.</exception>
-    public SimulationClock(ClockMode mode, double deltaTime = DefaultDeltaTime)
+    public SimulationClock(ClockMode mode, double deltaTime = DefaultDeltaTime, double accelerationFactor = 1.0)
     {
         if (deltaTime <= 0.0)
             throw new ArgumentOutOfRangeException(nameof(deltaTime), deltaTime,
                 "Delta time must be positive");
 
+        if (accelerationFactor <= 0.0)
+            throw new ArgumentOutOfRangeException(nameof(accelerationFactor), accelerationFactor,
+                "Acceleration factor must be positive");
+
         Mode = mode;
         DeltaTime = deltaTime;
+        AccelerationFactor = accelerationFactor;
     }
+
+    /// <summary>
+    /// Returns the effective timestep: DeltaTime * AccelerationFactor in Accelerated mode,
+    /// DeltaTime otherwise.
+    /// </summary>
+    public double EffectiveDeltaTime => Mode == ClockMode.Accelerated
+        ? DeltaTime * AccelerationFactor
+        : DeltaTime;
 
     /// <inheritdoc />
     public void Advance()
     {
         if (IsPaused) return;
-        ElapsedTime += DeltaTime;
+        ElapsedTime += EffectiveDeltaTime;
     }
 
     /// <inheritdoc />
@@ -448,7 +496,7 @@ public sealed class SimulationClock : ISimulationClock
 - [ ] **Step 5: Run tests to verify they pass**
 
 Run: `dotnet test tests/ResQ.Simulation.Engine.Tests/ --filter "FullyQualifiedName~SimulationClockTests" -v minimal`
-Expected: All 10 tests pass
+Expected: All 14 tests pass
 
 - [ ] **Step 6: Commit**
 
@@ -961,10 +1009,6 @@ public sealed class KinematicFlightModel : IFlightModel
 
             case FlightCommandType.Land:
                 return new Vector3(0, -(float)DefaultLandingSpeed, 0);
-
-            case FlightCommandType.ReturnToLaunch:
-                // Already converted to GoToWaypoint in ApplyCommand
-                return Vector3.Zero;
 
             default:
                 return Vector3.Zero;
@@ -2136,7 +2180,7 @@ namespace ResQ.Simulation.Engine.Entities;
 public sealed class SimulatedDrone
 {
     private const double BaseDetectionProbability = 0.05; // 5% per second at full visibility
-    private const double QuadrotorMass = 2.5;             // kg
+    private const double DefaultQuadrotorMass = 2.5;      // kg
 
     /// <summary>Unique identifier for this drone.</summary>
     public string Id { get; }
@@ -2156,7 +2200,8 @@ public sealed class SimulatedDrone
     /// <param name="id">Unique drone identifier.</param>
     /// <param name="startPosition">Initial world position.</param>
     /// <param name="modelType">Which flight model to use.</param>
-    public SimulatedDrone(string id, Vector3 startPosition, FlightModelType modelType)
+    /// <param name="mass">Drone mass in kg (used by quadrotor model). Default: 2.5.</param>
+    public SimulatedDrone(string id, Vector3 startPosition, FlightModelType modelType, double mass = DefaultQuadrotorMass)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(id, nameof(id));
 
@@ -2164,7 +2209,7 @@ public sealed class SimulatedDrone
         FlightModel = modelType switch
         {
             FlightModelType.Kinematic => new KinematicFlightModel(startPosition),
-            FlightModelType.Quadrotor => new QuadrotorFlightModel(startPosition, QuadrotorMass),
+            FlightModelType.Quadrotor => new QuadrotorFlightModel(startPosition, mass),
             _ => throw new ArgumentOutOfRangeException(nameof(modelType))
         };
     }
@@ -2312,6 +2357,7 @@ Create `tests/ResQ.Simulation.Engine.Tests/Core/SimulationWorldTests.cs`:
 // (license header)
 using System.Numerics;
 using FluentAssertions;
+using NSubstitute;
 using ResQ.Simulation.Engine.Core;
 using ResQ.Simulation.Engine.Entities;
 using ResQ.Simulation.Engine.Environment;
@@ -2325,8 +2371,11 @@ public class SimulationWorldTests
     private static SimulationWorld CreateWorld(SimulationConfig? config = null)
     {
         config ??= new SimulationConfig { ClockMode = ClockMode.Stepped, Seed = 42 };
-        var terrain = new FlatTerrain();
-        var weather = new WeatherSystem(new WeatherConfig { Mode = WeatherMode.Calm });
+        var terrain = Substitute.For<ITerrain>();
+        terrain.GetElevation(Arg.Any<double>(), Arg.Any<double>()).Returns(0.0);
+        var weather = Substitute.For<IWeatherSystem>();
+        weather.GetWind(Arg.Any<double>(), Arg.Any<double>(), Arg.Any<double>()).Returns(Vector3.Zero);
+        weather.Visibility.Returns(1.0);
         return new SimulationWorld(config, terrain, weather);
     }
 
@@ -2434,6 +2483,7 @@ Create `ResQ.Simulation.Engine/Core/SimulationWorld.cs`:
 ```csharp
 // (license header)
 using System.Numerics;
+using Microsoft.Extensions.Options;
 using ResQ.Simulation.Engine.Entities;
 using ResQ.Simulation.Engine.Environment;
 using ResQ.Simulation.Engine.Physics;
@@ -2475,6 +2525,17 @@ public sealed class SimulationWorld
     /// <summary>
     /// Creates a new simulation world.
     /// </summary>
+    /// <param name="options">Simulation configuration wrapped in IOptions.</param>
+    /// <param name="terrain">Terrain provider.</param>
+    /// <param name="weather">Weather system.</param>
+    public SimulationWorld(IOptions<SimulationConfig> options, ITerrain terrain, IWeatherSystem weather)
+        : this(options?.Value ?? throw new ArgumentNullException(nameof(options)), terrain, weather)
+    {
+    }
+
+    /// <summary>
+    /// Creates a new simulation world from a raw config (for tests and direct usage).
+    /// </summary>
     /// <param name="config">Simulation configuration.</param>
     /// <param name="terrain">Terrain provider.</param>
     /// <param name="weather">Weather system.</param>
@@ -2487,7 +2548,7 @@ public sealed class SimulationWorld
         _config = config;
         _terrain = terrain;
         _weather = weather;
-        Clock = new SimulationClock(config.ClockMode, config.DeltaTime);
+        Clock = new SimulationClock(config.ClockMode, config.DeltaTime, config.AccelerationFactor);
         Random = new Random(config.Seed);
     }
 
@@ -2528,13 +2589,18 @@ public sealed class SimulationWorld
     /// <summary>
     /// Advances the simulation by one fixed timestep.
     /// Updates clock, weather, and all drone entities.
+    /// Does nothing if the clock is paused (clock.Advance() is a no-op when paused).
     /// </summary>
     public void Step()
     {
-        if (Clock.IsPaused) return;
-
+        var wasPaused = Clock.IsPaused;
         Clock.Advance();
-        _weather.Step(Clock.DeltaTime);
+
+        // If paused, clock didn't advance — skip everything else
+        if (wasPaused) return;
+
+        var dt = Clock.EffectiveDeltaTime;
+        _weather.Step(dt);
 
         foreach (var drone in _drones)
         {
@@ -2542,7 +2608,7 @@ public sealed class SimulationWorld
 
             var pos = drone.FlightModel.State.Position;
             var wind = _weather.GetWind(pos.X, pos.Y, pos.Z);
-            drone.Step(Clock.DeltaTime, wind);
+            drone.Step(dt, wind);
         }
     }
 }
@@ -2611,9 +2677,10 @@ git commit -m "style(sim-engine): apply dotnet format"
 - Full test coverage with deterministic stepped-clock assertions
 
 **Phase 2 (separate plan) will add:**
-- `CollisionSystem` (BepuPhysics2 integration)
+- `CollisionSystem` (BepuPhysics2 integration — terrain heightfield, structure shapes, drone spheres)
 - `FireSpreadSimulation` + `FloodSimulation`
 - `HazardZone` entity
 - Scenario loading/recording
 - gRPC API (`SimulationGrpcService` + `CommandGrpcService`)
 - Headless CLI runner
+- BepuPhysics2 and Grpc.AspNetCore package dependencies
