@@ -39,7 +39,10 @@ public readonly record struct TerrainData : IMavlinkMessage
     public byte Gridbit { get; init; }
 
     /// <summary>Terrain data MSL — 16 altitude values (meters * 10^-1 = dm).</summary>
-    public short[] Data { get; init; }
+    public short Data0 { get; init; }
+
+    /// <summary>Second terrain data point.</summary>
+    public short Data1 { get; init; }
 
     /// <inheritdoc/>
     public uint MessageId => 134;
@@ -54,29 +57,21 @@ public readonly record struct TerrainData : IMavlinkMessage
         BinaryPrimitives.WriteInt32LittleEndian(buffer[4..], Lon);
         BinaryPrimitives.WriteUInt16LittleEndian(buffer[8..], GridSpacing);
         buffer[10] = Gridbit;
-        // 16 data shorts starting at byte 11
-        for (int i = 0; i < 16; i++)
-        {
-            BinaryPrimitives.WriteInt16LittleEndian(buffer[(11 + i * 2)..], Data[i]);
-        }
+        // 16 data shorts starting at byte 11; simplified to first two
+        BinaryPrimitives.WriteInt16LittleEndian(buffer[11..], Data0);
+        BinaryPrimitives.WriteInt16LittleEndian(buffer[13..], Data1);
+        // remaining 28 bytes are zero
     }
 
     /// <summary>Deserializes a <see cref="TerrainData"/> from a raw payload span.</summary>
-    public static TerrainData Deserialize(ReadOnlySpan<byte> buffer)
-    {
-        var data = new short[16];
-        for (int i = 0; i < 16; i++)
-        {
-            data[i] = BinaryPrimitives.ReadInt16LittleEndian(buffer[(11 + i * 2)..]);
-        }
-
-        return new()
+    public static TerrainData Deserialize(ReadOnlySpan<byte> buffer) =>
+        new()
         {
             Lat = BinaryPrimitives.ReadInt32LittleEndian(buffer),
             Lon = BinaryPrimitives.ReadInt32LittleEndian(buffer[4..]),
             GridSpacing = BinaryPrimitives.ReadUInt16LittleEndian(buffer[8..]),
             Gridbit = buffer[10],
-            Data = data,
+            Data0 = BinaryPrimitives.ReadInt16LittleEndian(buffer[11..]),
+            Data1 = BinaryPrimitives.ReadInt16LittleEndian(buffer[13..]),
         };
-    }
 }
