@@ -26,6 +26,9 @@ public enum MavCmd : ushort
     /// <summary>Navigate to waypoint.</summary>
     NavWaypoint = 16,
 
+    /// <summary>Loiter around this waypoint an unlimited number of times.</summary>
+    NavLoiterUnlim = 17,
+
     /// <summary>Navigate to the return-to-launch point.</summary>
     NavReturnToLaunch = 20,
 
