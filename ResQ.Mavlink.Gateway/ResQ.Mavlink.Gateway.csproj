@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <RootNamespace>ResQ.Mavlink.Gateway</RootNamespace>
+    <PackageId>ResQ.Mavlink.Gateway</PackageId>
+    <Version>0.1.0</Version>
+    <Authors>ResQ Software</Authors>
+    <Description>MAVLink Protocol Gateway — translates MAVLink messages to/from ResQ domain types and routes commands between GCS and drones</Description>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/resq-software/dotnet-sdk</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/resq-software/dotnet-sdk</RepositoryUrl>
+    <PackageTags>resq;mavlink;drone;gateway;protocol</PackageTags>
+    <IsPackable>true</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ResQ.Mavlink\ResQ.Mavlink.csproj" />
+    <ProjectReference Include="..\ResQ.Protocols\ResQ.Protocols.csproj" />
+    <ProjectReference Include="..\ResQ.Core\ResQ.Core.csproj" />
+    <ProjectReference Include="..\ResQ.Simulation.Engine\ResQ.Simulation.Engine.csproj" />
+  </ItemGroup>
+
+</Project>
