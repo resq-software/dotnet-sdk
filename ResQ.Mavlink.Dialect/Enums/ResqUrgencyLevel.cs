@@ -17,19 +17,19 @@
 namespace ResQ.Mavlink.Dialect.Enums;
 
 /// <summary>
-/// Urgency level of a distress beacon reported via <see cref="Messages.ResqEmergencyBeacon"/>.
+/// Urgency level of an emergency beacon reported in <see cref="Messages.ResqEmergencyBeacon"/>.
 /// </summary>
 public enum ResqUrgencyLevel : byte
 {
-    /// <summary>Low urgency — situation stable, no immediate action required.</summary>
+    /// <summary>Low urgency — informational.</summary>
     Low = 0,
 
-    /// <summary>Medium urgency — assistance needed but not immediately critical.</summary>
+    /// <summary>Medium urgency — requires attention.</summary>
     Medium = 1,
 
-    /// <summary>High urgency — immediate assistance required.</summary>
+    /// <summary>High urgency — immediate response recommended.</summary>
     High = 2,
 
-    /// <summary>Life-threatening urgency — critical emergency, immediate response essential.</summary>
+    /// <summary>Life-threatening emergency — immediate response required.</summary>
     LifeThreatening = 3,
 }

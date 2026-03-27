@@ -55,7 +55,7 @@ public readonly record struct ResqEmergencyBeacon : IMavlinkMessage
     /// <summary>Type of emergency.</summary>
     public ResqBeaconType BeaconType { get; init; }
 
-    /// <summary>Urgency level of the distress beacon.</summary>
+    /// <summary>Urgency level of the emergency.</summary>
     public ResqUrgencyLevel Urgency { get; init; }
 
     /// <summary>Remaining mesh relay hops (decrements at each relay node).</summary>

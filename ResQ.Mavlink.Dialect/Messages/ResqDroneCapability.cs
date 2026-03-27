@@ -22,7 +22,7 @@ namespace ResQ.Mavlink.Dialect.Messages;
 /// <summary>
 /// RESQ_DRONE_CAPABILITY (ID 60006). Advertises a drone's hardware capabilities and current payload.
 /// CRC extra: 44 — derived from RESQ_DRONE_CAPABILITY field layout hash.
-/// Layout (12 bytes): SensorFlags(2) MaxFlightTimeMin(2) MaxSpeedMs(2) MaxPayloadGrams(2) CurrentPayloadGrams(2)
+/// Layout (12 bytes): SensorFlags(2) MaxFlightTimeMin(2) MaxSpeedCms(2) MaxPayloadGrams(2) CurrentPayloadGrams(2)
 ///   SystemId(1) DialectVersion(1).
 /// <para>
 /// Sensor flags bitfield: 0x01=RGB, 0x02=Thermal, 0x04=LiDAR, 0x08=Speaker, 0x10=DropMech, 0x20=Spotlight.
@@ -47,7 +47,7 @@ public readonly record struct ResqDroneCapability : IMavlinkMessage
     /// <summary>Maximum flight time in minutes.</summary>
     public ushort MaxFlightTimeMin { get; init; }
 
-    /// <summary>Maximum speed in cm/s.</summary>
+    /// <summary>Maximum speed in cm/s (centimetres per second).</summary>
     public ushort MaxSpeedCms { get; init; }
 
     /// <summary>Maximum payload capacity in grams.</summary>

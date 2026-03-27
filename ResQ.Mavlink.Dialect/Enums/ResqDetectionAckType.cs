@@ -17,16 +17,16 @@
 namespace ResQ.Mavlink.Dialect.Enums;
 
 /// <summary>
-/// Acknowledgement type for detection reports in <see cref="Messages.ResqDetectionAck"/>.
+/// Acknowledgement type for a detection event reported in <see cref="Messages.ResqDetectionAck"/>.
 /// </summary>
 public enum ResqDetectionAckType : byte
 {
-    /// <summary>Detection confirmed as valid by acknowledging drone.</summary>
+    /// <summary>Detection has been confirmed.</summary>
     Confirmed = 0,
 
-    /// <summary>Detection is a duplicate of an earlier report.</summary>
+    /// <summary>Detection is a duplicate of a previously acknowledged detection.</summary>
     Duplicate = 1,
 
-    /// <summary>Detection is being investigated; status not yet determined.</summary>
+    /// <summary>Detection is under investigation.</summary>
     Investigating = 2,
 }

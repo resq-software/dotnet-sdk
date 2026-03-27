@@ -61,7 +61,7 @@ public readonly record struct ResqHazardZone : IMavlinkMessage
     /// <summary>Type of hazard.</summary>
     public ResqHazardType HazardType { get; init; }
 
-    /// <summary>Severity level of the hazard.</summary>
+    /// <summary>Hazard severity level.</summary>
     public ResqHazardSeverity Severity { get; init; }
 
     /// <inheritdoc/>

@@ -19,6 +19,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.Options;
+using ResQ.Mavlink.Dialect.Enums;
 using ResQ.Mavlink.Dialect.Messages;
 using ResQ.Mavlink.Mesh.Firmware;
 using ResQ.Mavlink.Mesh.Tests.Infrastructure;
@@ -84,7 +85,7 @@ public sealed class FirmwareIntegrationServiceTests
             LatE7 = 100000000,
             LonE7 = 200000000,
             AltMm = 10000,
-            Urgency = 3,
+            Urgency = ResqUrgencyLevel.LifeThreatening,
             Ttl = 7,
         };
 
@@ -100,7 +101,7 @@ public sealed class FirmwareIntegrationServiceTests
         var inner = new TestTransport();
         await using var svc = CreateService(inner);
 
-        var ack = new ResqSwarmTaskAck { TaskId = 7, Response = 0, ProgressPercent = 50 };
+        var ack = new ResqSwarmTaskAck { TaskId = 7, Response = ResqTaskResponse.Accept, ProgressPercent = 50 };
         await svc.ReportTaskProgressAsync(ack);
 
         inner.SentPackets.Should().HaveCount(1);
@@ -118,7 +119,7 @@ public sealed class FirmwareIntegrationServiceTests
             TaskId = 99,
             TargetDroneId = 1,
             TimeoutSec = 300,
-            Priority = 2,
+            Priority = ResqTaskPriority.High,
         };
         var payload = new byte[ResqSwarmTask.PayloadSize];
         task.Serialize(payload);

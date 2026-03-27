@@ -17,17 +17,17 @@
 namespace ResQ.Mavlink.Dialect.Enums;
 
 /// <summary>
-/// Response status from a drone acknowledging a swarm task in <see cref="Messages.ResqSwarmTaskAck"/>.
+/// Response code sent by a drone in <see cref="Messages.ResqSwarmTaskAck"/>.
 /// </summary>
 public enum ResqTaskResponse : byte
 {
-    /// <summary>Drone accepted the task and is executing it.</summary>
+    /// <summary>Task accepted and will be executed.</summary>
     Accept = 0,
 
-    /// <summary>Drone rejected the task (unable to execute).</summary>
+    /// <summary>Task rejected (e.g., drone is unable to execute it).</summary>
     Reject = 1,
 
-    /// <summary>Task completed successfully.</summary>
+    /// <summary>Task has been completed successfully.</summary>
     Complete = 2,
 
     /// <summary>Task execution failed.</summary>
