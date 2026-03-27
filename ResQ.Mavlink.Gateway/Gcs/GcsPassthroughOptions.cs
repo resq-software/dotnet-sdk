@@ -43,4 +43,9 @@ public sealed class GcsPassthroughOptions
     /// Gets or sets whether GCS passthrough is active. Defaults to <see langword="true"/>.
     /// </summary>
     public bool Enabled { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets the remote host address for GCS connections. Defaults to "127.0.0.1".
+    /// </summary>
+    public string GcsRemoteHost { get; set; } = "127.0.0.1";
 }

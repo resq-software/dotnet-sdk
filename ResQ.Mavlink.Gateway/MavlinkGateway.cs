@@ -209,7 +209,7 @@ public sealed class MavlinkGateway : IMavlinkGateway
                     if (_gcsPassthrough is not null)
                     {
                         try { await _gcsPassthrough.ForwardToGcsAsync(rawPacket, ct).ConfigureAwait(false); }
-                        catch { /* best effort */ }
+                        catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"Gateway forward error (unknown message): {ex.Message}"); }
                     }
                     continue;
                 }
@@ -240,7 +240,7 @@ public sealed class MavlinkGateway : IMavlinkGateway
                 if (_gcsPassthrough is not null)
                 {
                     try { await _gcsPassthrough.ForwardToGcsAsync(rawPacket, ct).ConfigureAwait(false); }
-                    catch { /* best effort */ }
+                    catch (Exception ex) { System.Diagnostics.Debug.WriteLine($"Gateway forward error: {ex.Message}"); }
                 }
             }
         }

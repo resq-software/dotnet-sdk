@@ -78,7 +78,7 @@ public sealed class GcsPassthrough : IAsyncDisposable
         _gcsTransport = new UdpTransport(new UdpTransportOptions
         {
             ListenPort = _options.GcsListenPort,
-            RemoteHost = "127.0.0.1",
+            RemoteHost = _options.GcsRemoteHost,
             RemotePort = _options.GcsListenPort,
         });
     }
@@ -154,9 +154,9 @@ public sealed class GcsPassthrough : IAsyncDisposable
                 {
                     break;
                 }
-                catch
+                catch (Exception ex)
                 {
-                    // Swallow individual send errors; keep forwarding.
+                    System.Diagnostics.Debug.WriteLine($"GCS to vehicle forward error: {ex.Message}");
                 }
             }
         }
@@ -180,9 +180,9 @@ public sealed class GcsPassthrough : IAsyncDisposable
                 {
                     break;
                 }
-                catch
+                catch (Exception ex)
                 {
-                    // Swallow individual send errors; keep forwarding.
+                    System.Diagnostics.Debug.WriteLine($"Vehicle to GCS forward error: {ex.Message}");
                 }
             }
         }
