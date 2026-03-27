@@ -23,8 +23,8 @@ namespace ResQ.Mavlink.Messages;
 /// </summary>
 public readonly record struct GlobalPositionIntCov : IMavlinkMessage
 {
-    /// <summary>Payload size in bytes (simplified, without covariance matrix).</summary>
-    public const int PayloadSize = 32;
+    /// <summary>Payload size in bytes (simplified, without covariance matrix). 8+4+4+4+4+4+4+4 = 36.</summary>
+    public const int PayloadSize = 36;
 
     /// <summary>Timestamp in microseconds.</summary>
     public ulong TimeUsec { get; init; }
@@ -65,7 +65,8 @@ public readonly record struct GlobalPositionIntCov : IMavlinkMessage
         BinaryPrimitives.WriteInt32LittleEndian(buffer[16..], Alt);
         BinaryPrimitives.WriteInt32LittleEndian(buffer[20..], RelativeAlt);
         BinaryPrimitives.WriteSingleLittleEndian(buffer[24..], Vx);
-        BinaryPrimitives.WriteSingleLittleEndian(buffer[28..], Vz);
+        BinaryPrimitives.WriteSingleLittleEndian(buffer[28..], Vy);
+        BinaryPrimitives.WriteSingleLittleEndian(buffer[32..], Vz);
     }
 
     /// <summary>Deserializes a <see cref="GlobalPositionIntCov"/> from a raw payload span.</summary>
@@ -78,6 +79,7 @@ public readonly record struct GlobalPositionIntCov : IMavlinkMessage
             Alt = BinaryPrimitives.ReadInt32LittleEndian(buffer[16..]),
             RelativeAlt = BinaryPrimitives.ReadInt32LittleEndian(buffer[20..]),
             Vx = BinaryPrimitives.ReadSingleLittleEndian(buffer[24..]),
-            Vz = BinaryPrimitives.ReadSingleLittleEndian(buffer[28..]),
+            Vy = BinaryPrimitives.ReadSingleLittleEndian(buffer[28..]),
+            Vz = BinaryPrimitives.ReadSingleLittleEndian(buffer[32..]),
         };
 }

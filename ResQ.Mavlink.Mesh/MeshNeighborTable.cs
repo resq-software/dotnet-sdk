@@ -39,10 +39,10 @@ public sealed class MeshNeighborEntry
     public bool HasGroundLink { get; set; }
 
     /// <summary>
-    /// Gets whether this entry has not been refreshed within the timeout window.
-    /// Uses a 10-second hard-coded threshold per the mesh spec.
+    /// Returns whether this entry has not been refreshed within the given timeout.
     /// </summary>
-    public bool IsStale => DateTimeOffset.UtcNow - LastSeen > TimeSpan.FromSeconds(10);
+    /// <param name="timeoutSec">Stale threshold in seconds.</param>
+    public bool IsStale(int timeoutSec) => DateTimeOffset.UtcNow - LastSeen > TimeSpan.FromSeconds(timeoutSec);
 }
 
 /// <summary>
@@ -89,7 +89,7 @@ public sealed class MeshNeighborTable
     public IReadOnlyList<MeshNeighborEntry> GetNeighbors()
     {
         lock (_lock)
-            return _entries.Values.Where(e => !e.IsStale).ToList();
+            return _entries.Values.Where(e => !e.IsStale(_options.NeighborTimeoutSec)).ToList();
     }
 
     /// <summary>
@@ -110,7 +110,7 @@ public sealed class MeshNeighborTable
         get
         {
             lock (_lock)
-                return !_entries.Values.Any(e => !e.IsStale && e.HasGroundLink);
+                return !_entries.Values.Any(e => !e.IsStale(_options.NeighborTimeoutSec) && e.HasGroundLink);
         }
     }
 
@@ -127,11 +127,11 @@ public sealed class MeshNeighborTable
         lock (_lock)
         {
             neighbors = _entries.Values
-                .Where(e => !e.IsStale)
+                .Where(e => !e.IsStale(_options.NeighborTimeoutSec))
                 .OrderByDescending(e => e.Rssi)
                 .Take(5)
                 .ToList();
-            hasGroundLink = _entries.Values.Any(e => !e.IsStale && e.HasGroundLink);
+            hasGroundLink = _entries.Values.Any(e => !e.IsStale(_options.NeighborTimeoutSec) && e.HasGroundLink);
         }
 
         var count = (byte)neighbors.Count;

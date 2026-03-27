@@ -47,6 +47,7 @@ public sealed class MeshTransport : IMavlinkTransport
 
     // Priority transmit queue — lower priority value = dequeued first.
     private readonly PriorityQueue<MavlinkPacket, int> _txQueue;
+    private int _txWorstPriority; // highest numeric priority (= lowest urgency) currently in the queue
     private readonly SemaphoreSlim _txSignal = new(0);
     private readonly object _txLock = new();
 
@@ -73,6 +74,7 @@ public sealed class MeshTransport : IMavlinkTransport
         _inner = inner;
         _options = options.Value;
         _txQueue = new PriorityQueue<MavlinkPacket, int>();
+        _txWorstPriority = int.MinValue;
         _dedupRing = new int[_options.DeduplicationWindowSize];
         _dedupSet = new HashSet<int>(_options.DeduplicationWindowSize);
         for (var i = 0; i < _dedupRing.Length; i++) _dedupRing[i] = -1;
@@ -118,18 +120,39 @@ public sealed class MeshTransport : IMavlinkTransport
         {
             if (_txQueue.Count >= _options.MaxTransmitQueueSize)
             {
-                // Evict the lowest-priority (highest numeric) item if the new item is higher priority.
-                _txQueue.TryPeek(out _, out var worstPriority);
-                if (priority < worstPriority)
+                // Drop incoming if it is not more urgent (lower number) than the worst in queue.
+                if (priority >= _txWorstPriority)
+                    return ValueTask.CompletedTask;
+
+                // Incoming is more urgent — drain the queue, discard the single worst item,
+                // re-enqueue the rest, then add the new packet.
+                var snapshot = new List<(MavlinkPacket pkt, int pri)>(_txQueue.Count);
+                while (_txQueue.TryDequeue(out var p, out var pri))
+                    snapshot.Add((p, pri));
+
+                // Find index of the item with the highest priority number (lowest urgency).
+                int worstIdx = 0;
+                for (int i = 1; i < snapshot.Count; i++)
                 {
-                    _txQueue.TryDequeue(out _, out _);
-                    _txQueue.Enqueue(flaggedPacket, priority);
+                    if (snapshot[i].pri > snapshot[worstIdx].pri)
+                        worstIdx = i;
                 }
-                // else drop new packet silently — queue full and new item is not higher priority
+                snapshot.RemoveAt(worstIdx);
+
+                _txWorstPriority = int.MinValue;
+                foreach (var (p, pri) in snapshot)
+                {
+                    _txQueue.Enqueue(p, pri);
+                    if (pri > _txWorstPriority) _txWorstPriority = pri;
+                }
+                _txQueue.Enqueue(flaggedPacket, priority);
+                if (priority > _txWorstPriority) _txWorstPriority = priority;
             }
             else
             {
                 _txQueue.Enqueue(flaggedPacket, priority);
+                if (priority > _txWorstPriority)
+                    _txWorstPriority = priority;
             }
         }
         _txSignal.Release();
@@ -167,6 +190,8 @@ public sealed class MeshTransport : IMavlinkTransport
             lock (_txLock)
             {
                 _txQueue.TryDequeue(out pkt, out _);
+                if (_txQueue.Count == 0)
+                    _txWorstPriority = int.MinValue;
             }
             if (pkt is null) continue;
 

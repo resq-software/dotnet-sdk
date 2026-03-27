@@ -23,8 +23,8 @@ namespace ResQ.Mavlink.Messages;
 /// </summary>
 public readonly record struct TerrainData : IMavlinkMessage
 {
-    /// <summary>Payload size in bytes (4+4+2+1+1+32 = 44).</summary>
-    public const int PayloadSize = 44;
+    /// <summary>Payload size in bytes: Lat(4)+Lon(4)+GridSpacing(2)+Gridbit(1)+Data[16](32) = 43.</summary>
+    public const int PayloadSize = 43;
 
     /// <summary>Latitude of SW corner of first grid (degrees * 1e7).</summary>
     public int Lat { get; init; }
@@ -38,11 +38,8 @@ public readonly record struct TerrainData : IMavlinkMessage
     /// <summary>bit within the terrain request mask — which 4x4 block this is.</summary>
     public byte Gridbit { get; init; }
 
-    /// <summary>Terrain data MSL — 16 altitude values (meters * 10^-1 = dm).</summary>
-    public short Data0 { get; init; }
-
-    /// <summary>Second terrain data point.</summary>
-    public short Data1 { get; init; }
+    /// <summary>Terrain data MSL — 16 altitude values (meters * 10^-1 = dm). Array of exactly 16 elements.</summary>
+    public short[]? Data { get; init; }
 
     /// <inheritdoc/>
     public uint MessageId => 134;
@@ -57,21 +54,29 @@ public readonly record struct TerrainData : IMavlinkMessage
         BinaryPrimitives.WriteInt32LittleEndian(buffer[4..], Lon);
         BinaryPrimitives.WriteUInt16LittleEndian(buffer[8..], GridSpacing);
         buffer[10] = Gridbit;
-        // 16 data shorts starting at byte 11; simplified to first two
-        BinaryPrimitives.WriteInt16LittleEndian(buffer[11..], Data0);
-        BinaryPrimitives.WriteInt16LittleEndian(buffer[13..], Data1);
-        // remaining 28 bytes are zero
+        // 16 data shorts starting at byte 11 (16 * 2 = 32 bytes)
+        var dataArray = Data ?? new short[16];
+        for (int i = 0; i < 16; i++)
+        {
+            var val = i < dataArray.Length ? dataArray[i] : (short)0;
+            BinaryPrimitives.WriteInt16LittleEndian(buffer[(11 + i * 2)..], val);
+        }
     }
 
     /// <summary>Deserializes a <see cref="TerrainData"/> from a raw payload span.</summary>
-    public static TerrainData Deserialize(ReadOnlySpan<byte> buffer) =>
-        new()
+    public static TerrainData Deserialize(ReadOnlySpan<byte> buffer)
+    {
+        var data = new short[16];
+        for (int i = 0; i < 16; i++)
+            data[i] = BinaryPrimitives.ReadInt16LittleEndian(buffer[(11 + i * 2)..]);
+
+        return new TerrainData
         {
             Lat = BinaryPrimitives.ReadInt32LittleEndian(buffer),
             Lon = BinaryPrimitives.ReadInt32LittleEndian(buffer[4..]),
             GridSpacing = BinaryPrimitives.ReadUInt16LittleEndian(buffer[8..]),
             Gridbit = buffer[10],
-            Data0 = BinaryPrimitives.ReadInt16LittleEndian(buffer[11..]),
-            Data1 = BinaryPrimitives.ReadInt16LittleEndian(buffer[13..]),
+            Data = data,
         };
+    }
 }

@@ -54,13 +54,13 @@ public readonly record struct ParamSet : IMavlinkMessage
         BinaryPrimitives.WriteSingleLittleEndian(buffer, ParamValue);
         buffer[4] = TargetSystem;
         buffer[5] = TargetComponent;
-        // param_id: char[16]
+        // param_id: char[16] — truncate to 16 chars to prevent buffer overrun.
         var idBytes = buffer[6..22];
         idBytes.Clear();
         if (!string.IsNullOrEmpty(ParamId))
         {
-            var truncatedId = ParamId.Length > 16 ? ParamId[..16] : ParamId;
-            Encoding.ASCII.GetBytes(truncatedId.AsSpan(), idBytes);
+            var id = ParamId.Length > 16 ? ParamId[..16] : ParamId;
+            Encoding.ASCII.GetBytes(id.AsSpan(), idBytes);
         }
         buffer[22] = ParamType;
     }

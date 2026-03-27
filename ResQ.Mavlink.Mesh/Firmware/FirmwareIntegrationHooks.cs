@@ -77,6 +77,7 @@ public sealed class FirmwareIntegrationService : IFirmwareIntegration, IAsyncDis
     private readonly object _taskLock = new();
     private readonly CancellationTokenSource _cts = new();
     private readonly Task _dispatchTask;
+    private byte _sequenceNumber;
 
     /// <summary>
     /// Initialises a new <see cref="FirmwareIntegrationService"/>.
@@ -191,7 +192,7 @@ public sealed class FirmwareIntegrationService : IFirmwareIntegration, IAsyncDis
 
     private MavlinkPacket BuildPacket(uint messageId, byte[] payload) =>
         new(
-            sequenceNumber: 0,
+            sequenceNumber: _sequenceNumber++,
             systemId: _options.OwnSystemId,
             componentId: _options.OwnComponentId,
             messageId: messageId,

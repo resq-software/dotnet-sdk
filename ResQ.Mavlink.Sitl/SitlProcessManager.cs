@@ -131,6 +131,7 @@ public sealed class SitlProcessManager : IAsyncDisposable
             throw new InvalidOperationException(
                 $"A SITL process for instance {instanceIndex} is already running.");
 
+
         var mavPort = GetMavlinkPort(instanceIndex);
         var jsonPort = GetJsonPort(instanceIndex);
 
@@ -152,7 +153,7 @@ public sealed class SitlProcessManager : IAsyncDisposable
         var process = new Process { StartInfo = psi };
         process.Start();
 
-        _processes[instanceIndex] = process;
+        _processes.TryAdd(instanceIndex, process);
 
         return Task.FromResult(process);
     }
@@ -196,6 +197,7 @@ public sealed class SitlProcessManager : IAsyncDisposable
         _disposed = true;
 
         var indices = _processes.Keys.ToArray();
+
         foreach (var idx in indices)
         {
             await KillAsync(idx).ConfigureAwait(false);
