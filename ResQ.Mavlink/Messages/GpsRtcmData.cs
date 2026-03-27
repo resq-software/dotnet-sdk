@@ -30,6 +30,9 @@ public readonly record struct GpsRtcmData : IMavlinkMessage
     /// <summary>data length in bytes.</summary>
     public byte Len { get; init; }
 
+    /// <summary>RTCM data (up to 180 bytes).</summary>
+    public byte[] Data { get; init; }
+
     /// <inheritdoc/>
     public uint MessageId => 233;
 
@@ -41,14 +44,22 @@ public readonly record struct GpsRtcmData : IMavlinkMessage
     {
         buffer[0] = Flags;
         buffer[1] = Len;
-        // 180 data bytes at offset 2 — left as zero
+        if (Data != null)
+        {
+            Data.AsSpan(0, Math.Min(Data.Length, 180)).CopyTo(buffer[2..]);
+        }
     }
 
     /// <summary>Deserializes a <see cref="GpsRtcmData"/> from a raw payload span.</summary>
-    public static GpsRtcmData Deserialize(ReadOnlySpan<byte> buffer) =>
-        new()
+    public static GpsRtcmData Deserialize(ReadOnlySpan<byte> buffer)
+    {
+        var data = new byte[180];
+        buffer[2..].CopyTo(data.AsSpan());
+        return new()
         {
             Flags = buffer[0],
             Len = buffer[1],
+            Data = data,
         };
+    }
 }

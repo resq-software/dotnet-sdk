@@ -77,13 +77,12 @@ public sealed class SerialTransport : IMavlinkTransport
     }
 
     /// <inheritdoc/>
-    public ValueTask SendAsync(MavlinkPacket packet, CancellationToken ct = default)
+    public async ValueTask SendAsync(MavlinkPacket packet, CancellationToken ct = default)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
 
         var data = MavlinkCodec.Serialize(packet);
-        _port.BaseStream.Write(data, 0, data.Length);
-        return ValueTask.CompletedTask;
+        await _port.BaseStream.WriteAsync(data.AsMemory(0, data.Length), ct).ConfigureAwait(false);
     }
 
     /// <inheritdoc/>
@@ -104,8 +103,10 @@ public sealed class SerialTransport : IMavlinkTransport
             {
                 yield break;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                // Log the error but continue attempting to read
+                System.Diagnostics.Debug.WriteLine($"Serial transport receive error: {ex.Message}");
                 yield break;
             }
 

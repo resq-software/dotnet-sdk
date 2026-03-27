@@ -297,12 +297,16 @@ public sealed class Phase3MessageRoundTripTests
     [Fact]
     public void TerrainData_RoundTrips()
     {
-        var msg = new TerrainData { Lat = 473977418, Lon = 85255792, GridSpacing = 100, Gridbit = 0, Data0 = 4080, Data1 = 4090 };
+        var data = new short[16];
+        data[0] = 4080;
+        data[1] = 4090;
+        var msg = new TerrainData { Lat = 473977418, Lon = 85255792, GridSpacing = 100, Gridbit = 0, Data = data };
         var buf = new byte[TerrainData.PayloadSize];
         msg.Serialize(buf);
         var parsed = TerrainData.Deserialize(buf);
         parsed.Gridbit.Should().Be(0);
-        parsed.Data0.Should().Be(4080);
+        parsed.Data[0].Should().Be(4080);
+        parsed.Data[1].Should().Be(4090);
     }
 
     [Fact]
