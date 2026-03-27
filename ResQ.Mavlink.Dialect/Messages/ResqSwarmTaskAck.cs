@@ -15,6 +15,7 @@
  */
 
 using System.Buffers.Binary;
+using ResQ.Mavlink.Dialect.Enums;
 using ResQ.Mavlink.Messages;
 
 namespace ResQ.Mavlink.Dialect.Messages;
@@ -38,8 +39,8 @@ public readonly record struct ResqSwarmTaskAck : IMavlinkMessage
     /// <summary>Task ID being acknowledged.</summary>
     public uint TaskId { get; init; }
 
-    /// <summary>Response code: 0=Accept, 1=Reject, 2=Complete, 3=Failed.</summary>
-    public byte Response { get; init; }
+    /// <summary>Response status from the drone.</summary>
+    public ResqTaskResponse Response { get; init; }
 
     /// <summary>Task progress in percent (0–100).</summary>
     public byte ProgressPercent { get; init; }
@@ -48,7 +49,7 @@ public readonly record struct ResqSwarmTaskAck : IMavlinkMessage
     public void Serialize(Span<byte> buffer)
     {
         BinaryPrimitives.WriteUInt32LittleEndian(buffer, TaskId);
-        buffer[4] = Response;
+        buffer[4] = (byte)Response;
         buffer[5] = ProgressPercent;
     }
 
@@ -58,7 +59,7 @@ public readonly record struct ResqSwarmTaskAck : IMavlinkMessage
     public static ResqSwarmTaskAck Deserialize(ReadOnlySpan<byte> buffer) => new()
     {
         TaskId = BinaryPrimitives.ReadUInt32LittleEndian(buffer),
-        Response = buffer[4],
+        Response = (ResqTaskResponse)buffer[4],
         ProgressPercent = buffer[5],
     };
 }

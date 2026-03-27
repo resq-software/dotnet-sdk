@@ -48,7 +48,7 @@ public readonly record struct ResqDroneCapability : IMavlinkMessage
     public ushort MaxFlightTimeMin { get; init; }
 
     /// <summary>Maximum speed in cm/s.</summary>
-    public ushort MaxSpeedMs { get; init; }
+    public ushort MaxSpeedCms { get; init; }
 
     /// <summary>Maximum payload capacity in grams.</summary>
     public ushort MaxPayloadGrams { get; init; }
@@ -67,7 +67,7 @@ public readonly record struct ResqDroneCapability : IMavlinkMessage
     {
         BinaryPrimitives.WriteUInt16LittleEndian(buffer, SensorFlags);
         BinaryPrimitives.WriteUInt16LittleEndian(buffer[2..], MaxFlightTimeMin);
-        BinaryPrimitives.WriteUInt16LittleEndian(buffer[4..], MaxSpeedMs);
+        BinaryPrimitives.WriteUInt16LittleEndian(buffer[4..], MaxSpeedCms);
         BinaryPrimitives.WriteUInt16LittleEndian(buffer[6..], MaxPayloadGrams);
         BinaryPrimitives.WriteUInt16LittleEndian(buffer[8..], CurrentPayloadGrams);
         buffer[10] = SystemId;
@@ -81,7 +81,7 @@ public readonly record struct ResqDroneCapability : IMavlinkMessage
     {
         SensorFlags = BinaryPrimitives.ReadUInt16LittleEndian(buffer),
         MaxFlightTimeMin = BinaryPrimitives.ReadUInt16LittleEndian(buffer[2..]),
-        MaxSpeedMs = BinaryPrimitives.ReadUInt16LittleEndian(buffer[4..]),
+        MaxSpeedCms = BinaryPrimitives.ReadUInt16LittleEndian(buffer[4..]),
         MaxPayloadGrams = BinaryPrimitives.ReadUInt16LittleEndian(buffer[6..]),
         CurrentPayloadGrams = BinaryPrimitives.ReadUInt16LittleEndian(buffer[8..]),
         SystemId = buffer[10],

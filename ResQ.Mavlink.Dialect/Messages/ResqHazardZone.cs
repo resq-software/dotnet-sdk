@@ -61,8 +61,8 @@ public readonly record struct ResqHazardZone : IMavlinkMessage
     /// <summary>Type of hazard.</summary>
     public ResqHazardType HazardType { get; init; }
 
-    /// <summary>Hazard severity: 0=Low, 1=Medium, 2=High, 3=Extreme.</summary>
-    public byte Severity { get; init; }
+    /// <summary>Severity level of the hazard.</summary>
+    public ResqHazardSeverity Severity { get; init; }
 
     /// <inheritdoc/>
     public void Serialize(Span<byte> buffer)
@@ -75,7 +75,7 @@ public readonly record struct ResqHazardZone : IMavlinkMessage
         BinaryPrimitives.WriteSingleLittleEndian(buffer[24..], ProgressionSpeed);
         BinaryPrimitives.WriteSingleLittleEndian(buffer[28..], ProgressionHeading);
         buffer[32] = (byte)HazardType;
-        buffer[33] = Severity;
+        buffer[33] = (byte)Severity;
     }
 
     /// <summary>Deserializes a <see cref="ResqHazardZone"/> from a raw payload span.</summary>
@@ -91,6 +91,6 @@ public readonly record struct ResqHazardZone : IMavlinkMessage
         ProgressionSpeed = BinaryPrimitives.ReadSingleLittleEndian(buffer[24..]),
         ProgressionHeading = BinaryPrimitives.ReadSingleLittleEndian(buffer[28..]),
         HazardType = (ResqHazardType)buffer[32],
-        Severity = buffer[33],
+        Severity = (ResqHazardSeverity)buffer[33],
     };
 }

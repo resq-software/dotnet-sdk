@@ -36,16 +36,16 @@ public sealed class ResqDialectEndToEndTests
     {
         var detection = new ResqDetection
         {
-            TimestampMs   = 1_711_400_000_123UL,
-            LatE7         = 376_874_200,
-            LonE7         = -1_222_313_100,
-            AltMm         = 100_000,
-            BboxX         = 100,
-            BboxY         = 50,
-            BboxW         = 200,
-            BboxH         = 150,
+            TimestampMs = 1_711_400_000_123UL,
+            LatE7 = 376_874_200,
+            LonE7 = -1_222_313_100,
+            AltMm = 100_000,
+            BboxX = 100,
+            BboxY = 50,
+            BboxW = 200,
+            BboxH = 150,
             DetectionType = ResqDetectionType.Fire,
-            Confidence    = 95,
+            Confidence = 95,
         };
 
         var wireBytes = SerializeDialectMessage(detection, 60000, sequenceNumber: 1);
@@ -77,13 +77,13 @@ public sealed class ResqDialectEndToEndTests
         var beacon = new ResqEmergencyBeacon
         {
             TimestampMs = 1_711_700_000_000UL,
-            BeaconId    = 77u,
-            LatE7       = 376_500_000,
-            LonE7       = -1_222_000_000,
-            AltMm       = 0,
-            BeaconType  = ResqBeaconType.MedicalEmergency,
-            Urgency     = 3,
-            Ttl         = 4,
+            BeaconId = 77u,
+            LatE7 = 376_500_000,
+            LonE7 = -1_222_000_000,
+            AltMm = 0,
+            BeaconType = ResqBeaconType.MedicalEmergency,
+            Urgency = (ResqUrgencyLevel)3,
+            Ttl = 4,
         };
 
         var wireBytes = SerializeDialectMessage(beacon, 60007, sequenceNumber: 2);
@@ -103,15 +103,15 @@ public sealed class ResqDialectEndToEndTests
     {
         var zone = new ResqHazardZone
         {
-            TimestampMs        = 1_711_500_000_000UL,
-            ZoneId             = 12u,
-            CenterLatE7        = 376_000_000,
-            CenterLonE7        = -1_221_000_000,
-            RadiusMetres       = 500u,
-            ProgressionSpeed   = 1.5f,
+            TimestampMs = 1_711_500_000_000UL,
+            ZoneId = 12u,
+            CenterLatE7 = 376_000_000,
+            CenterLonE7 = -1_221_000_000,
+            RadiusMetres = 500u,
+            ProgressionSpeed = 1.5f,
             ProgressionHeading = 0.78f,
-            HazardType         = ResqHazardType.Flood,
-            Severity           = 2,
+            HazardType = ResqHazardType.Flood,
+            Severity = (ResqHazardSeverity)2,
         };
 
         var wireBytes = SerializeDialectMessage(zone, 60004, sequenceNumber: 3);
@@ -133,13 +133,13 @@ public sealed class ResqDialectEndToEndTests
     {
         var cap = new ResqDroneCapability
         {
-            SensorFlags         = 0x3F,
-            MaxFlightTimeMin    = 30,
-            MaxSpeedMs          = 1500,
-            MaxPayloadGrams     = 1000,
+            SensorFlags = 0x3F,
+            MaxFlightTimeMin = 30,
+            MaxSpeedCms = 1500,
+            MaxPayloadGrams = 1000,
             CurrentPayloadGrams = 250,
-            SystemId            = 9,
-            DialectVersion      = 1,
+            SystemId = 9,
+            DialectVersion = 1,
         };
 
         var wireBytes = SerializeDialectMessage(cap, 60006, sequenceNumber: 4);
@@ -177,12 +177,12 @@ public sealed class ResqDialectEndToEndTests
 
     private static int GetPayloadSize(IMavlinkMessage message) => message switch
     {
-        ResqDetection       => ResqDetection.PayloadSize,
-        ResqDetectionAck    => ResqDetectionAck.PayloadSize,
-        ResqSwarmTask       => ResqSwarmTask.PayloadSize,
-        ResqSwarmTaskAck    => ResqSwarmTaskAck.PayloadSize,
-        ResqHazardZone      => ResqHazardZone.PayloadSize,
-        ResqMeshTopology    => ResqMeshTopology.PayloadSize,
+        ResqDetection => ResqDetection.PayloadSize,
+        ResqDetectionAck => ResqDetectionAck.PayloadSize,
+        ResqSwarmTask => ResqSwarmTask.PayloadSize,
+        ResqSwarmTaskAck => ResqSwarmTaskAck.PayloadSize,
+        ResqHazardZone => ResqHazardZone.PayloadSize,
+        ResqMeshTopology => ResqMeshTopology.PayloadSize,
         ResqDroneCapability => ResqDroneCapability.PayloadSize,
         ResqEmergencyBeacon => ResqEmergencyBeacon.PayloadSize,
         _ => throw new ArgumentException($"Unknown dialect message type: {message.GetType().Name}"),

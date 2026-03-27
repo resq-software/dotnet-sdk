@@ -55,8 +55,8 @@ public readonly record struct ResqEmergencyBeacon : IMavlinkMessage
     /// <summary>Type of emergency.</summary>
     public ResqBeaconType BeaconType { get; init; }
 
-    /// <summary>Urgency level: 0=Low, 1=Medium, 2=High, 3=LifeThreatening.</summary>
-    public byte Urgency { get; init; }
+    /// <summary>Urgency level of the distress beacon.</summary>
+    public ResqUrgencyLevel Urgency { get; init; }
 
     /// <summary>Remaining mesh relay hops (decrements at each relay node).</summary>
     public byte Ttl { get; init; }
@@ -70,7 +70,7 @@ public readonly record struct ResqEmergencyBeacon : IMavlinkMessage
         BinaryPrimitives.WriteInt32LittleEndian(buffer[16..], LonE7);
         BinaryPrimitives.WriteInt32LittleEndian(buffer[20..], AltMm);
         buffer[24] = (byte)BeaconType;
-        buffer[25] = Urgency;
+        buffer[25] = (byte)Urgency;
         buffer[26] = Ttl;
     }
 
@@ -85,7 +85,7 @@ public readonly record struct ResqEmergencyBeacon : IMavlinkMessage
         LonE7 = BinaryPrimitives.ReadInt32LittleEndian(buffer[16..]),
         AltMm = BinaryPrimitives.ReadInt32LittleEndian(buffer[20..]),
         BeaconType = (ResqBeaconType)buffer[24],
-        Urgency = buffer[25],
+        Urgency = (ResqUrgencyLevel)buffer[25],
         Ttl = buffer[26],
     };
 }

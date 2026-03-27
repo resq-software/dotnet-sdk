@@ -67,11 +67,11 @@ public readonly record struct ResqSwarmTask : IMavlinkMessage
     /// <summary>Type of task to perform.</summary>
     public ResqTaskType TaskType { get; init; }
 
-    /// <summary>Task priority: 0=Low, 1=Normal, 2=High, 3=Critical.</summary>
-    public byte Priority { get; init; }
+    /// <summary>Task priority.</summary>
+    public ResqTaskPriority Priority { get; init; }
 
-    /// <summary>Search pattern: 0=Parallel, 1=Spiral, 2=Expanding.</summary>
-    public byte SearchPattern { get; init; }
+    /// <summary>Search pattern to use for the task.</summary>
+    public ResqSearchPattern SearchPattern { get; init; }
 
     /// <inheritdoc/>
     public void Serialize(Span<byte> buffer)
@@ -86,8 +86,8 @@ public readonly record struct ResqSwarmTask : IMavlinkMessage
         BinaryPrimitives.WriteUInt16LittleEndian(buffer[28..], TimeoutSec);
         buffer[30] = TargetDroneId;
         buffer[31] = (byte)TaskType;
-        buffer[32] = Priority;
-        buffer[33] = SearchPattern;
+        buffer[32] = (byte)Priority;
+        buffer[33] = (byte)SearchPattern;
     }
 
     /// <summary>Deserializes a <see cref="ResqSwarmTask"/> from a raw payload span.</summary>
@@ -105,7 +105,7 @@ public readonly record struct ResqSwarmTask : IMavlinkMessage
         TimeoutSec = BinaryPrimitives.ReadUInt16LittleEndian(buffer[28..]),
         TargetDroneId = buffer[30],
         TaskType = (ResqTaskType)buffer[31],
-        Priority = buffer[32],
-        SearchPattern = buffer[33],
+        Priority = (ResqTaskPriority)buffer[32],
+        SearchPattern = (ResqSearchPattern)buffer[33],
     };
 }

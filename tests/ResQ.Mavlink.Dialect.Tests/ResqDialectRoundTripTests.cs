@@ -33,16 +33,16 @@ public sealed class ResqDialectRoundTripTests
     {
         var original = new ResqDetection
         {
-            TimestampMs   = 1_711_400_000_000UL,
-            LatE7         = 376_874_200,
-            LonE7         = -1_222_313_100,
-            AltMm         = 150_000,
-            BboxX         = 320,
-            BboxY         = 240,
-            BboxW         = 64,
-            BboxH         = 128,
+            TimestampMs = 1_711_400_000_000UL,
+            LatE7 = 376_874_200,
+            LonE7 = -1_222_313_100,
+            AltMm = 150_000,
+            BboxX = 320,
+            BboxY = 240,
+            BboxW = 64,
+            BboxH = 128,
             DetectionType = ResqDetectionType.Person,
-            Confidence    = 87,
+            Confidence = 87,
         };
 
         var buf = new byte[ResqDetection.PayloadSize];
@@ -81,10 +81,10 @@ public sealed class ResqDialectRoundTripTests
         var original = new ResqDetectionAck
         {
             OriginalTimestampMs = 1_711_400_000_000UL,
-            LatE7               = 376_874_200,
-            LonE7               = -1_222_313_100,
-            AckType             = 2, // Investigating
-            AckerSystemId       = 42,
+            LatE7 = 376_874_200,
+            LonE7 = -1_222_313_100,
+            AckType = (ResqDetectionAckType)2, // Investigating
+            AckerSystemId = 42,
         };
 
         var buf = new byte[ResqDetectionAck.PayloadSize];
@@ -101,18 +101,18 @@ public sealed class ResqDialectRoundTripTests
     {
         var original = new ResqSwarmTask
         {
-            TaskId       = 0xDEAD_BEEFu,
-            AreaLat1E7   = 376_000_000,
-            AreaLon1E7   = -1_220_000_000,
-            AreaLat2E7   = 377_000_000,
-            AreaLon2E7   = -1_219_000_000,
-            AltMinMm     = 50_000,
-            AltMaxMm     = 120_000,
-            TimeoutSec   = 600,
+            TaskId = 0xDEAD_BEEFu,
+            AreaLat1E7 = 376_000_000,
+            AreaLon1E7 = -1_220_000_000,
+            AreaLat2E7 = 377_000_000,
+            AreaLon2E7 = -1_219_000_000,
+            AltMinMm = 50_000,
+            AltMaxMm = 120_000,
+            TimeoutSec = 600,
             TargetDroneId = 5,
-            TaskType     = ResqTaskType.Search,
-            Priority     = 2, // High
-            SearchPattern = 1, // Spiral
+            TaskType = ResqTaskType.Search,
+            Priority = (ResqTaskPriority)2, // High
+            SearchPattern = (ResqSearchPattern)1, // Spiral
         };
 
         var buf = new byte[ResqSwarmTask.PayloadSize];
@@ -141,8 +141,8 @@ public sealed class ResqDialectRoundTripTests
     {
         var original = new ResqSwarmTaskAck
         {
-            TaskId          = 99999u,
-            Response        = 2, // Complete
+            TaskId = 99999u,
+            Response = (ResqTaskResponse)2, // Complete
             ProgressPercent = 100,
         };
 
@@ -160,15 +160,15 @@ public sealed class ResqDialectRoundTripTests
     {
         var original = new ResqHazardZone
         {
-            TimestampMs         = 1_711_500_000_000UL,
-            ZoneId              = 7u,
-            CenterLatE7         = 377_000_000,
-            CenterLonE7         = -1_221_000_000,
-            RadiusMetres        = 250u,
-            ProgressionSpeed    = 2.5f,
-            ProgressionHeading  = 1.2f,
-            HazardType          = ResqHazardType.Fire,
-            Severity            = 3, // Extreme
+            TimestampMs = 1_711_500_000_000UL,
+            ZoneId = 7u,
+            CenterLatE7 = 377_000_000,
+            CenterLonE7 = -1_221_000_000,
+            RadiusMetres = 250u,
+            ProgressionSpeed = 2.5f,
+            ProgressionHeading = 1.2f,
+            HazardType = ResqHazardType.Fire,
+            Severity = (ResqHazardSeverity)3, // Extreme
         };
 
         var buf = new byte[ResqHazardZone.PayloadSize];
@@ -204,20 +204,20 @@ public sealed class ResqDialectRoundTripTests
     {
         var original = new ResqMeshTopology
         {
-            TimestampMs      = 1_711_600_000_000UL,
+            TimestampMs = 1_711_600_000_000UL,
             ReporterSystemId = 3,
-            NeighborCount    = 3,
-            Neighbor1Id      = 1,
-            Neighbor1Rssi    = 210,
-            Neighbor2Id      = 2,
-            Neighbor2Rssi    = 185,
-            Neighbor3Id      = 4,
-            Neighbor3Rssi    = 170,
-            Neighbor4Id      = 0,
-            Neighbor4Rssi    = 0,
-            Neighbor5Id      = 0,
-            Neighbor5Rssi    = 0,
-            HasGroundLink    = 1,
+            NeighborCount = 3,
+            Neighbor1Id = 1,
+            Neighbor1Rssi = 210,
+            Neighbor2Id = 2,
+            Neighbor2Rssi = 185,
+            Neighbor3Id = 4,
+            Neighbor3Rssi = 170,
+            Neighbor4Id = 0,
+            Neighbor4Rssi = 0,
+            Neighbor5Id = 0,
+            Neighbor5Rssi = 0,
+            HasGroundLink = 1,
         };
 
         var buf = new byte[ResqMeshTopology.PayloadSize];
@@ -246,13 +246,13 @@ public sealed class ResqDialectRoundTripTests
     {
         var original = new ResqDroneCapability
         {
-            SensorFlags          = 0x3F, // all sensors
-            MaxFlightTimeMin     = 45,
-            MaxSpeedMs           = 1800, // 18 m/s
-            MaxPayloadGrams      = 2000,
-            CurrentPayloadGrams  = 500,
-            SystemId             = 7,
-            DialectVersion       = 1,
+            SensorFlags = 0x3F, // all sensors
+            MaxFlightTimeMin = 45,
+            MaxSpeedCms = 1800, // 18 m/s
+            MaxPayloadGrams = 2000,
+            CurrentPayloadGrams = 500,
+            SystemId = 7,
+            DialectVersion = 1,
         };
 
         var buf = new byte[ResqDroneCapability.PayloadSize];
@@ -279,13 +279,13 @@ public sealed class ResqDialectRoundTripTests
         var original = new ResqEmergencyBeacon
         {
             TimestampMs = 1_711_700_000_000UL,
-            BeaconId    = 42u,
-            LatE7       = 376_500_000,
-            LonE7       = -1_222_000_000,
-            AltMm       = 0,
-            BeaconType  = ResqBeaconType.PersonInDistress,
-            Urgency     = 3, // LifeThreatening
-            Ttl         = 5,
+            BeaconId = 42u,
+            LatE7 = 376_500_000,
+            LonE7 = -1_222_000_000,
+            AltMm = 0,
+            BeaconType = ResqBeaconType.PersonInDistress,
+            Urgency = (ResqUrgencyLevel)3, // LifeThreatening
+            Ttl = 5,
         };
 
         var buf = new byte[ResqEmergencyBeacon.PayloadSize];

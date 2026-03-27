@@ -30,32 +30,32 @@ public static class MavlinkCrc
     // Sourced from MAVLink common.xml message definitions. Thread-safe for dialect registration.
     private static readonly ConcurrentDictionary<uint, byte> CrcExtraTable = new(
         new Dictionary<uint, byte>()
-    {
-        [0] = 50,     // HEARTBEAT
-        [1] = 124,    // SYS_STATUS
-        [11] = 89,    // SET_MODE
-        [20] = 214,   // PARAM_REQUEST_READ
-        [22] = 220,   // PARAM_VALUE
-        [23] = 168,   // PARAM_SET
-        [24] = 24,    // GPS_RAW_INT
-        [30] = 39,    // ATTITUDE
-        [33] = 104,   // GLOBAL_POSITION_INT
-        [40] = 230,   // MISSION_REQUEST
-        [42] = 28,    // MISSION_CURRENT
-        [44] = 221,   // MISSION_COUNT
-        [47] = 153,   // MISSION_ACK
-        [51] = 196,   // MISSION_REQUEST_INT
-        [70] = 124,   // RC_CHANNELS_OVERRIDE
-        [73] = 38,    // MISSION_ITEM_INT
-        [74] = 20,    // VFR_HUD
-        [76] = 152,   // COMMAND_LONG
-        [77] = 143,   // COMMAND_ACK
-        [86] = 5,     // SET_POSITION_TARGET_GLOBAL_INT
-        [87] = 150,   // POSITION_TARGET_GLOBAL_INT
-        [242] = 104,  // HOME_POSITION
-        [245] = 130,  // EXTENDED_SYS_STATE
-        [253] = 83,   // STATUSTEXT
-    });
+        {
+            [0] = 50,     // HEARTBEAT
+            [1] = 124,    // SYS_STATUS
+            [11] = 89,    // SET_MODE
+            [20] = 214,   // PARAM_REQUEST_READ
+            [22] = 220,   // PARAM_VALUE
+            [23] = 168,   // PARAM_SET
+            [24] = 24,    // GPS_RAW_INT
+            [30] = 39,    // ATTITUDE
+            [33] = 104,   // GLOBAL_POSITION_INT
+            [40] = 230,   // MISSION_REQUEST
+            [42] = 28,    // MISSION_CURRENT
+            [44] = 221,   // MISSION_COUNT
+            [47] = 153,   // MISSION_ACK
+            [51] = 196,   // MISSION_REQUEST_INT
+            [70] = 124,   // RC_CHANNELS_OVERRIDE
+            [73] = 38,    // MISSION_ITEM_INT
+            [74] = 20,    // VFR_HUD
+            [76] = 152,   // COMMAND_LONG
+            [77] = 143,   // COMMAND_ACK
+            [86] = 5,     // SET_POSITION_TARGET_GLOBAL_INT
+            [87] = 150,   // POSITION_TARGET_GLOBAL_INT
+            [242] = 104,  // HOME_POSITION
+            [245] = 130,  // EXTENDED_SYS_STATE
+            [253] = 83,   // STATUSTEXT
+        });
 
     /// <summary>
     /// Computes the CRC-16/MCRF4XX over <paramref name="data"/>.

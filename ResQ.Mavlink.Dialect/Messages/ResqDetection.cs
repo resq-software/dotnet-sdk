@@ -23,7 +23,7 @@ namespace ResQ.Mavlink.Dialect.Messages;
 /// <summary>
 /// RESQ_DETECTION (ID 60000). Reports a detected object or hazard with bounding box and location.
 /// CRC extra: 142 — derived from RESQ_DETECTION field layout hash.
-/// Layout (45 bytes): TimestampMs(8) LatE7(4) LonE7(4) AltMm(4) BboxX(2) BboxY(2) BboxW(2) BboxH(2) DetectionType(1) Confidence(1).
+/// Layout (30 bytes): TimestampMs(8) LatE7(4) LonE7(4) AltMm(4) BboxX(2) BboxY(2) BboxW(2) BboxH(2) DetectionType(1) Confidence(1).
 /// Fields ordered largest-type-first per MAVLink wire-order convention.
 /// </summary>
 public readonly record struct ResqDetection : IMavlinkMessage

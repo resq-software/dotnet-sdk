@@ -25,7 +25,7 @@ namespace ResQ.Mavlink.Dialect.Messages;
 /// Layout (22 bytes): TimestampMs(8) ReporterSystemId(1) NeighborCount(1)
 ///   Neighbor1Id(1) Neighbor1Rssi(1) Neighbor2Id(1) Neighbor2Rssi(1)
 ///   Neighbor3Id(1) Neighbor3Rssi(1) Neighbor4Id(1) Neighbor4Rssi(1)
-///   Neighbor5Id(1) Neighbor5Rssi(1) HasGroundLink(1).
+///   Neighbor5Id(1) Neighbor5Rssi(1) HasGroundLink(1) Reserved(1).
 /// </summary>
 public readonly record struct ResqMeshTopology : IMavlinkMessage
 {
@@ -84,8 +84,8 @@ public readonly record struct ResqMeshTopology : IMavlinkMessage
     public void Serialize(Span<byte> buffer)
     {
         BinaryPrimitives.WriteUInt64LittleEndian(buffer, TimestampMs);
-        buffer[8]  = ReporterSystemId;
-        buffer[9]  = NeighborCount;
+        buffer[8] = ReporterSystemId;
+        buffer[9] = NeighborCount;
         buffer[10] = Neighbor1Id;
         buffer[11] = Neighbor1Rssi;
         buffer[12] = Neighbor2Id;

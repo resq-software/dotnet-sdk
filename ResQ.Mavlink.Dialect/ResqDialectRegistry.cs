@@ -32,14 +32,14 @@ public static class ResqDialectRegistry
 {
     // CRC extra constants — one per message, computed from field name+type hashes per MAVLink spec.
     // These are fixed at dialect version 1; any field layout change requires a new dialect version.
-    private const byte CrcExtraDetection     = 142; // RESQ_DETECTION
-    private const byte CrcExtraDetectionAck  = 73;  // RESQ_DETECTION_ACK
-    private const byte CrcExtraSwarmTask     = 211; // RESQ_SWARM_TASK
-    private const byte CrcExtraSwarmTaskAck  = 55;  // RESQ_SWARM_TASK_ACK
-    private const byte CrcExtraHazardZone    = 188; // RESQ_HAZARD_ZONE
-    private const byte CrcExtraMeshTopology  = 97;  // RESQ_MESH_TOPOLOGY
-    private const byte CrcExtraDroneCap      = 44;  // RESQ_DRONE_CAPABILITY
-    private const byte CrcExtraEmergBeacon   = 161; // RESQ_EMERGENCY_BEACON
+    private const byte CrcExtraDetection = 142; // RESQ_DETECTION
+    private const byte CrcExtraDetectionAck = 73;  // RESQ_DETECTION_ACK
+    private const byte CrcExtraSwarmTask = 211; // RESQ_SWARM_TASK
+    private const byte CrcExtraSwarmTaskAck = 55;  // RESQ_SWARM_TASK_ACK
+    private const byte CrcExtraHazardZone = 188; // RESQ_HAZARD_ZONE
+    private const byte CrcExtraMeshTopology = 97;  // RESQ_MESH_TOPOLOGY
+    private const byte CrcExtraDroneCap = 44;  // RESQ_DRONE_CAPABILITY
+    private const byte CrcExtraEmergBeacon = 161; // RESQ_EMERGENCY_BEACON
 
     /// <summary>
     /// Registers all ResQ dialect CRC extras and deserializers into the global MAVLink tables.

@@ -25,7 +25,7 @@ namespace ResQ.Mavlink.Dialect.Translation;
 public static class ResqDialectTranslator
 {
     private const double DegE7Factor = 1e-7;
-    private const double MmToMetres  = 1e-3;
+    private const double MmToMetres = 1e-3;
 
     /// <summary>
     /// Maps a <see cref="ResqDetection"/> MAVLink message to an <see cref="IncidentReport"/>.
@@ -34,13 +34,13 @@ public static class ResqDialectTranslator
     /// <returns>A domain-level incident report.</returns>
     public static IncidentReport MapDetectionToIncident(ResqDetection det) => new()
     {
-        TimestampMs    = det.TimestampMs,
-        LatitudeDeg    = det.LatE7 * DegE7Factor,
-        LongitudeDeg   = det.LonE7 * DegE7Factor,
+        TimestampMs = det.TimestampMs,
+        LatitudeDeg = det.LatE7 * DegE7Factor,
+        LongitudeDeg = det.LonE7 * DegE7Factor,
         AltitudeMetres = det.AltMm * MmToMetres,
-        DetectionType  = DetectionTypeLabel(det.DetectionType),
-        Confidence     = det.Confidence,
-        BoundingBox    = [det.BboxX, det.BboxY, det.BboxW, det.BboxH],
+        DetectionType = DetectionTypeLabel(det.DetectionType),
+        Confidence = det.Confidence,
+        BoundingBox = [det.BboxX, det.BboxY, det.BboxW, det.BboxH],
     };
 
     /// <summary>
@@ -50,14 +50,14 @@ public static class ResqDialectTranslator
     /// <returns>A domain-level environment update.</returns>
     public static EnvironmentUpdate MapHazardZoneToEnvironmentUpdate(ResqHazardZone zone) => new()
     {
-        TimestampMs           = zone.TimestampMs,
-        ZoneId                = zone.ZoneId,
-        CenterLatitudeDeg     = zone.CenterLatE7 * DegE7Factor,
-        CenterLongitudeDeg    = zone.CenterLonE7 * DegE7Factor,
-        RadiusMetres          = zone.RadiusMetres,
-        HazardType            = HazardTypeLabel(zone.HazardType),
-        Severity              = SeverityLabel(zone.Severity),
-        ProgressionSpeedMs    = zone.ProgressionSpeed,
+        TimestampMs = zone.TimestampMs,
+        ZoneId = zone.ZoneId,
+        CenterLatitudeDeg = zone.CenterLatE7 * DegE7Factor,
+        CenterLongitudeDeg = zone.CenterLonE7 * DegE7Factor,
+        RadiusMetres = zone.RadiusMetres,
+        HazardType = HazardTypeLabel(zone.HazardType),
+        Severity = SeverityLabel((byte)zone.Severity),
+        ProgressionSpeedMs = zone.ProgressionSpeed,
         ProgressionHeadingRad = zone.ProgressionHeading,
     };
 
@@ -65,22 +65,22 @@ public static class ResqDialectTranslator
 
     private static string DetectionTypeLabel(ResqDetectionType t) => t switch
     {
-        ResqDetectionType.Person  => "Person",
+        ResqDetectionType.Person => "Person",
         ResqDetectionType.Vehicle => "Vehicle",
-        ResqDetectionType.Fire    => "Fire",
-        ResqDetectionType.Flood   => "Flood",
-        ResqDetectionType.Debris  => "Debris",
-        _                         => "Unknown",
+        ResqDetectionType.Fire => "Fire",
+        ResqDetectionType.Flood => "Flood",
+        ResqDetectionType.Debris => "Debris",
+        _ => "Unknown",
     };
 
     private static string HazardTypeLabel(ResqHazardType t) => t switch
     {
-        ResqHazardType.Fire       => "Fire",
-        ResqHazardType.Flood      => "Flood",
-        ResqHazardType.Wind       => "Wind",
-        ResqHazardType.Toxic      => "Toxic",
+        ResqHazardType.Fire => "Fire",
+        ResqHazardType.Flood => "Flood",
+        ResqHazardType.Wind => "Wind",
+        ResqHazardType.Toxic => "Toxic",
         ResqHazardType.Structural => "Structural",
-        _                         => "Unknown",
+        _ => "Unknown",
     };
 
     private static string SeverityLabel(byte severity) => severity switch

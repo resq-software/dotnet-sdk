@@ -34,16 +34,16 @@ public sealed class ResqDialectTranslatorTests
     {
         var detection = new ResqDetection
         {
-            TimestampMs   = 1_711_400_000_000UL,
-            LatE7         = 376_874_200,
-            LonE7         = -1_222_313_100,
-            AltMm         = 150_000,
-            BboxX         = 10,
-            BboxY         = 20,
-            BboxW         = 100,
-            BboxH         = 80,
+            TimestampMs = 1_711_400_000_000UL,
+            LatE7 = 376_874_200,
+            LonE7 = -1_222_313_100,
+            AltMm = 150_000,
+            BboxX = 10,
+            BboxY = 20,
+            BboxW = 100,
+            BboxH = 80,
             DetectionType = ResqDetectionType.Person,
-            Confidence    = 92,
+            Confidence = 92,
         };
 
         var report = ResqDialectTranslator.MapDetectionToIncident(detection);
@@ -58,16 +58,16 @@ public sealed class ResqDialectTranslatorTests
     }
 
     [Theory]
-    [InlineData(ResqDetectionType.Unknown,  "Unknown")]
-    [InlineData(ResqDetectionType.Person,   "Person")]
-    [InlineData(ResqDetectionType.Vehicle,  "Vehicle")]
-    [InlineData(ResqDetectionType.Fire,     "Fire")]
-    [InlineData(ResqDetectionType.Flood,    "Flood")]
-    [InlineData(ResqDetectionType.Debris,   "Debris")]
+    [InlineData(ResqDetectionType.Unknown, "Unknown")]
+    [InlineData(ResqDetectionType.Person, "Person")]
+    [InlineData(ResqDetectionType.Vehicle, "Vehicle")]
+    [InlineData(ResqDetectionType.Fire, "Fire")]
+    [InlineData(ResqDetectionType.Flood, "Flood")]
+    [InlineData(ResqDetectionType.Debris, "Debris")]
     public void MapDetectionToIncident_DetectionTypeLabel_IsCorrect(ResqDetectionType type, string expectedLabel)
     {
         var detection = new ResqDetection { DetectionType = type };
-        var report    = ResqDialectTranslator.MapDetectionToIncident(detection);
+        var report = ResqDialectTranslator.MapDetectionToIncident(detection);
         report.DetectionType.Should().Be(expectedLabel);
     }
 
@@ -78,15 +78,15 @@ public sealed class ResqDialectTranslatorTests
     {
         var zone = new ResqHazardZone
         {
-            TimestampMs        = 1_711_500_000_000UL,
-            ZoneId             = 42u,
-            CenterLatE7        = 377_000_000,
-            CenterLonE7        = -1_221_000_000,
-            RadiusMetres       = 500u,
-            ProgressionSpeed   = 2.5f,
+            TimestampMs = 1_711_500_000_000UL,
+            ZoneId = 42u,
+            CenterLatE7 = 377_000_000,
+            CenterLonE7 = -1_221_000_000,
+            RadiusMetres = 500u,
+            ProgressionSpeed = 2.5f,
             ProgressionHeading = 1.2f,
-            HazardType         = ResqHazardType.Fire,
-            Severity           = 3,
+            HazardType = ResqHazardType.Fire,
+            Severity = (ResqHazardSeverity)3,
         };
 
         var update = ResqDialectTranslator.MapHazardZoneToEnvironmentUpdate(zone);
@@ -103,14 +103,14 @@ public sealed class ResqDialectTranslatorTests
     }
 
     [Theory]
-    [InlineData(ResqHazardType.Fire,       "Fire")]
-    [InlineData(ResqHazardType.Flood,      "Flood")]
-    [InlineData(ResqHazardType.Wind,       "Wind")]
-    [InlineData(ResqHazardType.Toxic,      "Toxic")]
+    [InlineData(ResqHazardType.Fire, "Fire")]
+    [InlineData(ResqHazardType.Flood, "Flood")]
+    [InlineData(ResqHazardType.Wind, "Wind")]
+    [InlineData(ResqHazardType.Toxic, "Toxic")]
     [InlineData(ResqHazardType.Structural, "Structural")]
     public void MapHazardZoneToEnvironmentUpdate_HazardTypeLabel_IsCorrect(ResqHazardType type, string expectedLabel)
     {
-        var zone   = new ResqHazardZone { HazardType = type };
+        var zone = new ResqHazardZone { HazardType = type };
         var update = ResqDialectTranslator.MapHazardZoneToEnvironmentUpdate(zone);
         update.HazardType.Should().Be(expectedLabel);
     }
@@ -122,7 +122,7 @@ public sealed class ResqDialectTranslatorTests
     [InlineData(3, "Extreme")]
     public void MapHazardZoneToEnvironmentUpdate_SeverityLabel_IsCorrect(byte severity, string expectedLabel)
     {
-        var zone   = new ResqHazardZone { Severity = severity };
+        var zone = new ResqHazardZone { Severity = (ResqHazardSeverity)severity };
         var update = ResqDialectTranslator.MapHazardZoneToEnvironmentUpdate(zone);
         update.Severity.Should().Be(expectedLabel);
     }

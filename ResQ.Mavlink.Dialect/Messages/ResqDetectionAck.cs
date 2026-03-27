@@ -15,6 +15,7 @@
  */
 
 using System.Buffers.Binary;
+using ResQ.Mavlink.Dialect.Enums;
 using ResQ.Mavlink.Messages;
 
 namespace ResQ.Mavlink.Dialect.Messages;
@@ -44,8 +45,8 @@ public readonly record struct ResqDetectionAck : IMavlinkMessage
     /// <summary>Acker's longitude in degE7.</summary>
     public int LonE7 { get; init; }
 
-    /// <summary>Acknowledgement type: 0=Confirmed, 1=Duplicate, 2=Investigating.</summary>
-    public byte AckType { get; init; }
+    /// <summary>Acknowledgement type.</summary>
+    public ResqDetectionAckType AckType { get; init; }
 
     /// <summary>System ID of the acknowledging drone.</summary>
     public byte AckerSystemId { get; init; }
@@ -56,7 +57,7 @@ public readonly record struct ResqDetectionAck : IMavlinkMessage
         BinaryPrimitives.WriteUInt64LittleEndian(buffer, OriginalTimestampMs);
         BinaryPrimitives.WriteInt32LittleEndian(buffer[8..], LatE7);
         BinaryPrimitives.WriteInt32LittleEndian(buffer[12..], LonE7);
-        buffer[16] = AckType;
+        buffer[16] = (byte)AckType;
         buffer[17] = AckerSystemId;
     }
 
@@ -68,7 +69,7 @@ public readonly record struct ResqDetectionAck : IMavlinkMessage
         OriginalTimestampMs = BinaryPrimitives.ReadUInt64LittleEndian(buffer),
         LatE7 = BinaryPrimitives.ReadInt32LittleEndian(buffer[8..]),
         LonE7 = BinaryPrimitives.ReadInt32LittleEndian(buffer[12..]),
-        AckType = buffer[16],
+        AckType = (ResqDetectionAckType)buffer[16],
         AckerSystemId = buffer[17],
     };
 }
