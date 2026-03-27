@@ -123,7 +123,7 @@ public sealed class RadioModelTests
     {
         // With BasePacketLossPercent=1.0 and distance=0, loss=1%
         var radio = CreateRadioModel(new RadioModelOptions
-            { MaxRangeMetres = 500f, AttenuationFactor = 2f, BasePacketLossPercent = 0f });
+        { MaxRangeMetres = 500f, AttenuationFactor = 2f, BasePacketLossPercent = 0f });
         var drops = 0;
         for (var i = 0; i < 10000; i++)
             if (radio.ShouldDropPacket(Origin, Origin)) drops++;

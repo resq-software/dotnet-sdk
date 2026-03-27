@@ -86,7 +86,7 @@ public sealed class ResqDialectTranslatorTests
             ProgressionSpeed = 2.5f,
             ProgressionHeading = 1.2f,
             HazardType = ResqHazardType.Fire,
-            Severity = (ResqHazardSeverity)3,
+            Severity = ResqHazardSeverity.Extreme,
         };
 
         var update = ResqDialectTranslator.MapHazardZoneToEnvironmentUpdate(zone);
@@ -116,13 +116,13 @@ public sealed class ResqDialectTranslatorTests
     }
 
     [Theory]
-    [InlineData(0, "Low")]
-    [InlineData(1, "Medium")]
-    [InlineData(2, "High")]
-    [InlineData(3, "Extreme")]
-    public void MapHazardZoneToEnvironmentUpdate_SeverityLabel_IsCorrect(byte severity, string expectedLabel)
+    [InlineData(ResqHazardSeverity.Low, "Low")]
+    [InlineData(ResqHazardSeverity.Medium, "Medium")]
+    [InlineData(ResqHazardSeverity.High, "High")]
+    [InlineData(ResqHazardSeverity.Extreme, "Extreme")]
+    public void MapHazardZoneToEnvironmentUpdate_SeverityLabel_IsCorrect(ResqHazardSeverity severity, string expectedLabel)
     {
-        var zone = new ResqHazardZone { Severity = (ResqHazardSeverity)severity };
+        var zone = new ResqHazardZone { Severity = severity };
         var update = ResqDialectTranslator.MapHazardZoneToEnvironmentUpdate(zone);
         update.Severity.Should().Be(expectedLabel);
     }

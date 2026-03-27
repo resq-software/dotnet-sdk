@@ -56,7 +56,7 @@ public static class ResqDialectTranslator
         CenterLongitudeDeg = zone.CenterLonE7 * DegE7Factor,
         RadiusMetres = zone.RadiusMetres,
         HazardType = HazardTypeLabel(zone.HazardType),
-        Severity = SeverityLabel((byte)zone.Severity),
+        Severity = SeverityLabel(zone.Severity),
         ProgressionSpeedMs = zone.ProgressionSpeed,
         ProgressionHeadingRad = zone.ProgressionHeading,
     };
@@ -83,12 +83,12 @@ public static class ResqDialectTranslator
         _ => "Unknown",
     };
 
-    private static string SeverityLabel(byte severity) => severity switch
+    private static string SeverityLabel(ResqHazardSeverity severity) => severity switch
     {
-        0 => "Low",
-        1 => "Medium",
-        2 => "High",
-        3 => "Extreme",
+        ResqHazardSeverity.Low => "Low",
+        ResqHazardSeverity.Medium => "Medium",
+        ResqHazardSeverity.High => "High",
+        ResqHazardSeverity.Extreme => "Extreme",
         _ => "Unknown",
     };
 }
