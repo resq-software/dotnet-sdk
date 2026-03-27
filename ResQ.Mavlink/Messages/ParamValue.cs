@@ -59,7 +59,8 @@ public readonly record struct ParamValue : IMavlinkMessage
         idBytes.Clear();
         if (!string.IsNullOrEmpty(ParamId))
         {
-            Encoding.ASCII.GetBytes(ParamId.AsSpan(), idBytes);
+            var truncatedId = ParamId.Length > 16 ? ParamId[..16] : ParamId;
+            Encoding.ASCII.GetBytes(truncatedId.AsSpan(), idBytes);
         }
         buffer[24] = ParamType;
     }

@@ -31,7 +31,7 @@ public sealed class MavlinkConnection : IAsyncDisposable
     private readonly MavlinkConnectionOptions _options;
     private readonly CancellationTokenSource _cts = new();
     private readonly Task _heartbeatTask;
-    private byte _sequence;
+    private int _sequenceNumber;
     private bool _disposed;
 
     /// <summary>
@@ -81,7 +81,7 @@ public sealed class MavlinkConnection : IAsyncDisposable
             trimmedLen--;
         var payload = scratch.AsMemory(0, trimmedLen);
 
-        var seq = _sequence++;
+        var seq = (byte)Interlocked.Increment(ref _sequenceNumber);
         var packet = new MavlinkPacket(
             sequenceNumber: seq,
             systemId: _options.SystemId,

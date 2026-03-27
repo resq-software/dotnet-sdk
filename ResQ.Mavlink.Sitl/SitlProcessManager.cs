@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using Microsoft.Extensions.Options;
 
@@ -68,7 +69,7 @@ public sealed class SitlProcessManagerOptions
 public sealed class SitlProcessManager : IAsyncDisposable
 {
     private readonly SitlProcessManagerOptions _options;
-    private readonly Dictionary<int, Process> _processes = new();
+    private readonly ConcurrentDictionary<int, Process> _processes = new();
     private bool _disposed;
 
     /// <summary>
@@ -182,7 +183,7 @@ public sealed class SitlProcessManager : IAsyncDisposable
         finally
         {
             process.Dispose();
-            _processes.Remove(instanceIndex);
+            _processes.TryRemove(instanceIndex, out _);
         }
     }
 
