@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+using System.Threading;
 using Microsoft.Extensions.Options;
 using ResQ.Mavlink.Messages;
 using ResQ.Mavlink.Protocol;
@@ -31,7 +32,7 @@ public sealed class MavlinkConnection : IAsyncDisposable
     private readonly MavlinkConnectionOptions _options;
     private readonly CancellationTokenSource _cts = new();
     private readonly Task _heartbeatTask;
-    private int _sequenceNumber;
+    private int _sequence;
     private bool _disposed;
 
     /// <summary>
@@ -81,7 +82,7 @@ public sealed class MavlinkConnection : IAsyncDisposable
             trimmedLen--;
         var payload = scratch.AsMemory(0, trimmedLen);
 
-        var seq = (byte)Interlocked.Increment(ref _sequenceNumber);
+        var seq = (byte)(Interlocked.Increment(ref _sequence) & 0xFF);
         var packet = new MavlinkPacket(
             sequenceNumber: seq,
             systemId: _options.SystemId,

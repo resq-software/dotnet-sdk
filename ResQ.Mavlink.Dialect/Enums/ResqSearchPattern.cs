@@ -17,16 +17,16 @@
 namespace ResQ.Mavlink.Dialect.Enums;
 
 /// <summary>
-/// Search pattern for area search tasks in <see cref="Messages.ResqSwarmTask"/>.
+/// Search pattern type used in <see cref="Messages.ResqSwarmTask"/>.
 /// </summary>
 public enum ResqSearchPattern : byte
 {
-    /// <summary>Parallel line search pattern.</summary>
+    /// <summary>Parallel lawnmower search pattern.</summary>
     Parallel = 0,
 
-    /// <summary>Spiral search pattern emanating from centre.</summary>
+    /// <summary>Inward or outward spiral search pattern.</summary>
     Spiral = 1,
 
-    /// <summary>Expanding box search pattern from starting point.</summary>
+    /// <summary>Expanding box search pattern.</summary>
     Expanding = 2,
 }

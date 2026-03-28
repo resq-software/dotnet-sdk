@@ -82,7 +82,7 @@ public sealed class ResqDialectEndToEndTests
             LonE7 = -1_222_000_000,
             AltMm = 0,
             BeaconType = ResqBeaconType.MedicalEmergency,
-            Urgency = (ResqUrgencyLevel)3,
+            Urgency = ResqUrgencyLevel.LifeThreatening,
             Ttl = 4,
         };
 
@@ -111,7 +111,7 @@ public sealed class ResqDialectEndToEndTests
             ProgressionSpeed = 1.5f,
             ProgressionHeading = 0.78f,
             HazardType = ResqHazardType.Flood,
-            Severity = (ResqHazardSeverity)2,
+            Severity = ResqHazardSeverity.High,
         };
 
         var wireBytes = SerializeDialectMessage(zone, 60004, sequenceNumber: 3);

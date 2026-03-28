@@ -39,7 +39,7 @@ public readonly record struct ResqSwarmTaskAck : IMavlinkMessage
     /// <summary>Task ID being acknowledged.</summary>
     public uint TaskId { get; init; }
 
-    /// <summary>Response status from the drone.</summary>
+    /// <summary>Response code indicating the task execution result.</summary>
     public ResqTaskResponse Response { get; init; }
 
     /// <summary>Task progress in percent (0–100).</summary>

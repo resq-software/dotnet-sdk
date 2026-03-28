@@ -14,22 +14,19 @@
  * limitations under the License.
  */
 
-namespace ResQ.Mavlink.Dialect.Enums;
+namespace ResQ.Mavlink.Mesh.Simulation;
 
 /// <summary>
-/// Response code sent by a drone in <see cref="Messages.ResqSwarmTaskAck"/>.
+/// Configuration options for <see cref="RadioModel"/>.
 /// </summary>
-public enum ResqTaskResponse : byte
+public sealed class RadioModelOptions
 {
-    /// <summary>Task accepted and will be executed.</summary>
-    Accept = 0,
+    /// <summary>Maximum communication range in metres.</summary>
+    public float MaxRangeMetres { get; set; } = 500f;
 
-    /// <summary>Task rejected (e.g., drone is unable to execute it).</summary>
-    Reject = 1,
+    /// <summary>Signal attenuation exponent (free-space path loss exponent).</summary>
+    public float AttenuationFactor { get; set; } = 2.0f;
 
-    /// <summary>Task has been completed successfully.</summary>
-    Complete = 2,
-
-    /// <summary>Task execution failed.</summary>
-    Failed = 3,
+    /// <summary>Minimum baseline packet loss percentage at zero distance.</summary>
+    public float BasePacketLossPercent { get; set; } = 1.0f;
 }

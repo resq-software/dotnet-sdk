@@ -45,7 +45,7 @@ public sealed class GcsPassthroughOptions
     public bool Enabled { get; set; } = true;
 
     /// <summary>
-    /// Gets or sets the remote host address for GCS connections. Defaults to "127.0.0.1".
+    /// Gets or sets the remote hostname or IP address for GCS UDP communication. Defaults to <c>"127.0.0.1"</c>.
     /// </summary>
     public string GcsRemoteHost { get; set; } = "127.0.0.1";
 }

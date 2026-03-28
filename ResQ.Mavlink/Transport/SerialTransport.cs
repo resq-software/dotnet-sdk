@@ -105,8 +105,8 @@ public sealed class SerialTransport : IMavlinkTransport
             }
             catch (Exception ex)
             {
-                // Log the error but continue attempting to read
-                System.Diagnostics.Debug.WriteLine($"Serial transport receive error: {ex.Message}");
+                SetState(TransportState.Disconnected);
+                System.Diagnostics.Debug.WriteLine($"[SerialTransport] Receive error: {ex.Message}");
                 yield break;
             }
 

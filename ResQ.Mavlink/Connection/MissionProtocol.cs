@@ -78,34 +78,67 @@ public sealed class MissionProtocol
         };
         await SendMessageAsync(countMsg, ct).ConfigureAwait(false);
 
-        // Step 2: Wait for MISSION_REQUEST for each item, send the item
-        using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        // Step 2: Wait for MISSION_REQUEST for each item, send the item (with per-item timeout and retry).
+        IMavlinkMessage? lastRequest = null;
+        int retries = 0;
 
-        await foreach (var packet in _transport.ReceiveAsync(cts.Token).ConfigureAwait(false))
+        while (true)
         {
-            if (packet.MessageId == 40) // MISSION_REQUEST
+            using var itemCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            itemCts.CancelAfter(_itemTimeout);
+
+            MavlinkPacket? received = null;
+            try
             {
-                var req = MissionRequest.Deserialize(packet.Payload.Span);
+                await foreach (var packet in _transport.ReceiveAsync(itemCts.Token).ConfigureAwait(false))
+                {
+                    if (packet.MessageId is 40 or 51 or 47)
+                    {
+                        received = packet;
+                        break;
+                    }
+                }
+            }
+            catch (OperationCanceledException) when (!ct.IsCancellationRequested)
+            {
+                // Item-level timeout — retry if possible.
+                if (++retries > _maxRetries)
+                    throw new TimeoutException($"No response from vehicle after {_maxRetries} retries during mission upload.");
+
+                if (lastRequest is not null)
+                    await SendMessageAsync(lastRequest, ct).ConfigureAwait(false);
+                continue;
+            }
+
+            if (received is null)
+                break;
+
+            retries = 0;
+
+            if (received.MessageId == 40) // MISSION_REQUEST
+            {
+                var req = MissionRequest.Deserialize(received.Payload.Span);
                 if (req.Seq >= items.Count)
                     throw new InvalidOperationException($"Vehicle requested seq {req.Seq} but mission has only {items.Count} items.");
 
-                await SendMessageWithRetryAsync(items[req.Seq], ct).ConfigureAwait(false);
+                lastRequest = items[req.Seq];
+                await SendMessageAsync(lastRequest, ct).ConfigureAwait(false);
             }
-            else if (packet.MessageId == 51) // MISSION_REQUEST_INT
+            else if (received.MessageId == 51) // MISSION_REQUEST_INT
             {
-                var req = MissionRequestInt.Deserialize(packet.Payload.Span);
+                var req = MissionRequestInt.Deserialize(received.Payload.Span);
                 if (req.Seq >= items.Count)
                     throw new InvalidOperationException($"Vehicle requested seq {req.Seq} but mission has only {items.Count} items.");
 
-                await SendMessageWithRetryAsync(items[req.Seq], ct).ConfigureAwait(false);
+                lastRequest = items[req.Seq];
+                await SendMessageAsync(lastRequest, ct).ConfigureAwait(false);
             }
-            else if (packet.MessageId == 47) // MISSION_ACK
+            else if (received.MessageId == 47) // MISSION_ACK
             {
-                var ack = MissionAck.Deserialize(packet.Payload.Span);
+                var ack = MissionAck.Deserialize(received.Payload.Span);
                 if (ack.Type != MavMissionResult.Accepted)
                     throw new InvalidOperationException($"Mission upload failed with result {ack.Type}.");
 
-                await cts.CancelAsync().ConfigureAwait(false);
                 return;
             }
         }
@@ -126,44 +159,74 @@ public sealed class MissionProtocol
             TargetSystem = targetSystem,
             TargetComponent = 1,
         };
-        await SendMessageWithRetryAsync(reqList, ct).ConfigureAwait(false);
+        await SendMessageAsync(reqList, ct).ConfigureAwait(false);
 
         var items = new List<MissionItemInt>();
         int totalCount = -1;
+        int retries = 0;
+        IMavlinkMessage? lastRequest = reqList;
 
-        using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
-
-        await foreach (var packet in _transport.ReceiveAsync(cts.Token).ConfigureAwait(false))
+        while (true)
         {
-            if (packet.MessageId == 44 && totalCount < 0) // MISSION_COUNT
+            using var itemCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            itemCts.CancelAfter(_itemTimeout);
+
+            MavlinkPacket? received = null;
+            try
             {
-                var count = MissionCount.Deserialize(packet.Payload.Span);
+                await foreach (var packet in _transport.ReceiveAsync(itemCts.Token).ConfigureAwait(false))
+                {
+                    if (packet.MessageId is 44 or 73)
+                    {
+                        received = packet;
+                        break;
+                    }
+                }
+            }
+            catch (OperationCanceledException) when (!ct.IsCancellationRequested)
+            {
+                if (++retries > _maxRetries)
+                    throw new TimeoutException($"No response from vehicle after {_maxRetries} retries during mission download.");
+
+                if (lastRequest is not null)
+                    await SendMessageAsync(lastRequest, ct).ConfigureAwait(false);
+                continue;
+            }
+
+            if (received is null)
+                break;
+
+            retries = 0;
+
+            if (received.MessageId == 44 && totalCount < 0) // MISSION_COUNT
+            {
+                var count = MissionCount.Deserialize(received.Payload.Span);
                 totalCount = count.Count;
 
                 if (totalCount == 0)
                 {
                     await SendMissionAckAsync(targetSystem, MavMissionResult.Accepted, ct).ConfigureAwait(false);
-                    await cts.CancelAsync().ConfigureAwait(false);
                     return items;
                 }
 
                 // Request first item
-                await SendMissionRequestAsync(0, targetSystem, ct).ConfigureAwait(false);
+                lastRequest = new MissionRequest { Seq = 0, TargetSystem = targetSystem, TargetComponent = 1 };
+                await SendMessageAsync(lastRequest, ct).ConfigureAwait(false);
             }
-            else if (packet.MessageId == 73 && totalCount >= 0) // MISSION_ITEM_INT
+            else if (received.MessageId == 73 && totalCount >= 0) // MISSION_ITEM_INT
             {
-                var item = MissionItemInt.Deserialize(packet.Payload.Span);
+                var item = MissionItemInt.Deserialize(received.Payload.Span);
                 items.Add(item);
 
                 if (items.Count < totalCount)
                 {
-                    await SendMissionRequestAsync((ushort)items.Count, targetSystem, ct).ConfigureAwait(false);
+                    lastRequest = new MissionRequest { Seq = (ushort)items.Count, TargetSystem = targetSystem, TargetComponent = 1 };
+                    await SendMessageAsync(lastRequest, ct).ConfigureAwait(false);
                 }
                 else
                 {
                     // All items received
                     await SendMissionAckAsync(targetSystem, MavMissionResult.Accepted, ct).ConfigureAwait(false);
-                    await cts.CancelAsync().ConfigureAwait(false);
                     return items;
                 }
             }
@@ -176,10 +239,9 @@ public sealed class MissionProtocol
     {
         var scratch = new byte[MavlinkConstants.MaxPayloadLength];
         message.Serialize(scratch);
-
-        // Use the message's PayloadSize constant to avoid corrupting packets where 0x00 is valid data
-        var payloadSize = GetMessagePayloadSize(message.GetType());
-        var payload = scratch.AsMemory(0, payloadSize);
+        // Use the full serialized buffer — do NOT trim trailing zeros.
+        // Fields such as 0.0f serialize as 00 00 00 00 and trimming corrupts the packet.
+        var payload = scratch.AsMemory(0, scratch.Length);
 
         var packet = new MavlinkPacket(
             sequenceNumber: _sequence++,
@@ -192,32 +254,6 @@ public sealed class MissionProtocol
             signature: null);
 
         await _transport.SendAsync(packet, ct).ConfigureAwait(false);
-    }
-
-    private static int GetMessagePayloadSize(Type messageType)
-    {
-        var field = messageType.GetField("PayloadSize", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.IgnoreCase);
-        return field != null ? (int)field.GetValue(null)! : MavlinkConstants.MaxPayloadLength;
-    }
-
-    private async Task SendMessageWithRetryAsync(IMavlinkMessage message, CancellationToken ct)
-    {
-        int retryCount = 0;
-        while (retryCount <= _maxRetries)
-        {
-            try
-            {
-                using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
-                cts.CancelAfter(_itemTimeout);
-                await SendMessageAsync(message, cts.Token).ConfigureAwait(false);
-                return;
-            }
-            catch (OperationCanceledException) when (retryCount < _maxRetries)
-            {
-                retryCount++;
-            }
-        }
-        throw new TimeoutException($"Failed to send message after {_maxRetries} retries within {_itemTimeout.TotalSeconds}s timeout.");
     }
 
     private Task SendMissionRequestAsync(ushort seq, byte targetSystem, CancellationToken ct) =>

@@ -14,22 +14,20 @@
  * limitations under the License.
  */
 
-namespace ResQ.Mavlink.Dialect.Enums;
+namespace ResQ.Mavlink.Mesh;
 
 /// <summary>
-/// Response code sent by a drone in <see cref="Messages.ResqSwarmTaskAck"/>.
+/// Configuration options for <see cref="MeshNeighborTable"/>.
 /// </summary>
-public enum ResqTaskResponse : byte
+public sealed class MeshNeighborTableOptions
 {
-    /// <summary>Task accepted and will be executed.</summary>
-    Accept = 0,
+    /// <summary>
+    /// Interval in seconds between topology broadcast messages.
+    /// </summary>
+    public int TopologyBroadcastIntervalSec { get; set; } = 5;
 
-    /// <summary>Task rejected (e.g., drone is unable to execute it).</summary>
-    Reject = 1,
-
-    /// <summary>Task has been completed successfully.</summary>
-    Complete = 2,
-
-    /// <summary>Task execution failed.</summary>
-    Failed = 3,
+    /// <summary>
+    /// Seconds of inactivity after which a neighbour is considered stale.
+    /// </summary>
+    public int NeighborTimeoutSec { get; set; } = 10;
 }

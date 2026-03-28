@@ -83,7 +83,7 @@ public sealed class ResqDialectRoundTripTests
             OriginalTimestampMs = 1_711_400_000_000UL,
             LatE7 = 376_874_200,
             LonE7 = -1_222_313_100,
-            AckType = (ResqDetectionAckType)2, // Investigating
+            AckType = ResqDetectionAckType.Investigating,
             AckerSystemId = 42,
         };
 
@@ -111,8 +111,8 @@ public sealed class ResqDialectRoundTripTests
             TimeoutSec = 600,
             TargetDroneId = 5,
             TaskType = ResqTaskType.Search,
-            Priority = (ResqTaskPriority)2, // High
-            SearchPattern = (ResqSearchPattern)1, // Spiral
+            Priority = ResqTaskPriority.High,
+            SearchPattern = ResqSearchPattern.Spiral,
         };
 
         var buf = new byte[ResqSwarmTask.PayloadSize];
@@ -142,7 +142,7 @@ public sealed class ResqDialectRoundTripTests
         var original = new ResqSwarmTaskAck
         {
             TaskId = 99999u,
-            Response = (ResqTaskResponse)2, // Complete
+            Response = ResqTaskResponse.Complete,
             ProgressPercent = 100,
         };
 
@@ -168,7 +168,7 @@ public sealed class ResqDialectRoundTripTests
             ProgressionSpeed = 2.5f,
             ProgressionHeading = 1.2f,
             HazardType = ResqHazardType.Fire,
-            Severity = (ResqHazardSeverity)3, // Extreme
+            Severity = ResqHazardSeverity.Extreme,
         };
 
         var buf = new byte[ResqHazardZone.PayloadSize];
@@ -248,7 +248,7 @@ public sealed class ResqDialectRoundTripTests
         {
             SensorFlags = 0x3F, // all sensors
             MaxFlightTimeMin = 45,
-            MaxSpeedCms = 1800, // 18 m/s
+            MaxSpeedCms = 1800, // 18 m/s = 1800 cm/s
             MaxPayloadGrams = 2000,
             CurrentPayloadGrams = 500,
             SystemId = 7,
@@ -284,7 +284,7 @@ public sealed class ResqDialectRoundTripTests
             LonE7 = -1_222_000_000,
             AltMm = 0,
             BeaconType = ResqBeaconType.PersonInDistress,
-            Urgency = (ResqUrgencyLevel)3, // LifeThreatening
+            Urgency = ResqUrgencyLevel.LifeThreatening,
             Ttl = 5,
         };
 

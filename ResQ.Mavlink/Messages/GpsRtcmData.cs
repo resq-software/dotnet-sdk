@@ -21,6 +21,9 @@ namespace ResQ.Mavlink.Messages;
 /// </summary>
 public readonly record struct GpsRtcmData : IMavlinkMessage
 {
+    /// <summary>Maximum RTCM data payload length in bytes.</summary>
+    public const int MaxDataLength = 180;
+
     /// <summary>Payload size in bytes (2 + 180 = 182).</summary>
     public const int PayloadSize = 182;
 
@@ -30,8 +33,8 @@ public readonly record struct GpsRtcmData : IMavlinkMessage
     /// <summary>data length in bytes.</summary>
     public byte Len { get; init; }
 
-    /// <summary>RTCM data (up to 180 bytes).</summary>
-    public byte[] Data { get; init; }
+    /// <summary>RTCM message data (up to 180 bytes).</summary>
+    public byte[]? Data { get; init; }
 
     /// <inheritdoc/>
     public uint MessageId => 233;
@@ -44,21 +47,29 @@ public readonly record struct GpsRtcmData : IMavlinkMessage
     {
         buffer[0] = Flags;
         buffer[1] = Len;
-        if (Data != null)
+        // 180 data bytes at offset 2
+        var dataSlice = buffer.Slice(2, MaxDataLength);
+        dataSlice.Clear();
+        if (Data is not null)
         {
-            Data.AsSpan(0, Math.Min(Data.Length, 180)).CopyTo(buffer[2..]);
+            var copyLen = Math.Min(Data.Length, MaxDataLength);
+            Data.AsSpan(0, copyLen).CopyTo(dataSlice);
         }
     }
 
     /// <summary>Deserializes a <see cref="GpsRtcmData"/> from a raw payload span.</summary>
     public static GpsRtcmData Deserialize(ReadOnlySpan<byte> buffer)
     {
-        var data = new byte[180];
-        buffer[2..].CopyTo(data.AsSpan());
-        return new()
+        var len = buffer[1];
+        var dataLen = Math.Min((int)len, MaxDataLength);
+        var data = new byte[dataLen];
+        if (buffer.Length >= 2 + dataLen)
+            buffer.Slice(2, dataLen).CopyTo(data);
+
+        return new GpsRtcmData
         {
             Flags = buffer[0],
-            Len = buffer[1],
+            Len = len,
             Data = data,
         };
     }

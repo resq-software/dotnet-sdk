@@ -70,7 +70,7 @@ public readonly record struct ResqSwarmTask : IMavlinkMessage
     /// <summary>Task priority.</summary>
     public ResqTaskPriority Priority { get; init; }
 
-    /// <summary>Search pattern to use for the task.</summary>
+    /// <summary>Search pattern to use during area coverage.</summary>
     public ResqSearchPattern SearchPattern { get; init; }
 
     /// <inheritdoc/>

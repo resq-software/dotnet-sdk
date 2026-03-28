@@ -17,19 +17,19 @@
 namespace ResQ.Mavlink.Dialect.Enums;
 
 /// <summary>
-/// Severity level of a hazard zone reported via <see cref="Messages.ResqHazardZone"/>.
+/// Severity level of a hazard zone reported in <see cref="Messages.ResqHazardZone"/>.
 /// </summary>
 public enum ResqHazardSeverity : byte
 {
-    /// <summary>Low severity hazard — minor risk.</summary>
+    /// <summary>Low severity hazard.</summary>
     Low = 0,
 
-    /// <summary>Medium severity hazard — moderate risk.</summary>
+    /// <summary>Medium severity hazard.</summary>
     Medium = 1,
 
-    /// <summary>High severity hazard — significant risk.</summary>
+    /// <summary>High severity hazard.</summary>
     High = 2,
 
-    /// <summary>Extreme severity hazard — critical or life-threatening risk.</summary>
+    /// <summary>Extreme severity hazard requiring immediate response.</summary>
     Extreme = 3,
 }

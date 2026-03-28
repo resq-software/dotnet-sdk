@@ -17,19 +17,19 @@
 namespace ResQ.Mavlink.Dialect.Enums;
 
 /// <summary>
-/// Priority level for swarm tasks assigned via <see cref="Messages.ResqSwarmTask"/>.
+/// Task priority level used in <see cref="Messages.ResqSwarmTask"/>.
 /// </summary>
 public enum ResqTaskPriority : byte
 {
-    /// <summary>Low priority — can be delayed or deferred.</summary>
+    /// <summary>Low priority task.</summary>
     Low = 0,
 
-    /// <summary>Normal priority — standard execution.</summary>
+    /// <summary>Normal priority task.</summary>
     Normal = 1,
 
-    /// <summary>High priority — expedited execution.</summary>
+    /// <summary>High priority task.</summary>
     High = 2,
 
-    /// <summary>Critical priority — immediate execution.</summary>
+    /// <summary>Critical priority task requiring immediate execution.</summary>
     Critical = 3,
 }

@@ -23,8 +23,8 @@ namespace ResQ.Mavlink.Messages;
 /// </summary>
 public readonly record struct GlobalPositionIntCov : IMavlinkMessage
 {
-    /// <summary>Payload size in bytes (simplified, without covariance matrix).</summary>
-    public const int PayloadSize = 40;
+    /// <summary>Payload size in bytes (simplified, without covariance matrix). 8+4+4+4+4+4+4+4 = 36.</summary>
+    public const int PayloadSize = 36;
 
     /// <summary>Timestamp in microseconds.</summary>
     public ulong TimeUsec { get; init; }

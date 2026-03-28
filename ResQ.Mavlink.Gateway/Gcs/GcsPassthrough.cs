@@ -154,9 +154,10 @@ public sealed class GcsPassthrough : IAsyncDisposable
                 {
                     break;
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (ex is not OperationCanceledException)
                 {
-                    System.Diagnostics.Debug.WriteLine($"GCS to vehicle forward error: {ex.Message}");
+                    // Swallow individual send errors; keep forwarding.
+                    System.Diagnostics.Debug.WriteLine($"[GcsPassthrough] Send error: {ex.Message}");
                 }
             }
         }
@@ -180,9 +181,10 @@ public sealed class GcsPassthrough : IAsyncDisposable
                 {
                     break;
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (ex is not OperationCanceledException)
                 {
-                    System.Diagnostics.Debug.WriteLine($"Vehicle to GCS forward error: {ex.Message}");
+                    // Swallow individual send errors; keep forwarding.
+                    System.Diagnostics.Debug.WriteLine($"[GcsPassthrough] Send error: {ex.Message}");
                 }
             }
         }
