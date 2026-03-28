@@ -198,13 +198,8 @@ public class PinataClient : IStorageClient
     {
         // Input validation
         ArgumentNullException.ThrowIfNull(content);
-        ArgumentNullException.ThrowIfNull(fileName);
-        ArgumentNullException.ThrowIfNull(contentType);
-
-        if (string.IsNullOrWhiteSpace(fileName))
-        {
-            throw new ArgumentException("File name cannot be empty", nameof(fileName));
-        }
+        ArgumentException.ThrowIfNullOrWhiteSpace(fileName, nameof(fileName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(contentType, nameof(contentType));
 
         // File size validation — uses the configured limit from PinataOptions.MaxFileSizeBytes
         if (content.CanSeek && content.Length > _options.MaxFileSizeBytes)
@@ -305,9 +300,7 @@ public class PinataClient : IStorageClient
         string cid,
         CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNull(cid);
-        if (string.IsNullOrWhiteSpace(cid))
-            throw new ArgumentException("CID cannot be empty", nameof(cid));
+        ArgumentException.ThrowIfNullOrWhiteSpace(cid, nameof(cid));
 
         if (_options.MockMode)
         {
@@ -334,9 +327,7 @@ public class PinataClient : IStorageClient
         string cid,
         CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNull(cid);
-        if (string.IsNullOrWhiteSpace(cid))
-            throw new ArgumentException("CID cannot be empty", nameof(cid));
+        ArgumentException.ThrowIfNullOrWhiteSpace(cid, nameof(cid));
 
         if (_options.MockMode)
         {
@@ -368,9 +359,7 @@ public class PinataClient : IStorageClient
         string cid,
         CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNull(cid);
-        if (string.IsNullOrWhiteSpace(cid))
-            throw new ArgumentException("CID cannot be empty", nameof(cid));
+        ArgumentException.ThrowIfNullOrWhiteSpace(cid, nameof(cid));
 
         if (_options.MockMode)
         {
