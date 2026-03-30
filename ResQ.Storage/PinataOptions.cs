@@ -81,23 +81,22 @@ public class PinataOptions
     /// <summary>
     /// Gets or sets the IPFS gateway URL for retrieving content.
     /// </summary>
-    /// <value>The gateway base URL without the /ipfs path. Default is "https://gateway.pinata.cloud".</value>
+    /// <value>The gateway base URL. Default is "https://gateway.pinata.cloud/ipfs".</value>
     /// <remarks>
     /// This URL is used to construct public gateway URLs for uploaded content.
-    /// The /ipfs/ path is appended automatically when building content URLs.
     /// The default uses Pinata's public gateway. For production use with high traffic,
     /// consider using a dedicated gateway or your own IPFS node.
     /// </remarks>
     /// <example>
     /// <code>
     /// // Use Pinata's dedicated gateway (requires paid plan)
-    /// options.GatewayUrl = "https://your-gateway.mypinata.cloud";
-    ///
+    /// options.GatewayUrl = "https://your-gateway.mypinata.cloud/ipfs";
+    /// 
     /// // Use public IPFS gateway
-    /// options.GatewayUrl = "https://ipfs.io";
+    /// options.GatewayUrl = "https://ipfs.io/ipfs";
     /// </code>
     /// </example>
-    public string GatewayUrl { get; set; } = "https://gateway.pinata.cloud";
+    public string GatewayUrl { get; set; } = "https://gateway.pinata.cloud/ipfs";
 
     /// <summary>
     /// Gets or sets the Pinata JWT token for authentication.

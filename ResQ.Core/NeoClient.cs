@@ -122,7 +122,7 @@ public sealed class NeoClient : IDisposable
         CancellationToken ct = default)
     {
         // P5-F04: validate inputs before use
-        ArgumentException.ThrowIfNullOrWhiteSpace(droneId, nameof(droneId));
+        ArgumentNullException.ThrowIfNull(droneId, nameof(droneId));
         ArgumentNullException.ThrowIfNull(location, nameof(location));
 
         if (_config.MockMode)
@@ -164,9 +164,9 @@ public sealed class NeoClient : IDisposable
         CancellationToken ct = default)
     {
         // P5-F03: validate inputs before building the event
-        ArgumentException.ThrowIfNullOrWhiteSpace(incidentId, nameof(incidentId));
-        ArgumentException.ThrowIfNullOrWhiteSpace(evidenceCid, nameof(evidenceCid));
-        ArgumentException.ThrowIfNullOrWhiteSpace(evidenceType, nameof(evidenceType));
+        ArgumentNullException.ThrowIfNull(incidentId, nameof(incidentId));
+        ArgumentNullException.ThrowIfNull(evidenceCid, nameof(evidenceCid));
+        ArgumentNullException.ThrowIfNull(evidenceType, nameof(evidenceType));
 
         var evt = new BlockchainEvent
         {
@@ -194,7 +194,7 @@ public sealed class NeoClient : IDisposable
         CancellationToken ct = default)
     {
         // P5-F05: validate txHash before use
-        ArgumentException.ThrowIfNullOrWhiteSpace(txHash, nameof(txHash));
+        ArgumentNullException.ThrowIfNull(txHash, nameof(txHash));
 
         if (_config.MockMode)
         {

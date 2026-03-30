@@ -50,7 +50,10 @@ public abstract class BaseServiceClient : IDisposable
 
     protected BaseServiceClient(string baseUrl, HttpMessageHandler? handler = null, ILogger? logger = null)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(baseUrl, nameof(baseUrl));
+        ArgumentNullException.ThrowIfNull(baseUrl, nameof(baseUrl));
+
+        if (string.IsNullOrWhiteSpace(baseUrl))
+            throw new ArgumentException("Base URL cannot be empty", nameof(baseUrl));
 
         if (!Uri.TryCreate(baseUrl, UriKind.Absolute, out var uri))
             throw new ArgumentException("Invalid base URL format", nameof(baseUrl));

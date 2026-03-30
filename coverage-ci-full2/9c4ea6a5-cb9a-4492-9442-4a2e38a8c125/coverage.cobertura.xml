@@ -1,0 +1,3508 @@
+<?xml version="1.0" encoding="utf-8"?>
+<coverage line-rate="0.1208" branch-rate="0.1597" version="1.9" timestamp="1773869890" lines-covered="102" lines-valid="844" branches-covered="31" branches-valid="194">
+  <sources>
+    <source>/home/wombocombo/github/wrk/dotnet-sdk/</source>
+  </sources>
+  <packages>
+    <package name="ResQ.Clients" line-rate="0.1671" branch-rate="0.1125" complexity="155">
+      <classes>
+        <class name="ResQ.Clients.BaseServiceClient" filename="ResQ.Clients/BaseServiceClient.cs" line-rate="0.625" branch-rate="0.3214" complexity="35">
+          <methods>
+            <method name="get_MaxRetries" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="40" hits="36" branch="False" />
+              </lines>
+            </method>
+            <method name="get_InitialRetryDelayMs" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="41" hits="36" branch="False" />
+              </lines>
+            </method>
+            <method name="get_CircuitBreakerFailureThreshold" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="42" hits="72" branch="False" />
+              </lines>
+            </method>
+            <method name="get_CircuitBreakerBreakDurationSec" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="43" hits="72" branch="False" />
+              </lines>
+            </method>
+            <method name="get_RequestTimeoutSec" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="44" hits="72" branch="False" />
+              </lines>
+            </method>
+            <method name="get_AuthorizationHeader" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="81" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="set_AuthorizationHeader" signature="(System.Net.Http.Headers.AuthenticationHeaderValue)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="82" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="BuildResiliencePipeline" signature="(System.Boolean)" line-rate="0.6325999999999999" branch-rate="0.25" complexity="8">
+              <lines>
+                <line number="90" hits="72" branch="False" />
+                <line number="92" hits="72" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="7" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="94" hits="36" branch="False" />
+                <line number="95" hits="36" branch="False" />
+                <line number="96" hits="36" branch="False" />
+                <line number="97" hits="36" branch="False" />
+                <line number="98" hits="36" branch="False" />
+                <line number="99" hits="36" branch="False" />
+                <line number="100" hits="36" branch="False" />
+                <line number="101" hits="36" branch="False" />
+                <line number="102" hits="0" branch="True" condition-coverage="0% (0/6)">
+                  <conditions>
+                    <condition number="6" type="jump" coverage="0%" />
+                    <condition number="19" type="jump" coverage="0%" />
+                    <condition number="32" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="103" hits="0" branch="False" />
+                <line number="104" hits="0" branch="False" />
+                <line number="105" hits="0" branch="False" />
+                <line number="106" hits="0" branch="False" />
+                <line number="107" hits="36" branch="False" />
+                <line number="108" hits="36" branch="False" />
+                <line number="109" hits="0" branch="False" />
+                <line number="110" hits="0" branch="False" />
+                <line number="111" hits="0" branch="False" />
+                <line number="112" hits="0" branch="False" />
+                <line number="113" hits="36" branch="False" />
+                <line number="114" hits="36" branch="False" />
+                <line number="117" hits="72" branch="False" />
+                <line number="118" hits="72" branch="False" />
+                <line number="119" hits="72" branch="False" />
+                <line number="120" hits="72" branch="False" />
+                <line number="121" hits="72" branch="False" />
+                <line number="122" hits="72" branch="False" />
+                <line number="123" hits="72" branch="False" />
+                <line number="124" hits="72" branch="False" />
+                <line number="125" hits="0" branch="False" />
+                <line number="126" hits="72" branch="False" />
+                <line number="127" hits="72" branch="False" />
+                <line number="128" hits="0" branch="False" />
+                <line number="129" hits="0" branch="False" />
+                <line number="130" hits="0" branch="False" />
+                <line number="131" hits="0" branch="False" />
+                <line number="132" hits="72" branch="False" />
+                <line number="133" hits="72" branch="False" />
+                <line number="134" hits="72" branch="False" />
+                <line number="135" hits="0" branch="False" />
+                <line number="136" hits="0" branch="False" />
+                <line number="137" hits="0" branch="False" />
+                <line number="138" hits="0" branch="False" />
+                <line number="139" hits="72" branch="False" />
+                <line number="140" hits="72" branch="False" />
+                <line number="141" hits="72" branch="False" />
+                <line number="142" hits="72" branch="False" />
+              </lines>
+            </method>
+            <method name="IsIdempotent" signature="(System.Net.Http.HttpMethod)" line-rate="0" branch-rate="0" complexity="6">
+              <lines>
+                <line number="191" hits="0" branch="True" condition-coverage="0% (0/6)">
+                  <conditions>
+                    <condition number="11" type="jump" coverage="0%" />
+                    <condition number="24" type="jump" coverage="0%" />
+                    <condition number="37" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="192" hits="0" branch="False" />
+                <line number="193" hits="0" branch="False" />
+                <line number="194" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="Dispose" signature="()" line-rate="0" branch-rate="0" complexity="2">
+              <lines>
+                <line number="202" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="7" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="203" hits="0" branch="False" />
+                <line number="204" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(System.String,System.Net.Http.HttpMessageHandler,Microsoft.Extensions.Logging.ILogger)" line-rate="0.8234999999999999" branch-rate="0.5832999999999999" complexity="12">
+              <lines>
+                <line number="37" hits="36" branch="False" />
+                <line number="51" hits="36" branch="False" />
+                <line number="53" hits="36" branch="False" />
+                <line number="55" hits="36" branch="True" condition-coverage="50% (1/2)">
+                  <conditions>
+                    <condition number="34" type="jump" coverage="50%" />
+                  </conditions>
+                </line>
+                <line number="56" hits="0" branch="False" />
+                <line number="58" hits="36" branch="True" condition-coverage="50% (1/2)">
+                  <conditions>
+                    <condition number="61" type="jump" coverage="50%" />
+                  </conditions>
+                </line>
+                <line number="59" hits="0" branch="False" />
+                <line number="61" hits="36" branch="True" condition-coverage="50% (2/4)">
+                  <conditions>
+                    <condition number="95" type="jump" coverage="50%" />
+                    <condition number="113" type="jump" coverage="50%" />
+                  </conditions>
+                </line>
+                <line number="62" hits="0" branch="False" />
+                <line number="64" hits="36" branch="False" />
+                <line number="65" hits="36" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="141" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="68" hits="36" branch="True" condition-coverage="50% (1/2)">
+                  <conditions>
+                    <condition number="156" type="jump" coverage="50%" />
+                  </conditions>
+                </line>
+                <line number="69" hits="36" branch="False" />
+                <line number="70" hits="36" branch="False" />
+                <line number="72" hits="36" branch="False" />
+                <line number="73" hits="36" branch="False" />
+                <line number="74" hits="36" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="40" hits="36" branch="False" />
+            <line number="41" hits="36" branch="False" />
+            <line number="42" hits="72" branch="False" />
+            <line number="43" hits="72" branch="False" />
+            <line number="44" hits="72" branch="False" />
+            <line number="81" hits="0" branch="False" />
+            <line number="82" hits="0" branch="False" />
+            <line number="90" hits="72" branch="False" />
+            <line number="92" hits="72" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="7" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="94" hits="36" branch="False" />
+            <line number="95" hits="36" branch="False" />
+            <line number="96" hits="36" branch="False" />
+            <line number="97" hits="36" branch="False" />
+            <line number="98" hits="36" branch="False" />
+            <line number="99" hits="36" branch="False" />
+            <line number="100" hits="36" branch="False" />
+            <line number="101" hits="36" branch="False" />
+            <line number="102" hits="0" branch="True" condition-coverage="0% (0/6)">
+              <conditions>
+                <condition number="6" type="jump" coverage="0%" />
+                <condition number="19" type="jump" coverage="0%" />
+                <condition number="32" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="103" hits="0" branch="False" />
+            <line number="104" hits="0" branch="False" />
+            <line number="105" hits="0" branch="False" />
+            <line number="106" hits="0" branch="False" />
+            <line number="107" hits="36" branch="False" />
+            <line number="108" hits="36" branch="False" />
+            <line number="109" hits="0" branch="False" />
+            <line number="110" hits="0" branch="False" />
+            <line number="111" hits="0" branch="False" />
+            <line number="112" hits="0" branch="False" />
+            <line number="113" hits="36" branch="False" />
+            <line number="114" hits="36" branch="False" />
+            <line number="117" hits="72" branch="False" />
+            <line number="118" hits="72" branch="False" />
+            <line number="119" hits="72" branch="False" />
+            <line number="120" hits="72" branch="False" />
+            <line number="121" hits="72" branch="False" />
+            <line number="122" hits="72" branch="False" />
+            <line number="123" hits="72" branch="False" />
+            <line number="124" hits="72" branch="False" />
+            <line number="125" hits="0" branch="False" />
+            <line number="126" hits="72" branch="False" />
+            <line number="127" hits="72" branch="False" />
+            <line number="128" hits="0" branch="False" />
+            <line number="129" hits="0" branch="False" />
+            <line number="130" hits="0" branch="False" />
+            <line number="131" hits="0" branch="False" />
+            <line number="132" hits="72" branch="False" />
+            <line number="133" hits="72" branch="False" />
+            <line number="134" hits="72" branch="False" />
+            <line number="135" hits="0" branch="False" />
+            <line number="136" hits="0" branch="False" />
+            <line number="137" hits="0" branch="False" />
+            <line number="138" hits="0" branch="False" />
+            <line number="139" hits="72" branch="False" />
+            <line number="140" hits="72" branch="False" />
+            <line number="141" hits="72" branch="False" />
+            <line number="142" hits="72" branch="False" />
+            <line number="191" hits="0" branch="True" condition-coverage="0% (0/6)">
+              <conditions>
+                <condition number="11" type="jump" coverage="0%" />
+                <condition number="24" type="jump" coverage="0%" />
+                <condition number="37" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="192" hits="0" branch="False" />
+            <line number="193" hits="0" branch="False" />
+            <line number="194" hits="0" branch="False" />
+            <line number="202" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="7" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="203" hits="0" branch="False" />
+            <line number="204" hits="0" branch="False" />
+            <line number="37" hits="36" branch="False" />
+            <line number="51" hits="36" branch="False" />
+            <line number="53" hits="36" branch="False" />
+            <line number="55" hits="36" branch="True" condition-coverage="50% (1/2)">
+              <conditions>
+                <condition number="34" type="jump" coverage="50%" />
+              </conditions>
+            </line>
+            <line number="56" hits="0" branch="False" />
+            <line number="58" hits="36" branch="True" condition-coverage="50% (1/2)">
+              <conditions>
+                <condition number="61" type="jump" coverage="50%" />
+              </conditions>
+            </line>
+            <line number="59" hits="0" branch="False" />
+            <line number="61" hits="36" branch="True" condition-coverage="50% (2/4)">
+              <conditions>
+                <condition number="95" type="jump" coverage="50%" />
+                <condition number="113" type="jump" coverage="50%" />
+              </conditions>
+            </line>
+            <line number="62" hits="0" branch="False" />
+            <line number="64" hits="36" branch="False" />
+            <line number="65" hits="36" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="141" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="68" hits="36" branch="True" condition-coverage="50% (1/2)">
+              <conditions>
+                <condition number="156" type="jump" coverage="50%" />
+              </conditions>
+            </line>
+            <line number="69" hits="36" branch="False" />
+            <line number="70" hits="36" branch="False" />
+            <line number="72" hits="36" branch="False" />
+            <line number="73" hits="36" branch="False" />
+            <line number="74" hits="36" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Clients.BaseServiceClient/&lt;&gt;c__DisplayClass23_0/&lt;&lt;ExecuteWithResilienceAsync&gt;b__0&gt;d" filename="ResQ.Clients/BaseServiceClient.cs" line-rate="0" branch-rate="1" complexity="1">
+          <methods>
+            <method name="MoveNext" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="156" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="156" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Clients.BaseServiceClient/&lt;&gt;c__DisplayClass24_0/&lt;&lt;SendAsync&gt;b__0&gt;d" filename="ResQ.Clients/BaseServiceClient.cs" line-rate="0" branch-rate="0" complexity="4">
+          <methods>
+            <method name="MoveNext" signature="()" line-rate="0" branch-rate="0" complexity="4">
+              <lines>
+                <line number="174" hits="0" branch="False" />
+                <line number="175" hits="0" branch="False" />
+                <line number="176" hits="0" branch="False" />
+                <line number="177" hits="0" branch="False" />
+                <line number="179" hits="0" branch="True" condition-coverage="0% (0/4)">
+                  <conditions>
+                    <condition number="65" type="jump" coverage="0%" />
+                    <condition number="78" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="181" hits="0" branch="False" />
+                <line number="184" hits="0" branch="False" />
+                <line number="185" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="174" hits="0" branch="False" />
+            <line number="175" hits="0" branch="False" />
+            <line number="176" hits="0" branch="False" />
+            <line number="177" hits="0" branch="False" />
+            <line number="179" hits="0" branch="True" condition-coverage="0% (0/4)">
+              <conditions>
+                <condition number="65" type="jump" coverage="0%" />
+                <condition number="78" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="181" hits="0" branch="False" />
+            <line number="184" hits="0" branch="False" />
+            <line number="185" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Clients.BaseServiceClient/&lt;ExecuteWithResilienceAsync&gt;d__23" filename="ResQ.Clients/BaseServiceClient.cs" line-rate="0" branch-rate="0" complexity="2">
+          <methods>
+            <method name="MoveNext" signature="()" line-rate="0" branch-rate="0" complexity="2">
+              <lines>
+                <line number="153" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="49" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="155" hits="0" branch="False" />
+                <line number="157" hits="0" branch="False" />
+                <line number="158" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="153" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="49" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="155" hits="0" branch="False" />
+            <line number="157" hits="0" branch="False" />
+            <line number="158" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Clients.BaseServiceClient/&lt;SendAsync&gt;d__24" filename="ResQ.Clients/BaseServiceClient.cs" line-rate="0" branch-rate="1" complexity="1">
+          <methods>
+            <method name="MoveNext" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="170" hits="0" branch="False" />
+                <line number="171" hits="0" branch="False" />
+                <line number="172" hits="0" branch="False" />
+                <line number="173" hits="0" branch="False" />
+                <line number="178" hits="0" branch="False" />
+                <line number="180" hits="0" branch="False" />
+                <line number="182" hits="0" branch="False" />
+                <line number="183" hits="0" branch="False" />
+                <line number="186" hits="0" branch="False" />
+                <line number="187" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="170" hits="0" branch="False" />
+            <line number="171" hits="0" branch="False" />
+            <line number="172" hits="0" branch="False" />
+            <line number="173" hits="0" branch="False" />
+            <line number="178" hits="0" branch="False" />
+            <line number="180" hits="0" branch="False" />
+            <line number="182" hits="0" branch="False" />
+            <line number="183" hits="0" branch="False" />
+            <line number="186" hits="0" branch="False" />
+            <line number="187" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Clients.CoordinationHceClient" filename="ResQ.Clients/CoordinationHceClient.cs" line-rate="0.6666" branch-rate="1" complexity="2">
+          <methods>
+            <method name="get_ServiceName" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="30" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(System.String,System.Net.Http.HttpMessageHandler,Microsoft.Extensions.Logging.ILogger)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="33" hits="18" branch="False" />
+                <line number="35" hits="18" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="30" hits="0" branch="False" />
+            <line number="33" hits="18" branch="False" />
+            <line number="35" hits="18" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Clients.CoordinationHceClient/&lt;AuthenticateAsync&gt;d__3" filename="ResQ.Clients/CoordinationHceClient.cs" line-rate="0" branch-rate="0" complexity="6">
+          <methods>
+            <method name="MoveNext" signature="()" line-rate="0" branch-rate="0" complexity="6">
+              <lines>
+                <line number="44" hits="0" branch="False" />
+                <line number="45" hits="0" branch="False" />
+                <line number="47" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="178" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="50" hits="0" branch="False" />
+                <line number="51" hits="0" branch="False" />
+                <line number="54" hits="0" branch="False" />
+                <line number="55" hits="0" branch="False" />
+                <line number="56" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="314" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="58" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="329" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="60" hits="0" branch="False" />
+                <line number="65" hits="0" branch="False" />
+                <line number="68" hits="0" branch="False" />
+                <line number="70" hits="0" branch="False" />
+                <line number="74" hits="0" branch="False" />
+                <line number="75" hits="0" branch="False" />
+                <line number="77" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="44" hits="0" branch="False" />
+            <line number="45" hits="0" branch="False" />
+            <line number="47" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="178" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="50" hits="0" branch="False" />
+            <line number="51" hits="0" branch="False" />
+            <line number="54" hits="0" branch="False" />
+            <line number="55" hits="0" branch="False" />
+            <line number="56" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="314" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="58" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="329" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="60" hits="0" branch="False" />
+            <line number="65" hits="0" branch="False" />
+            <line number="68" hits="0" branch="False" />
+            <line number="70" hits="0" branch="False" />
+            <line number="74" hits="0" branch="False" />
+            <line number="75" hits="0" branch="False" />
+            <line number="77" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Clients.CoordinationHceClient/&lt;GetFleetStatusAsync&gt;d__6" filename="ResQ.Clients/CoordinationHceClient.cs" line-rate="0" branch-rate="0" complexity="4">
+          <methods>
+            <method name="MoveNext" signature="()" line-rate="0" branch-rate="0" complexity="4">
+              <lines>
+                <line number="155" hits="0" branch="False" />
+                <line number="156" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="54" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="157" hits="0" branch="False" />
+                <line number="159" hits="0" branch="False" />
+                <line number="160" hits="0" branch="False" />
+                <line number="161" hits="0" branch="False" />
+                <line number="162" hits="0" branch="False" />
+                <line number="164" hits="0" branch="False" />
+                <line number="165" hits="0" branch="False" />
+                <line number="166" hits="0" branch="False" />
+                <line number="167" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="334" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="168" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="155" hits="0" branch="False" />
+            <line number="156" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="54" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="157" hits="0" branch="False" />
+            <line number="159" hits="0" branch="False" />
+            <line number="160" hits="0" branch="False" />
+            <line number="161" hits="0" branch="False" />
+            <line number="162" hits="0" branch="False" />
+            <line number="164" hits="0" branch="False" />
+            <line number="165" hits="0" branch="False" />
+            <line number="166" hits="0" branch="False" />
+            <line number="167" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="334" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="168" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Clients.CoordinationHceClient/&lt;GetHealthAsync&gt;d__7" filename="ResQ.Clients/CoordinationHceClient.cs" line-rate="0" branch-rate="0" complexity="2">
+          <methods>
+            <method name="MoveNext" signature="()" line-rate="0" branch-rate="0" complexity="2">
+              <lines>
+                <line number="176" hits="0" branch="False" />
+                <line number="177" hits="0" branch="False" />
+                <line number="179" hits="0" branch="False" />
+                <line number="180" hits="0" branch="False" />
+                <line number="181" hits="0" branch="False" />
+                <line number="182" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="270" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="183" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="176" hits="0" branch="False" />
+            <line number="177" hits="0" branch="False" />
+            <line number="179" hits="0" branch="False" />
+            <line number="180" hits="0" branch="False" />
+            <line number="181" hits="0" branch="False" />
+            <line number="182" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="270" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="183" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Clients.CoordinationHceClient/&lt;ReportIncidentAsync&gt;d__5" filename="ResQ.Clients/CoordinationHceClient.cs" line-rate="0" branch-rate="0" complexity="10">
+          <methods>
+            <method name="MoveNext" signature="()" line-rate="0" branch-rate="0" complexity="10">
+              <lines>
+                <line number="115" hits="0" branch="False" />
+                <line number="116" hits="0" branch="False" />
+                <line number="119" hits="0" branch="True" condition-coverage="0% (0/4)">
+                  <conditions>
+                    <condition number="89" type="jump" coverage="0%" />
+                    <condition number="116" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="121" hits="0" branch="False" />
+                <line number="122" hits="0" branch="False" />
+                <line number="123" hits="0" branch="False" />
+                <line number="124" hits="0" branch="False" />
+                <line number="128" hits="0" branch="True" condition-coverage="0% (0/4)">
+                  <conditions>
+                    <condition number="180" type="jump" coverage="0%" />
+                    <condition number="207" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="130" hits="0" branch="False" />
+                <line number="131" hits="0" branch="False" />
+                <line number="132" hits="0" branch="False" />
+                <line number="133" hits="0" branch="False" />
+                <line number="136" hits="0" branch="False" />
+                <line number="137" hits="0" branch="False" />
+                <line number="138" hits="0" branch="False" />
+                <line number="139" hits="0" branch="False" />
+                <line number="140" hits="0" branch="False" />
+                <line number="142" hits="0" branch="False" />
+                <line number="143" hits="0" branch="False" />
+                <line number="144" hits="0" branch="False" />
+                <line number="145" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="504" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="146" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="115" hits="0" branch="False" />
+            <line number="116" hits="0" branch="False" />
+            <line number="119" hits="0" branch="True" condition-coverage="0% (0/4)">
+              <conditions>
+                <condition number="89" type="jump" coverage="0%" />
+                <condition number="116" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="121" hits="0" branch="False" />
+            <line number="122" hits="0" branch="False" />
+            <line number="123" hits="0" branch="False" />
+            <line number="124" hits="0" branch="False" />
+            <line number="128" hits="0" branch="True" condition-coverage="0% (0/4)">
+              <conditions>
+                <condition number="180" type="jump" coverage="0%" />
+                <condition number="207" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="130" hits="0" branch="False" />
+            <line number="131" hits="0" branch="False" />
+            <line number="132" hits="0" branch="False" />
+            <line number="133" hits="0" branch="False" />
+            <line number="136" hits="0" branch="False" />
+            <line number="137" hits="0" branch="False" />
+            <line number="138" hits="0" branch="False" />
+            <line number="139" hits="0" branch="False" />
+            <line number="140" hits="0" branch="False" />
+            <line number="142" hits="0" branch="False" />
+            <line number="143" hits="0" branch="False" />
+            <line number="144" hits="0" branch="False" />
+            <line number="145" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="504" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="146" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Clients.CoordinationHceClient/&lt;SendTelemetryBatchAsync&gt;d__4" filename="ResQ.Clients/CoordinationHceClient.cs" line-rate="0" branch-rate="0" complexity="6">
+          <methods>
+            <method name="MoveNext" signature="()" line-rate="0" branch-rate="0" complexity="6">
+              <lines>
+                <line number="86" hits="0" branch="False" />
+                <line number="87" hits="0" branch="False" />
+                <line number="89" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="73" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="91" hits="0" branch="False" />
+                <line number="94" hits="0" branch="True" condition-coverage="0% (0/4)">
+                  <conditions>
+                    <condition number="102" type="jump" coverage="0%" />
+                    <condition number="120" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="96" hits="0" branch="False" />
+                <line number="99" hits="0" branch="False" />
+                <line number="100" hits="0" branch="False" />
+                <line number="101" hits="0" branch="False" />
+                <line number="102" hits="0" branch="False" />
+                <line number="103" hits="0" branch="False" />
+                <line number="105" hits="0" branch="False" />
+                <line number="106" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="86" hits="0" branch="False" />
+            <line number="87" hits="0" branch="False" />
+            <line number="89" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="73" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="91" hits="0" branch="False" />
+            <line number="94" hits="0" branch="True" condition-coverage="0% (0/4)">
+              <conditions>
+                <condition number="102" type="jump" coverage="0%" />
+                <condition number="120" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="96" hits="0" branch="False" />
+            <line number="99" hits="0" branch="False" />
+            <line number="100" hits="0" branch="False" />
+            <line number="101" hits="0" branch="False" />
+            <line number="102" hits="0" branch="False" />
+            <line number="103" hits="0" branch="False" />
+            <line number="105" hits="0" branch="False" />
+            <line number="106" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Clients.AuthResponse" filename="ResQ.Clients/CoordinationHceClient.cs" line-rate="0" branch-rate="1" complexity="1">
+          <methods>
+            <method name="get_Token" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="189" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="189" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Clients.TelemetryBatchRequest" filename="ResQ.Clients/CoordinationHceClient.cs" line-rate="0" branch-rate="1" complexity="4">
+          <methods>
+            <method name="get_DroneId" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="198" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Packets" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="199" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Detections" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="200" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(System.String,System.Collections.Generic.List`1&lt;ResQ.Clients.TelemetryPacket&gt;,System.Collections.Generic.List`1&lt;ResQ.Clients.Detection&gt;)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="197" hits="0" branch="False" />
+                <line number="201" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="198" hits="0" branch="False" />
+            <line number="199" hits="0" branch="False" />
+            <line number="200" hits="0" branch="False" />
+            <line number="197" hits="0" branch="False" />
+            <line number="201" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Clients.TelemetryPacket" filename="ResQ.Clients/CoordinationHceClient.cs" line-rate="0" branch-rate="1" complexity="8">
+          <methods>
+            <method name="get_DroneId" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="214" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Latitude" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="215" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Longitude" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="216" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Altitude" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="217" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Battery" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="218" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_FlightMode" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="219" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Timestamp" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="220" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(System.String,System.Double,System.Double,System.Double,System.Double,System.String,System.Int64)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="213" hits="0" branch="False" />
+                <line number="221" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="214" hits="0" branch="False" />
+            <line number="215" hits="0" branch="False" />
+            <line number="216" hits="0" branch="False" />
+            <line number="217" hits="0" branch="False" />
+            <line number="218" hits="0" branch="False" />
+            <line number="219" hits="0" branch="False" />
+            <line number="220" hits="0" branch="False" />
+            <line number="213" hits="0" branch="False" />
+            <line number="221" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Clients.Detection" filename="ResQ.Clients/CoordinationHceClient.cs" line-rate="0" branch-rate="1" complexity="5">
+          <methods>
+            <method name="get_Type" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="231" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Confidence" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="232" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Location" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="233" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Timestamp" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="234" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(System.String,System.Double,ResQ.Clients.LocationDto,System.Int64)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="230" hits="0" branch="False" />
+                <line number="235" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="231" hits="0" branch="False" />
+            <line number="232" hits="0" branch="False" />
+            <line number="233" hits="0" branch="False" />
+            <line number="234" hits="0" branch="False" />
+            <line number="230" hits="0" branch="False" />
+            <line number="235" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Clients.ReportIncidentRequest" filename="ResQ.Clients/CoordinationHceClient.cs" line-rate="0" branch-rate="1" complexity="5">
+          <methods>
+            <method name="get_IncidentType" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="245" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Severity" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="246" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Location" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="247" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Description" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="248" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(System.String,System.String,ResQ.Clients.LocationDto,System.String)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="244" hits="0" branch="False" />
+                <line number="249" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="245" hits="0" branch="False" />
+            <line number="246" hits="0" branch="False" />
+            <line number="247" hits="0" branch="False" />
+            <line number="248" hits="0" branch="False" />
+            <line number="244" hits="0" branch="False" />
+            <line number="249" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Clients.IncidentAck" filename="ResQ.Clients/CoordinationHceClient.cs" line-rate="0" branch-rate="1" complexity="3">
+          <methods>
+            <method name="get_IncidentId" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="257" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Status" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="258" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(System.String,System.String)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="256" hits="0" branch="False" />
+                <line number="259" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="257" hits="0" branch="False" />
+            <line number="258" hits="0" branch="False" />
+            <line number="256" hits="0" branch="False" />
+            <line number="259" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Clients.FleetStatus" filename="ResQ.Clients/CoordinationHceClient.cs" line-rate="0" branch-rate="1" complexity="4">
+          <methods>
+            <method name="get_FleetId" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="268" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_ActiveDrones" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="269" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_TotalMissions" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="270" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(System.String,System.Int32,System.Int32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="267" hits="0" branch="False" />
+                <line number="271" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="268" hits="0" branch="False" />
+            <line number="269" hits="0" branch="False" />
+            <line number="270" hits="0" branch="False" />
+            <line number="267" hits="0" branch="False" />
+            <line number="271" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Clients.HceHealthResponse" filename="ResQ.Clients/CoordinationHceClient.cs" line-rate="0" branch-rate="1" complexity="1">
+          <methods>
+            <method name="get_Status" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="277" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="277" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Clients.InfrastructureApiClient" filename="ResQ.Clients/InfrastructureApiClient.cs" line-rate="0.6666" branch-rate="1" complexity="2">
+          <methods>
+            <method name="get_ServiceName" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="30" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(System.String,System.Net.Http.HttpMessageHandler,Microsoft.Extensions.Logging.ILogger)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="33" hits="18" branch="False" />
+                <line number="35" hits="18" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="30" hits="0" branch="False" />
+            <line number="33" hits="18" branch="False" />
+            <line number="35" hits="18" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Clients.InfrastructureApiClient/&lt;AuthenticateAsync&gt;d__3" filename="ResQ.Clients/InfrastructureApiClient.cs" line-rate="0" branch-rate="0" complexity="6">
+          <methods>
+            <method name="MoveNext" signature="()" line-rate="0" branch-rate="0" complexity="6">
+              <lines>
+                <line number="45" hits="0" branch="False" />
+                <line number="46" hits="0" branch="False" />
+                <line number="48" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="178" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="51" hits="0" branch="False" />
+                <line number="52" hits="0" branch="False" />
+                <line number="55" hits="0" branch="False" />
+                <line number="56" hits="0" branch="False" />
+                <line number="58" hits="0" branch="True" condition-coverage="0% (0/4)">
+                  <conditions>
+                    <condition number="317" type="jump" coverage="0%" />
+                    <condition number="326" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="60" hits="0" branch="False" />
+                <line number="61" hits="0" branch="False" />
+                <line number="64" hits="0" branch="False" />
+                <line number="65" hits="0" branch="False" />
+                <line number="67" hits="0" branch="False" />
+                <line number="70" hits="0" branch="False" />
+                <line number="71" hits="0" branch="False" />
+                <line number="73" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="45" hits="0" branch="False" />
+            <line number="46" hits="0" branch="False" />
+            <line number="48" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="178" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="51" hits="0" branch="False" />
+            <line number="52" hits="0" branch="False" />
+            <line number="55" hits="0" branch="False" />
+            <line number="56" hits="0" branch="False" />
+            <line number="58" hits="0" branch="True" condition-coverage="0% (0/4)">
+              <conditions>
+                <condition number="317" type="jump" coverage="0%" />
+                <condition number="326" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="60" hits="0" branch="False" />
+            <line number="61" hits="0" branch="False" />
+            <line number="64" hits="0" branch="False" />
+            <line number="65" hits="0" branch="False" />
+            <line number="67" hits="0" branch="False" />
+            <line number="70" hits="0" branch="False" />
+            <line number="71" hits="0" branch="False" />
+            <line number="73" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Clients.InfrastructureApiClient/&lt;CreateIncidentAsync&gt;d__6" filename="ResQ.Clients/InfrastructureApiClient.cs" line-rate="0" branch-rate="0" complexity="2">
+          <methods>
+            <method name="MoveNext" signature="()" line-rate="0" branch-rate="0" complexity="2">
+              <lines>
+                <line number="141" hits="0" branch="False" />
+                <line number="143" hits="0" branch="False" />
+                <line number="144" hits="0" branch="False" />
+                <line number="145" hits="0" branch="False" />
+                <line number="146" hits="0" branch="False" />
+                <line number="147" hits="0" branch="False" />
+                <line number="149" hits="0" branch="False" />
+                <line number="150" hits="0" branch="False" />
+                <line number="151" hits="0" branch="False" />
+                <line number="152" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="298" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="153" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="141" hits="0" branch="False" />
+            <line number="143" hits="0" branch="False" />
+            <line number="144" hits="0" branch="False" />
+            <line number="145" hits="0" branch="False" />
+            <line number="146" hits="0" branch="False" />
+            <line number="147" hits="0" branch="False" />
+            <line number="149" hits="0" branch="False" />
+            <line number="150" hits="0" branch="False" />
+            <line number="151" hits="0" branch="False" />
+            <line number="152" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="298" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="153" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Clients.InfrastructureApiClient/&lt;GetHealthAsync&gt;d__7" filename="ResQ.Clients/InfrastructureApiClient.cs" line-rate="0" branch-rate="0" complexity="2">
+          <methods>
+            <method name="MoveNext" signature="()" line-rate="0" branch-rate="0" complexity="2">
+              <lines>
+                <line number="161" hits="0" branch="False" />
+                <line number="162" hits="0" branch="False" />
+                <line number="164" hits="0" branch="False" />
+                <line number="165" hits="0" branch="False" />
+                <line number="166" hits="0" branch="False" />
+                <line number="167" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="270" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="168" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="161" hits="0" branch="False" />
+            <line number="162" hits="0" branch="False" />
+            <line number="164" hits="0" branch="False" />
+            <line number="165" hits="0" branch="False" />
+            <line number="166" hits="0" branch="False" />
+            <line number="167" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="270" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="168" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Clients.InfrastructureApiClient/&lt;RecordEventAsync&gt;d__5" filename="ResQ.Clients/InfrastructureApiClient.cs" line-rate="0" branch-rate="0" complexity="2">
+          <methods>
+            <method name="MoveNext" signature="()" line-rate="0" branch-rate="0" complexity="2">
+              <lines>
+                <line number="113" hits="0" branch="False" />
+                <line number="115" hits="0" branch="False" />
+                <line number="116" hits="0" branch="False" />
+                <line number="117" hits="0" branch="False" />
+                <line number="118" hits="0" branch="False" />
+                <line number="119" hits="0" branch="False" />
+                <line number="120" hits="0" branch="False" />
+                <line number="121" hits="0" branch="False" />
+                <line number="122" hits="0" branch="False" />
+                <line number="123" hits="0" branch="False" />
+                <line number="124" hits="0" branch="False" />
+                <line number="125" hits="0" branch="False" />
+                <line number="126" hits="0" branch="False" />
+                <line number="127" hits="0" branch="False" />
+                <line number="129" hits="0" branch="False" />
+                <line number="130" hits="0" branch="False" />
+                <line number="131" hits="0" branch="False" />
+                <line number="132" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="366" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="133" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="113" hits="0" branch="False" />
+            <line number="115" hits="0" branch="False" />
+            <line number="116" hits="0" branch="False" />
+            <line number="117" hits="0" branch="False" />
+            <line number="118" hits="0" branch="False" />
+            <line number="119" hits="0" branch="False" />
+            <line number="120" hits="0" branch="False" />
+            <line number="121" hits="0" branch="False" />
+            <line number="122" hits="0" branch="False" />
+            <line number="123" hits="0" branch="False" />
+            <line number="124" hits="0" branch="False" />
+            <line number="125" hits="0" branch="False" />
+            <line number="126" hits="0" branch="False" />
+            <line number="127" hits="0" branch="False" />
+            <line number="129" hits="0" branch="False" />
+            <line number="130" hits="0" branch="False" />
+            <line number="131" hits="0" branch="False" />
+            <line number="132" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="366" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="133" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Clients.InfrastructureApiClient/&lt;UploadImageAsync&gt;d__4" filename="ResQ.Clients/InfrastructureApiClient.cs" line-rate="0" branch-rate="0" complexity="6">
+          <methods>
+            <method name="MoveNext" signature="()" line-rate="0" branch-rate="0" complexity="6">
+              <lines>
+                <line number="81" hits="0" branch="False" />
+                <line number="82" hits="0" branch="False" />
+                <line number="84" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="66" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="85" hits="0" branch="False" />
+                <line number="87" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="95" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="88" hits="0" branch="False" />
+                <line number="91" hits="0" branch="False" />
+                <line number="92" hits="0" branch="False" />
+                <line number="94" hits="0" branch="False" />
+                <line number="95" hits="0" branch="False" />
+                <line number="96" hits="0" branch="False" />
+                <line number="97" hits="0" branch="False" />
+                <line number="98" hits="0" branch="False" />
+                <line number="100" hits="0" branch="False" />
+                <line number="102" hits="0" branch="False" />
+                <line number="103" hits="0" branch="False" />
+                <line number="104" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="396" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="105" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="81" hits="0" branch="False" />
+            <line number="82" hits="0" branch="False" />
+            <line number="84" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="66" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="85" hits="0" branch="False" />
+            <line number="87" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="95" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="88" hits="0" branch="False" />
+            <line number="91" hits="0" branch="False" />
+            <line number="92" hits="0" branch="False" />
+            <line number="94" hits="0" branch="False" />
+            <line number="95" hits="0" branch="False" />
+            <line number="96" hits="0" branch="False" />
+            <line number="97" hits="0" branch="False" />
+            <line number="98" hits="0" branch="False" />
+            <line number="100" hits="0" branch="False" />
+            <line number="102" hits="0" branch="False" />
+            <line number="103" hits="0" branch="False" />
+            <line number="104" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="396" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="105" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Clients.UploadResponse" filename="ResQ.Clients/InfrastructureApiClient.cs" line-rate="0" branch-rate="1" complexity="1">
+          <methods>
+            <method name="get_Cid" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="174" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="174" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Clients.BlockchainEventRequest" filename="ResQ.Clients/InfrastructureApiClient.cs" line-rate="0" branch-rate="1" complexity="7">
+          <methods>
+            <method name="get_EventId" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="180" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_EventType" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="181" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Payload" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="182" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_IpfsCid" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="183" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_DroneId" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="184" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Timestamp" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="185" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(System.String,System.String,System.String,System.String,System.String,System.Int64)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="179" hits="0" branch="False" />
+                <line number="186" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="180" hits="0" branch="False" />
+            <line number="181" hits="0" branch="False" />
+            <line number="182" hits="0" branch="False" />
+            <line number="183" hits="0" branch="False" />
+            <line number="184" hits="0" branch="False" />
+            <line number="185" hits="0" branch="False" />
+            <line number="179" hits="0" branch="False" />
+            <line number="186" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Clients.BlockchainEventResponse" filename="ResQ.Clients/InfrastructureApiClient.cs" line-rate="0" branch-rate="1" complexity="5">
+          <methods>
+            <method name="get_EventId" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="192" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_EventType" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="193" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Timestamp" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="194" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_TxHash" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="195" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(System.String,System.String,System.Int64,System.String)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="191" hits="0" branch="False" />
+                <line number="196" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="192" hits="0" branch="False" />
+            <line number="193" hits="0" branch="False" />
+            <line number="194" hits="0" branch="False" />
+            <line number="195" hits="0" branch="False" />
+            <line number="191" hits="0" branch="False" />
+            <line number="196" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Clients.CreateIncidentRequest" filename="ResQ.Clients/InfrastructureApiClient.cs" line-rate="0" branch-rate="1" complexity="5">
+          <methods>
+            <method name="get_IncidentType" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="202" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Severity" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="203" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Location" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="204" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Description" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="205" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(System.String,System.String,ResQ.Clients.LocationDto,System.String)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="201" hits="0" branch="False" />
+                <line number="206" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="202" hits="0" branch="False" />
+            <line number="203" hits="0" branch="False" />
+            <line number="204" hits="0" branch="False" />
+            <line number="205" hits="0" branch="False" />
+            <line number="201" hits="0" branch="False" />
+            <line number="206" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Clients.IncidentResponse" filename="ResQ.Clients/InfrastructureApiClient.cs" line-rate="0" branch-rate="1" complexity="6">
+          <methods>
+            <method name="get_Id" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="212" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_IncidentType" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="213" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Severity" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="214" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Status" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="215" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_CreatedAt" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="216" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(System.String,System.String,System.String,System.String,System.String)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="211" hits="0" branch="False" />
+                <line number="217" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="212" hits="0" branch="False" />
+            <line number="213" hits="0" branch="False" />
+            <line number="214" hits="0" branch="False" />
+            <line number="215" hits="0" branch="False" />
+            <line number="216" hits="0" branch="False" />
+            <line number="211" hits="0" branch="False" />
+            <line number="217" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Clients.HealthResponse" filename="ResQ.Clients/InfrastructureApiClient.cs" line-rate="0" branch-rate="1" complexity="5">
+          <methods>
+            <method name="get_Status" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="223" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Pinata" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="224" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Gemini" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="225" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Blockchain" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="226" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(System.String,System.Boolean,System.Boolean,System.Boolean)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="222" hits="0" branch="False" />
+                <line number="227" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="223" hits="0" branch="False" />
+            <line number="224" hits="0" branch="False" />
+            <line number="225" hits="0" branch="False" />
+            <line number="226" hits="0" branch="False" />
+            <line number="222" hits="0" branch="False" />
+            <line number="227" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Clients.LocationDto" filename="ResQ.Clients/InfrastructureApiClient.cs" line-rate="0" branch-rate="1" complexity="1">
+          <methods>
+            <method name="get_Latitude" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="232" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="232" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Clients.InfraAuthResponse" filename="ResQ.Clients/InfrastructureApiClient.cs" line-rate="0" branch-rate="1" complexity="1">
+          <methods>
+            <method name="get_Token" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="237" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="237" hits="0" branch="False" />
+          </lines>
+        </class>
+      </classes>
+    </package>
+    <package name="ResQ.Core" line-rate="0.0215" branch-rate="0" complexity="116">
+      <classes>
+        <class name="ResQ.Core.BlockchainEvent" filename="ResQ.Core/BlockchainModels.cs" line-rate="0" branch-rate="1" complexity="7">
+          <methods>
+            <method name="get_EventId" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="45" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_EventType" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="48" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Timestamp" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="51" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Location" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="54" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_EvidenceCid" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="57" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_DroneId" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="60" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Metadata" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="63" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="45" hits="0" branch="False" />
+            <line number="48" hits="0" branch="False" />
+            <line number="51" hits="0" branch="False" />
+            <line number="54" hits="0" branch="False" />
+            <line number="57" hits="0" branch="False" />
+            <line number="60" hits="0" branch="False" />
+            <line number="63" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Core.TransactionResult" filename="ResQ.Core/BlockchainModels.cs" line-rate="0" branch-rate="1" complexity="5">
+          <methods>
+            <method name="get_TxHash" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="86" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_BlockHeight" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="89" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_GasConsumed" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="92" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Status" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="95" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_ErrorMessage" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="98" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="86" hits="0" branch="False" />
+            <line number="89" hits="0" branch="False" />
+            <line number="92" hits="0" branch="False" />
+            <line number="95" hits="0" branch="False" />
+            <line number="98" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Core.NeoConfig" filename="ResQ.Core/BlockchainModels.cs" line-rate="0" branch-rate="1" complexity="4">
+          <methods>
+            <method name="get_RpcUrl" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="122" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_ContractHash" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="125" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_NetworkMagic" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="128" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_MockMode" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="131" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="122" hits="0" branch="False" />
+            <line number="125" hits="0" branch="False" />
+            <line number="128" hits="0" branch="False" />
+            <line number="131" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Core.PreAlert" filename="ResQ.Core/IntelligenceModels.cs" line-rate="0" branch-rate="1" complexity="7">
+          <methods>
+            <method name="get_AlertId" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="43" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_SectorId" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="46" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_PredictedDisasterType" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="49" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Probability" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="52" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_ForecastHorizonHours" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="55" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Severity" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="58" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_CreatedAt" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="61" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="43" hits="0" branch="False" />
+            <line number="46" hits="0" branch="False" />
+            <line number="49" hits="0" branch="False" />
+            <line number="52" hits="0" branch="False" />
+            <line number="55" hits="0" branch="False" />
+            <line number="58" hits="0" branch="False" />
+            <line number="61" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Core.OptimizationStrategy" filename="ResQ.Core/IntelligenceModels.cs" line-rate="0" branch-rate="1" complexity="7">
+          <methods>
+            <method name="get_StrategyId" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="89" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_ScenarioId" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="92" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Deployments" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="95" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_EstimatedCoveragePercent" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="98" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_EstimatedResponseTimeMinutes" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="101" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_ConfidenceScore" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="104" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_GeneratedAt" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="107" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="89" hits="0" branch="False" />
+            <line number="92" hits="0" branch="False" />
+            <line number="95" hits="0" branch="False" />
+            <line number="98" hits="0" branch="False" />
+            <line number="101" hits="0" branch="False" />
+            <line number="104" hits="0" branch="False" />
+            <line number="107" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Core.DeploymentRecommendation" filename="ResQ.Core/IntelligenceModels.cs" line-rate="0" branch-rate="1" complexity="5">
+          <methods>
+            <method name="get_DroneId" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="132" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_TargetPosition" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="135" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_MissionType" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="138" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Priority" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="141" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Rationale" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="144" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="132" hits="0" branch="False" />
+            <line number="135" hits="0" branch="False" />
+            <line number="138" hits="0" branch="False" />
+            <line number="141" hits="0" branch="False" />
+            <line number="144" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Core.Location" filename="ResQ.Core/Location.cs" line-rate="0.35710000000000003" branch-rate="1" complexity="5">
+          <methods>
+            <method name="get_Latitude" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="42" hits="19" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Longitude" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="43" hits="15" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Altitude" signature="()" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="44" hits="7" branch="False" />
+              </lines>
+            </method>
+            <method name="DistanceTo" signature="(ResQ.Core.Location)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="70" hits="0" branch="False" />
+                <line number="71" hits="0" branch="False" />
+                <line number="72" hits="0" branch="False" />
+                <line number="73" hits="0" branch="False" />
+                <line number="75" hits="0" branch="False" />
+                <line number="76" hits="0" branch="False" />
+                <line number="77" hits="0" branch="False" />
+                <line number="78" hits="0" branch="False" />
+                <line number="80" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(System.Double,System.Double,System.Nullable`1&lt;System.Double&gt;)" line-rate="1" branch-rate="1" complexity="1">
+              <lines>
+                <line number="41" hits="18" branch="False" />
+                <line number="45" hits="18" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="42" hits="19" branch="False" />
+            <line number="43" hits="15" branch="False" />
+            <line number="44" hits="7" branch="False" />
+            <line number="70" hits="0" branch="False" />
+            <line number="71" hits="0" branch="False" />
+            <line number="72" hits="0" branch="False" />
+            <line number="73" hits="0" branch="False" />
+            <line number="75" hits="0" branch="False" />
+            <line number="76" hits="0" branch="False" />
+            <line number="77" hits="0" branch="False" />
+            <line number="78" hits="0" branch="False" />
+            <line number="80" hits="0" branch="False" />
+            <line number="41" hits="18" branch="False" />
+            <line number="45" hits="18" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Core.Velocity" filename="ResQ.Core/Location.cs" line-rate="0" branch-rate="1" complexity="1">
+          <methods>
+            <method name="get_Vx" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="103" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="103" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Core.NeoClient" filename="ResQ.Core/NeoClient.cs" line-rate="0" branch-rate="0" complexity="3">
+          <methods>
+            <method name="Dispose" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="257" hits="0" branch="False" />
+                <line number="258" hits="0" branch="False" />
+                <line number="259" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(ResQ.Core.NeoConfig)" line-rate="0" branch-rate="0" complexity="2">
+              <lines>
+                <line number="54" hits="0" branch="False" />
+                <line number="56" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="9" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="57" hits="0" branch="False" />
+                <line number="58" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="257" hits="0" branch="False" />
+            <line number="258" hits="0" branch="False" />
+            <line number="259" hits="0" branch="False" />
+            <line number="54" hits="0" branch="False" />
+            <line number="56" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="9" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="57" hits="0" branch="False" />
+            <line number="58" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Core.NeoClient/&lt;GetTransactionStatusAsync&gt;d__7" filename="ResQ.Core/NeoClient.cs" line-rate="0" branch-rate="0" complexity="10">
+          <methods>
+            <method name="MoveNext" signature="()" line-rate="0" branch-rate="0" complexity="10">
+              <lines>
+                <line number="192" hits="0" branch="False" />
+                <line number="194" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="51" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="196" hits="0" branch="False" />
+                <line number="197" hits="0" branch="False" />
+                <line number="202" hits="0" branch="False" />
+                <line number="203" hits="0" branch="False" />
+                <line number="205" hits="0" branch="True" condition-coverage="0% (0/4)">
+                  <conditions>
+                    <condition number="319" type="jump" coverage="0%" />
+                    <condition number="329" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="206" hits="0" branch="False" />
+                <line number="208" hits="0" branch="False" />
+                <line number="209" hits="0" branch="True" condition-coverage="0% (0/4)">
+                  <conditions>
+                    <condition number="376" type="jump" coverage="0%" />
+                    <condition number="390" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="210" hits="0" branch="False" />
+                <line number="211" hits="0" branch="False" />
+                <line number="213" hits="0" branch="False" />
+                <line number="214" hits="0" branch="False" />
+                <line number="217" hits="0" branch="False" />
+                <line number="219" hits="0" branch="False" />
+                <line number="220" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="192" hits="0" branch="False" />
+            <line number="194" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="51" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="196" hits="0" branch="False" />
+            <line number="197" hits="0" branch="False" />
+            <line number="202" hits="0" branch="False" />
+            <line number="203" hits="0" branch="False" />
+            <line number="205" hits="0" branch="True" condition-coverage="0% (0/4)">
+              <conditions>
+                <condition number="319" type="jump" coverage="0%" />
+                <condition number="329" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="206" hits="0" branch="False" />
+            <line number="208" hits="0" branch="False" />
+            <line number="209" hits="0" branch="True" condition-coverage="0% (0/4)">
+              <conditions>
+                <condition number="376" type="jump" coverage="0%" />
+                <condition number="390" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="210" hits="0" branch="False" />
+            <line number="211" hits="0" branch="False" />
+            <line number="213" hits="0" branch="False" />
+            <line number="214" hits="0" branch="False" />
+            <line number="217" hits="0" branch="False" />
+            <line number="219" hits="0" branch="False" />
+            <line number="220" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Core.NeoClient/&lt;RecordEventAsync&gt;d__4" filename="ResQ.Core/NeoClient.cs" line-rate="0" branch-rate="0" complexity="4">
+          <methods>
+            <method name="MoveNext" signature="()" line-rate="0" branch-rate="0" complexity="4">
+              <lines>
+                <line number="70" hits="0" branch="False" />
+                <line number="72" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="51" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="74" hits="0" branch="False" />
+                <line number="75" hits="0" branch="False" />
+                <line number="76" hits="0" branch="False" />
+                <line number="77" hits="0" branch="False" />
+                <line number="78" hits="0" branch="False" />
+                <line number="79" hits="0" branch="False" />
+                <line number="80" hits="0" branch="False" />
+                <line number="81" hits="0" branch="False" />
+                <line number="84" hits="0" branch="False" />
+                <line number="85" hits="0" branch="False" />
+                <line number="86" hits="0" branch="False" />
+                <line number="87" hits="0" branch="False" />
+                <line number="88" hits="0" branch="False" />
+                <line number="89" hits="0" branch="False" />
+                <line number="90" hits="0" branch="False" />
+                <line number="91" hits="0" branch="False" />
+                <line number="92" hits="0" branch="False" />
+                <line number="93" hits="0" branch="False" />
+                <line number="94" hits="0" branch="False" />
+                <line number="96" hits="0" branch="False" />
+                <line number="98" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="575" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="99" hits="0" branch="False" />
+                <line number="100" hits="0" branch="False" />
+                <line number="101" hits="0" branch="False" />
+                <line number="102" hits="0" branch="False" />
+                <line number="103" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="70" hits="0" branch="False" />
+            <line number="72" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="51" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="74" hits="0" branch="False" />
+            <line number="75" hits="0" branch="False" />
+            <line number="76" hits="0" branch="False" />
+            <line number="77" hits="0" branch="False" />
+            <line number="78" hits="0" branch="False" />
+            <line number="79" hits="0" branch="False" />
+            <line number="80" hits="0" branch="False" />
+            <line number="81" hits="0" branch="False" />
+            <line number="84" hits="0" branch="False" />
+            <line number="85" hits="0" branch="False" />
+            <line number="86" hits="0" branch="False" />
+            <line number="87" hits="0" branch="False" />
+            <line number="88" hits="0" branch="False" />
+            <line number="89" hits="0" branch="False" />
+            <line number="90" hits="0" branch="False" />
+            <line number="91" hits="0" branch="False" />
+            <line number="92" hits="0" branch="False" />
+            <line number="93" hits="0" branch="False" />
+            <line number="94" hits="0" branch="False" />
+            <line number="96" hits="0" branch="False" />
+            <line number="98" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="575" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="99" hits="0" branch="False" />
+            <line number="100" hits="0" branch="False" />
+            <line number="101" hits="0" branch="False" />
+            <line number="102" hits="0" branch="False" />
+            <line number="103" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Core.NeoClient/&lt;RecordEvidenceAsync&gt;d__6" filename="ResQ.Core/NeoClient.cs" line-rate="0" branch-rate="1" complexity="1">
+          <methods>
+            <method name="MoveNext" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="162" hits="0" branch="False" />
+                <line number="163" hits="0" branch="False" />
+                <line number="164" hits="0" branch="False" />
+                <line number="166" hits="0" branch="False" />
+                <line number="167" hits="0" branch="False" />
+                <line number="168" hits="0" branch="False" />
+                <line number="169" hits="0" branch="False" />
+                <line number="170" hits="0" branch="False" />
+                <line number="171" hits="0" branch="False" />
+                <line number="172" hits="0" branch="False" />
+                <line number="173" hits="0" branch="False" />
+                <line number="174" hits="0" branch="False" />
+                <line number="175" hits="0" branch="False" />
+                <line number="176" hits="0" branch="False" />
+                <line number="178" hits="0" branch="False" />
+                <line number="179" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="162" hits="0" branch="False" />
+            <line number="163" hits="0" branch="False" />
+            <line number="164" hits="0" branch="False" />
+            <line number="166" hits="0" branch="False" />
+            <line number="167" hits="0" branch="False" />
+            <line number="168" hits="0" branch="False" />
+            <line number="169" hits="0" branch="False" />
+            <line number="170" hits="0" branch="False" />
+            <line number="171" hits="0" branch="False" />
+            <line number="172" hits="0" branch="False" />
+            <line number="173" hits="0" branch="False" />
+            <line number="174" hits="0" branch="False" />
+            <line number="175" hits="0" branch="False" />
+            <line number="176" hits="0" branch="False" />
+            <line number="178" hits="0" branch="False" />
+            <line number="179" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Core.NeoClient/&lt;RpcCallAsync&gt;d__8" filename="ResQ.Core/NeoClient.cs" line-rate="0" branch-rate="0" complexity="4">
+          <methods>
+            <method name="MoveNext" signature="()" line-rate="0" branch-rate="0" complexity="4">
+              <lines>
+                <line number="227" hits="0" branch="False" />
+                <line number="228" hits="0" branch="False" />
+                <line number="229" hits="0" branch="False" />
+                <line number="230" hits="0" branch="False" />
+                <line number="231" hits="0" branch="False" />
+                <line number="232" hits="0" branch="False" />
+                <line number="233" hits="0" branch="False" />
+                <line number="235" hits="0" branch="False" />
+                <line number="236" hits="0" branch="False" />
+                <line number="238" hits="0" branch="False" />
+                <line number="239" hits="0" branch="False" />
+                <line number="241" hits="0" branch="False" />
+                <line number="242" hits="0" branch="False" />
+                <line number="244" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="364" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="246" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="380" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="247" hits="0" branch="False" />
+                <line number="251" hits="0" branch="False" />
+                <line number="252" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="227" hits="0" branch="False" />
+            <line number="228" hits="0" branch="False" />
+            <line number="229" hits="0" branch="False" />
+            <line number="230" hits="0" branch="False" />
+            <line number="231" hits="0" branch="False" />
+            <line number="232" hits="0" branch="False" />
+            <line number="233" hits="0" branch="False" />
+            <line number="235" hits="0" branch="False" />
+            <line number="236" hits="0" branch="False" />
+            <line number="238" hits="0" branch="False" />
+            <line number="239" hits="0" branch="False" />
+            <line number="241" hits="0" branch="False" />
+            <line number="242" hits="0" branch="False" />
+            <line number="244" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="364" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="246" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="380" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="247" hits="0" branch="False" />
+            <line number="251" hits="0" branch="False" />
+            <line number="252" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Core.NeoClient/&lt;VerifyLocationAttestationAsync&gt;d__5" filename="ResQ.Core/NeoClient.cs" line-rate="0" branch-rate="0" complexity="6">
+          <methods>
+            <method name="MoveNext" signature="()" line-rate="0" branch-rate="0" complexity="6">
+              <lines>
+                <line number="120" hits="0" branch="False" />
+                <line number="121" hits="0" branch="False" />
+                <line number="123" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="67" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="125" hits="0" branch="False" />
+                <line number="126" hits="0" branch="False" />
+                <line number="129" hits="0" branch="False" />
+                <line number="130" hits="0" branch="False" />
+                <line number="131" hits="0" branch="False" />
+                <line number="132" hits="0" branch="False" />
+                <line number="133" hits="0" branch="False" />
+                <line number="134" hits="0" branch="False" />
+                <line number="135" hits="0" branch="False" />
+                <line number="136" hits="0" branch="False" />
+                <line number="137" hits="0" branch="False" />
+                <line number="138" hits="0" branch="False" />
+                <line number="139" hits="0" branch="False" />
+                <line number="140" hits="0" branch="False" />
+                <line number="142" hits="0" branch="True" condition-coverage="0% (0/4)">
+                  <conditions>
+                    <condition number="467" type="jump" coverage="0%" />
+                    <condition number="477" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="143" hits="0" branch="False" />
+                <line number="144" hits="0" branch="False" />
+                <line number="145" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="120" hits="0" branch="False" />
+            <line number="121" hits="0" branch="False" />
+            <line number="123" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="67" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="125" hits="0" branch="False" />
+            <line number="126" hits="0" branch="False" />
+            <line number="129" hits="0" branch="False" />
+            <line number="130" hits="0" branch="False" />
+            <line number="131" hits="0" branch="False" />
+            <line number="132" hits="0" branch="False" />
+            <line number="133" hits="0" branch="False" />
+            <line number="134" hits="0" branch="False" />
+            <line number="135" hits="0" branch="False" />
+            <line number="136" hits="0" branch="False" />
+            <line number="137" hits="0" branch="False" />
+            <line number="138" hits="0" branch="False" />
+            <line number="139" hits="0" branch="False" />
+            <line number="140" hits="0" branch="False" />
+            <line number="142" hits="0" branch="True" condition-coverage="0% (0/4)">
+              <conditions>
+                <condition number="467" type="jump" coverage="0%" />
+                <condition number="477" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="143" hits="0" branch="False" />
+            <line number="144" hits="0" branch="False" />
+            <line number="145" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Core.ResQExtensions" filename="ResQ.Core/ResQExtensions.cs" line-rate="0" branch-rate="0" complexity="10">
+          <methods>
+            <method name="ToSeverity" signature="(System.Double)" line-rate="0" branch-rate="0" complexity="6">
+              <lines>
+                <line number="55" hits="0" branch="True" condition-coverage="0% (0/6)">
+                  <conditions>
+                    <condition number="10" type="jump" coverage="0%" />
+                    <condition number="22" type="jump" coverage="0%" />
+                    <condition number="34" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="56" hits="0" branch="False" />
+                <line number="57" hits="0" branch="False" />
+                <line number="58" hits="0" branch="False" />
+                <line number="59" hits="0" branch="False" />
+                <line number="60" hits="0" branch="False" />
+                <line number="61" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="IsCritical" signature="(ResQ.Core.Detection)" line-rate="0" branch-rate="0" complexity="4">
+              <lines>
+                <line number="73" hits="0" branch="True" condition-coverage="0% (0/4)">
+                  <conditions>
+                    <condition number="18" type="jump" coverage="0%" />
+                    <condition number="31" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="74" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="55" hits="0" branch="True" condition-coverage="0% (0/6)">
+              <conditions>
+                <condition number="10" type="jump" coverage="0%" />
+                <condition number="22" type="jump" coverage="0%" />
+                <condition number="34" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="56" hits="0" branch="False" />
+            <line number="57" hits="0" branch="False" />
+            <line number="58" hits="0" branch="False" />
+            <line number="59" hits="0" branch="False" />
+            <line number="60" hits="0" branch="False" />
+            <line number="61" hits="0" branch="False" />
+            <line number="73" hits="0" branch="True" condition-coverage="0% (0/4)">
+              <conditions>
+                <condition number="18" type="jump" coverage="0%" />
+                <condition number="31" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="74" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Core.HceClient" filename="ResQ.Core/ServiceClients.cs" line-rate="0" branch-rate="1" complexity="2">
+          <methods>
+            <method name="Dispose" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="99" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(System.String)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="48" hits="0" branch="False" />
+                <line number="50" hits="0" branch="False" />
+                <line number="51" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="99" hits="0" branch="False" />
+            <line number="48" hits="0" branch="False" />
+            <line number="50" hits="0" branch="False" />
+            <line number="51" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Core.HceClient/&lt;ReportDetectionAsync&gt;d__3" filename="ResQ.Core/ServiceClients.cs" line-rate="0" branch-rate="1" complexity="1">
+          <methods>
+            <method name="MoveNext" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="86" hits="0" branch="False" />
+                <line number="87" hits="0" branch="False" />
+                <line number="89" hits="0" branch="False" />
+                <line number="90" hits="0" branch="False" />
+                <line number="91" hits="0" branch="False" />
+                <line number="93" hits="0" branch="False" />
+                <line number="94" hits="0" branch="False" />
+                <line number="95" hits="0" branch="False" />
+                <line number="96" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="86" hits="0" branch="False" />
+            <line number="87" hits="0" branch="False" />
+            <line number="89" hits="0" branch="False" />
+            <line number="90" hits="0" branch="False" />
+            <line number="91" hits="0" branch="False" />
+            <line number="93" hits="0" branch="False" />
+            <line number="94" hits="0" branch="False" />
+            <line number="95" hits="0" branch="False" />
+            <line number="96" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Core.HceClient/&lt;SendTelemetryAsync&gt;d__2" filename="ResQ.Core/ServiceClients.cs" line-rate="0" branch-rate="1" complexity="1">
+          <methods>
+            <method name="MoveNext" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="63" hits="0" branch="False" />
+                <line number="65" hits="0" branch="False" />
+                <line number="66" hits="0" branch="False" />
+                <line number="68" hits="0" branch="False" />
+                <line number="69" hits="0" branch="False" />
+                <line number="70" hits="0" branch="False" />
+                <line number="71" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="63" hits="0" branch="False" />
+            <line number="65" hits="0" branch="False" />
+            <line number="66" hits="0" branch="False" />
+            <line number="68" hits="0" branch="False" />
+            <line number="69" hits="0" branch="False" />
+            <line number="70" hits="0" branch="False" />
+            <line number="71" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Core.PdieClient" filename="ResQ.Core/ServiceClients.cs" line-rate="0" branch-rate="1" complexity="2">
+          <methods>
+            <method name="Dispose" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="155" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(System.String)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="128" hits="0" branch="False" />
+                <line number="130" hits="0" branch="False" />
+                <line number="131" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="155" hits="0" branch="False" />
+            <line number="128" hits="0" branch="False" />
+            <line number="130" hits="0" branch="False" />
+            <line number="131" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Core.PdieClient/&lt;GetPreAlertsAsync&gt;d__2" filename="ResQ.Core/ServiceClients.cs" line-rate="0" branch-rate="0" complexity="4">
+          <methods>
+            <method name="MoveNext" signature="()" line-rate="0" branch-rate="0" complexity="4">
+              <lines>
+                <line number="143" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="30" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="144" hits="0" branch="False" />
+                <line number="145" hits="0" branch="False" />
+                <line number="147" hits="0" branch="False" />
+                <line number="148" hits="0" branch="False" />
+                <line number="150" hits="0" branch="False" />
+                <line number="151" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="302" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="152" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="143" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="30" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="144" hits="0" branch="False" />
+            <line number="145" hits="0" branch="False" />
+            <line number="147" hits="0" branch="False" />
+            <line number="148" hits="0" branch="False" />
+            <line number="150" hits="0" branch="False" />
+            <line number="151" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="302" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="152" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Core.DtsopClient" filename="ResQ.Core/ServiceClients.cs" line-rate="0" branch-rate="1" complexity="2">
+          <methods>
+            <method name="Dispose" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="206" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(System.String)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="181" hits="0" branch="False" />
+                <line number="183" hits="0" branch="False" />
+                <line number="184" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="206" hits="0" branch="False" />
+            <line number="181" hits="0" branch="False" />
+            <line number="183" hits="0" branch="False" />
+            <line number="184" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Core.DtsopClient/&lt;RequestStrategyAsync&gt;d__2" filename="ResQ.Core/ServiceClients.cs" line-rate="0" branch-rate="0" complexity="2">
+          <methods>
+            <method name="MoveNext" signature="()" line-rate="0" branch-rate="0" complexity="2">
+              <lines>
+                <line number="196" hits="0" branch="False" />
+                <line number="197" hits="0" branch="False" />
+                <line number="198" hits="0" branch="False" />
+                <line number="200" hits="0" branch="False" />
+                <line number="201" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="282" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="202" hits="0" branch="False" />
+                <line number="203" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="196" hits="0" branch="False" />
+            <line number="197" hits="0" branch="False" />
+            <line number="198" hits="0" branch="False" />
+            <line number="200" hits="0" branch="False" />
+            <line number="201" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="282" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="202" hits="0" branch="False" />
+            <line number="203" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Core.TelemetryPacket" filename="ResQ.Core/Telemetry.cs" line-rate="0" branch-rate="1" complexity="16">
+          <methods>
+            <method name="get_DroneId" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="44" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_SwarmId" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="47" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_SequenceNumber" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="50" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Timestamp" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="53" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Position" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="56" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Velocity" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="59" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Status" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="62" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_BatteryPercent" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="65" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_BatteryVoltage" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="68" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_GpsOk" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="71" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_ImuOk" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="74" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_CameraOk" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="77" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_ThermalOk" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="80" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_CurrentMissionId" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="83" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_MissionProgressPercent" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="86" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Detections" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="89" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="44" hits="0" branch="False" />
+            <line number="47" hits="0" branch="False" />
+            <line number="50" hits="0" branch="False" />
+            <line number="53" hits="0" branch="False" />
+            <line number="56" hits="0" branch="False" />
+            <line number="59" hits="0" branch="False" />
+            <line number="62" hits="0" branch="False" />
+            <line number="65" hits="0" branch="False" />
+            <line number="68" hits="0" branch="False" />
+            <line number="71" hits="0" branch="False" />
+            <line number="74" hits="0" branch="False" />
+            <line number="77" hits="0" branch="False" />
+            <line number="80" hits="0" branch="False" />
+            <line number="83" hits="0" branch="False" />
+            <line number="86" hits="0" branch="False" />
+            <line number="89" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Core.Detection" filename="ResQ.Core/Telemetry.cs" line-rate="0" branch-rate="1" complexity="7">
+          <methods>
+            <method name="get_DetectionId" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="114" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Type" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="117" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Confidence" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="120" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_Location" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="123" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_DetectedAt" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="126" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_EvidenceUploaded" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="129" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="get_EvidenceCid" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="132" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="114" hits="0" branch="False" />
+            <line number="117" hits="0" branch="False" />
+            <line number="120" hits="0" branch="False" />
+            <line number="123" hits="0" branch="False" />
+            <line number="126" hits="0" branch="False" />
+            <line number="129" hits="0" branch="False" />
+            <line number="132" hits="0" branch="False" />
+          </lines>
+        </class>
+      </classes>
+    </package>
+    <package name="ResQ.Simulation" line-rate="0.1487" branch-rate="0.3055" complexity="82">
+      <classes>
+        <class name="ResQ.Simulation.ScenarioRunner" filename="ResQ.Simulation/ScenarioRunner.cs" line-rate="0.29410000000000003" branch-rate="0.2" complexity="21">
+          <methods>
+            <method name="ValidateDroneCount" signature="(System.Int32,System.String)" line-rate="0" branch-rate="0" complexity="4">
+              <lines>
+                <line number="82" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="2" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="83" hits="0" branch="False" />
+                <line number="84" hits="0" branch="False" />
+                <line number="86" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="60" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="87" hits="0" branch="False" />
+                <line number="88" hits="0" branch="False" />
+                <line number="89" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="ValidateLocation" signature="(ResQ.Core.Location,System.String)" line-rate="0" branch-rate="0" complexity="12">
+              <lines>
+                <line number="100" hits="0" branch="False" />
+                <line number="102" hits="0" branch="True" condition-coverage="0% (0/4)">
+                  <conditions>
+                    <condition number="22" type="jump" coverage="0%" />
+                    <condition number="39" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="103" hits="0" branch="False" />
+                <line number="104" hits="0" branch="False" />
+                <line number="106" hits="0" branch="True" condition-coverage="0% (0/4)">
+                  <conditions>
+                    <condition number="136" type="jump" coverage="0%" />
+                    <condition number="153" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="107" hits="0" branch="False" />
+                <line number="108" hits="0" branch="False" />
+                <line number="110" hits="0" branch="True" condition-coverage="0% (0/4)">
+                  <conditions>
+                    <condition number="270" type="jump" coverage="0%" />
+                    <condition number="307" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="111" hits="0" branch="False" />
+                <line number="112" hits="0" branch="False" />
+                <line number="113" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(ResQ.Clients.CoordinationHceClient,ResQ.Clients.InfrastructureApiClient)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="45" hits="0" branch="False" />
+                <line number="47" hits="0" branch="False" />
+                <line number="48" hits="0" branch="False" />
+                <line number="50" hits="0" branch="False" />
+                <line number="51" hits="0" branch="False" />
+                <line number="52" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(System.String,System.String)" line-rate="1" branch-rate="1" complexity="4">
+              <lines>
+                <line number="59" hits="6" branch="False" />
+                <line number="61" hits="6" branch="False" />
+                <line number="62" hits="5" branch="False" />
+                <line number="64" hits="4" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="37" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="65" hits="1" branch="False" />
+                <line number="67" hits="3" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="64" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="68" hits="1" branch="False" />
+                <line number="70" hits="2" branch="False" />
+                <line number="71" hits="2" branch="False" />
+                <line number="72" hits="2" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="82" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="2" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="83" hits="0" branch="False" />
+            <line number="84" hits="0" branch="False" />
+            <line number="86" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="60" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="87" hits="0" branch="False" />
+            <line number="88" hits="0" branch="False" />
+            <line number="89" hits="0" branch="False" />
+            <line number="100" hits="0" branch="False" />
+            <line number="102" hits="0" branch="True" condition-coverage="0% (0/4)">
+              <conditions>
+                <condition number="22" type="jump" coverage="0%" />
+                <condition number="39" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="103" hits="0" branch="False" />
+            <line number="104" hits="0" branch="False" />
+            <line number="106" hits="0" branch="True" condition-coverage="0% (0/4)">
+              <conditions>
+                <condition number="136" type="jump" coverage="0%" />
+                <condition number="153" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="107" hits="0" branch="False" />
+            <line number="108" hits="0" branch="False" />
+            <line number="110" hits="0" branch="True" condition-coverage="0% (0/4)">
+              <conditions>
+                <condition number="270" type="jump" coverage="0%" />
+                <condition number="307" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="111" hits="0" branch="False" />
+            <line number="112" hits="0" branch="False" />
+            <line number="113" hits="0" branch="False" />
+            <line number="45" hits="0" branch="False" />
+            <line number="47" hits="0" branch="False" />
+            <line number="48" hits="0" branch="False" />
+            <line number="50" hits="0" branch="False" />
+            <line number="51" hits="0" branch="False" />
+            <line number="52" hits="0" branch="False" />
+            <line number="59" hits="6" branch="False" />
+            <line number="61" hits="6" branch="False" />
+            <line number="62" hits="5" branch="False" />
+            <line number="64" hits="4" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="37" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="65" hits="1" branch="False" />
+            <line number="67" hits="3" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="64" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="68" hits="1" branch="False" />
+            <line number="70" hits="2" branch="False" />
+            <line number="71" hits="2" branch="False" />
+            <line number="72" hits="2" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Simulation.ScenarioRunner/&lt;&gt;c__DisplayClass15_0/&lt;&lt;RunSwarmSurveyAsync&gt;b__0&gt;d" filename="ResQ.Simulation/ScenarioRunner.cs" line-rate="0" branch-rate="1" complexity="1">
+          <methods>
+            <method name="MoveNext" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="168" hits="0" branch="False" />
+                <line number="169" hits="0" branch="False" />
+                <line number="170" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="168" hits="0" branch="False" />
+            <line number="169" hits="0" branch="False" />
+            <line number="170" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Simulation.ScenarioRunner/&lt;&gt;c__DisplayClass16_1/&lt;&lt;RunStressTestAsync&gt;b__0&gt;d" filename="ResQ.Simulation/ScenarioRunner.cs" line-rate="0" branch-rate="1" complexity="1">
+          <methods>
+            <method name="MoveNext" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="211" hits="0" branch="False" />
+                <line number="212" hits="0" branch="False" />
+                <line number="213" hits="0" branch="False" />
+                <line number="214" hits="0" branch="False" />
+                <line number="215" hits="0" branch="False" />
+                <line number="216" hits="0" branch="False" />
+                <line number="217" hits="0" branch="False" />
+                <line number="218" hits="0" branch="False" />
+                <line number="219" hits="0" branch="False" />
+                <line number="220" hits="0" branch="False" />
+                <line number="222" hits="0" branch="False" />
+                <line number="223" hits="0" branch="False" />
+                <line number="224" hits="0" branch="False" />
+                <line number="227" hits="0" branch="False" />
+                <line number="229" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="211" hits="0" branch="False" />
+            <line number="212" hits="0" branch="False" />
+            <line number="213" hits="0" branch="False" />
+            <line number="214" hits="0" branch="False" />
+            <line number="215" hits="0" branch="False" />
+            <line number="216" hits="0" branch="False" />
+            <line number="217" hits="0" branch="False" />
+            <line number="218" hits="0" branch="False" />
+            <line number="219" hits="0" branch="False" />
+            <line number="220" hits="0" branch="False" />
+            <line number="222" hits="0" branch="False" />
+            <line number="223" hits="0" branch="False" />
+            <line number="224" hits="0" branch="False" />
+            <line number="227" hits="0" branch="False" />
+            <line number="229" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Simulation.ScenarioRunner/&lt;&gt;c__DisplayClass17_0" filename="ResQ.Simulation/ScenarioRunner.cs" line-rate="0" branch-rate="1" complexity="1">
+          <methods>
+            <method name="&lt;RunIncidentFloodAsync&gt;b__0" signature="(System.Int32)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="261" hits="0" branch="False" />
+                <line number="262" hits="0" branch="False" />
+                <line number="263" hits="0" branch="False" />
+                <line number="264" hits="0" branch="False" />
+                <line number="265" hits="0" branch="False" />
+                <line number="266" hits="0" branch="False" />
+                <line number="268" hits="0" branch="False" />
+                <line number="269" hits="0" branch="False" />
+                <line number="270" hits="0" branch="False" />
+                <line number="271" hits="0" branch="False" />
+                <line number="272" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="261" hits="0" branch="False" />
+            <line number="262" hits="0" branch="False" />
+            <line number="263" hits="0" branch="False" />
+            <line number="264" hits="0" branch="False" />
+            <line number="265" hits="0" branch="False" />
+            <line number="266" hits="0" branch="False" />
+            <line number="268" hits="0" branch="False" />
+            <line number="269" hits="0" branch="False" />
+            <line number="270" hits="0" branch="False" />
+            <line number="271" hits="0" branch="False" />
+            <line number="272" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Simulation.ScenarioRunner/&lt;CheckServicesAsync&gt;d__18" filename="ResQ.Simulation/ScenarioRunner.cs" line-rate="0" branch-rate="0" complexity="16">
+          <methods>
+            <method name="MoveNext" signature="()" line-rate="0" branch-rate="0" complexity="16">
+              <lines>
+                <line number="290" hits="0" branch="False" />
+                <line number="294" hits="0" branch="False" />
+                <line number="295" hits="0" branch="False" />
+                <line number="296" hits="0" branch="False" />
+                <line number="297" hits="0" branch="False" />
+                <line number="299" hits="0" branch="False" />
+                <line number="300" hits="0" branch="False" />
+                <line number="305" hits="0" branch="False" />
+                <line number="306" hits="0" branch="False" />
+                <line number="307" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="342" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="308" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="378" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="309" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="414" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="310" hits="0" branch="False" />
+                <line number="311" hits="0" branch="False" />
+                <line number="313" hits="0" branch="False" />
+                <line number="314" hits="0" branch="False" />
+                <line number="318" hits="0" branch="False" />
+                <line number="319" hits="0" branch="False" />
+                <line number="321" hits="0" branch="True" condition-coverage="0% (0/4)">
+                  <conditions>
+                    <condition number="500" type="jump" coverage="0%" />
+                    <condition number="509" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="323" hits="0" branch="False" />
+                <line number="324" hits="0" branch="False" />
+                <line number="325" hits="0" branch="False" />
+                <line number="328" hits="0" branch="False" />
+                <line number="329" hits="0" branch="True" condition-coverage="0% (0/4)">
+                  <conditions>
+                    <condition number="644" type="jump" coverage="0%" />
+                    <condition number="665" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="331" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="691" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="333" hits="0" branch="False" />
+                <line number="334" hits="0" branch="False" />
+                <line number="337" hits="0" branch="False" />
+                <line number="338" hits="0" branch="False" />
+                <line number="339" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="290" hits="0" branch="False" />
+            <line number="294" hits="0" branch="False" />
+            <line number="295" hits="0" branch="False" />
+            <line number="296" hits="0" branch="False" />
+            <line number="297" hits="0" branch="False" />
+            <line number="299" hits="0" branch="False" />
+            <line number="300" hits="0" branch="False" />
+            <line number="305" hits="0" branch="False" />
+            <line number="306" hits="0" branch="False" />
+            <line number="307" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="342" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="308" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="378" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="309" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="414" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="310" hits="0" branch="False" />
+            <line number="311" hits="0" branch="False" />
+            <line number="313" hits="0" branch="False" />
+            <line number="314" hits="0" branch="False" />
+            <line number="318" hits="0" branch="False" />
+            <line number="319" hits="0" branch="False" />
+            <line number="321" hits="0" branch="True" condition-coverage="0% (0/4)">
+              <conditions>
+                <condition number="500" type="jump" coverage="0%" />
+                <condition number="509" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="323" hits="0" branch="False" />
+            <line number="324" hits="0" branch="False" />
+            <line number="325" hits="0" branch="False" />
+            <line number="328" hits="0" branch="False" />
+            <line number="329" hits="0" branch="True" condition-coverage="0% (0/4)">
+              <conditions>
+                <condition number="644" type="jump" coverage="0%" />
+                <condition number="665" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="331" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="691" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="333" hits="0" branch="False" />
+            <line number="334" hits="0" branch="False" />
+            <line number="337" hits="0" branch="False" />
+            <line number="338" hits="0" branch="False" />
+            <line number="339" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Simulation.ScenarioRunner/&lt;RunIncidentFloodAsync&gt;d__17" filename="ResQ.Simulation/ScenarioRunner.cs" line-rate="0" branch-rate="1" complexity="1">
+          <methods>
+            <method name="MoveNext" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="249" hits="0" branch="False" />
+                <line number="251" hits="0" branch="False" />
+                <line number="252" hits="0" branch="False" />
+                <line number="253" hits="0" branch="False" />
+                <line number="256" hits="0" branch="False" />
+                <line number="257" hits="0" branch="False" />
+                <line number="259" hits="0" branch="False" />
+                <line number="260" hits="0" branch="False" />
+                <line number="267" hits="0" branch="False" />
+                <line number="273" hits="0" branch="False" />
+                <line number="275" hits="0" branch="False" />
+                <line number="277" hits="0" branch="False" />
+                <line number="278" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="249" hits="0" branch="False" />
+            <line number="251" hits="0" branch="False" />
+            <line number="252" hits="0" branch="False" />
+            <line number="253" hits="0" branch="False" />
+            <line number="256" hits="0" branch="False" />
+            <line number="257" hits="0" branch="False" />
+            <line number="259" hits="0" branch="False" />
+            <line number="260" hits="0" branch="False" />
+            <line number="267" hits="0" branch="False" />
+            <line number="273" hits="0" branch="False" />
+            <line number="275" hits="0" branch="False" />
+            <line number="277" hits="0" branch="False" />
+            <line number="278" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Simulation.ScenarioRunner/&lt;RunSingleDroneSurveyAsync&gt;d__14" filename="ResQ.Simulation/ScenarioRunner.cs" line-rate="0" branch-rate="1" complexity="1">
+          <methods>
+            <method name="MoveNext" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="121" hits="0" branch="False" />
+                <line number="122" hits="0" branch="False" />
+                <line number="123" hits="0" branch="False" />
+                <line number="125" hits="0" branch="False" />
+                <line number="126" hits="0" branch="False" />
+                <line number="127" hits="0" branch="False" />
+                <line number="128" hits="0" branch="False" />
+                <line number="129" hits="0" branch="False" />
+                <line number="130" hits="0" branch="False" />
+                <line number="132" hits="0" branch="False" />
+                <line number="133" hits="0" branch="False" />
+                <line number="135" hits="0" branch="False" />
+                <line number="136" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="121" hits="0" branch="False" />
+            <line number="122" hits="0" branch="False" />
+            <line number="123" hits="0" branch="False" />
+            <line number="125" hits="0" branch="False" />
+            <line number="126" hits="0" branch="False" />
+            <line number="127" hits="0" branch="False" />
+            <line number="128" hits="0" branch="False" />
+            <line number="129" hits="0" branch="False" />
+            <line number="130" hits="0" branch="False" />
+            <line number="132" hits="0" branch="False" />
+            <line number="133" hits="0" branch="False" />
+            <line number="135" hits="0" branch="False" />
+            <line number="136" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Simulation.ScenarioRunner/&lt;RunStressTestAsync&gt;d__16" filename="ResQ.Simulation/ScenarioRunner.cs" line-rate="0" branch-rate="0" complexity="2">
+          <methods>
+            <method name="MoveNext" signature="()" line-rate="0" branch-rate="0" complexity="2">
+              <lines>
+                <line number="190" hits="0" branch="False" />
+                <line number="192" hits="0" branch="False" />
+                <line number="193" hits="0" branch="False" />
+                <line number="194" hits="0" branch="False" />
+                <line number="196" hits="0" branch="False" />
+                <line number="197" hits="0" branch="False" />
+                <line number="199" hits="0" branch="False" />
+                <line number="201" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="617" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="203" hits="0" branch="False" />
+                <line number="205" hits="0" branch="False" />
+                <line number="206" hits="0" branch="False" />
+                <line number="207" hits="0" branch="False" />
+                <line number="208" hits="0" branch="False" />
+                <line number="209" hits="0" branch="False" />
+                <line number="210" hits="0" branch="False" />
+                <line number="221" hits="0" branch="False" />
+                <line number="225" hits="0" branch="False" />
+                <line number="226" hits="0" branch="False" />
+                <line number="228" hits="0" branch="False" />
+                <line number="231" hits="0" branch="False" />
+                <line number="234" hits="0" branch="False" />
+                <line number="235" hits="0" branch="False" />
+                <line number="237" hits="0" branch="False" />
+                <line number="239" hits="0" branch="False" />
+                <line number="240" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="190" hits="0" branch="False" />
+            <line number="192" hits="0" branch="False" />
+            <line number="193" hits="0" branch="False" />
+            <line number="194" hits="0" branch="False" />
+            <line number="196" hits="0" branch="False" />
+            <line number="197" hits="0" branch="False" />
+            <line number="199" hits="0" branch="False" />
+            <line number="201" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="617" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="203" hits="0" branch="False" />
+            <line number="205" hits="0" branch="False" />
+            <line number="206" hits="0" branch="False" />
+            <line number="207" hits="0" branch="False" />
+            <line number="208" hits="0" branch="False" />
+            <line number="209" hits="0" branch="False" />
+            <line number="210" hits="0" branch="False" />
+            <line number="221" hits="0" branch="False" />
+            <line number="225" hits="0" branch="False" />
+            <line number="226" hits="0" branch="False" />
+            <line number="228" hits="0" branch="False" />
+            <line number="231" hits="0" branch="False" />
+            <line number="234" hits="0" branch="False" />
+            <line number="235" hits="0" branch="False" />
+            <line number="237" hits="0" branch="False" />
+            <line number="239" hits="0" branch="False" />
+            <line number="240" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Simulation.ScenarioRunner/&lt;RunSwarmSurveyAsync&gt;d__15" filename="ResQ.Simulation/ScenarioRunner.cs" line-rate="0" branch-rate="0" complexity="2">
+          <methods>
+            <method name="MoveNext" signature="()" line-rate="0" branch-rate="0" complexity="2">
+              <lines>
+                <line number="145" hits="0" branch="False" />
+                <line number="147" hits="0" branch="False" />
+                <line number="148" hits="0" branch="False" />
+                <line number="149" hits="0" branch="False" />
+                <line number="151" hits="0" branch="False" />
+                <line number="153" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="445" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="155" hits="0" branch="False" />
+                <line number="156" hits="0" branch="False" />
+                <line number="157" hits="0" branch="False" />
+                <line number="158" hits="0" branch="False" />
+                <line number="159" hits="0" branch="False" />
+                <line number="160" hits="0" branch="False" />
+                <line number="161" hits="0" branch="False" />
+                <line number="162" hits="0" branch="False" />
+                <line number="163" hits="0" branch="False" />
+                <line number="164" hits="0" branch="False" />
+                <line number="166" hits="0" branch="False" />
+                <line number="167" hits="0" branch="False" />
+                <line number="172" hits="0" branch="False" />
+                <line number="175" hits="0" branch="False" />
+                <line number="178" hits="0" branch="False" />
+                <line number="180" hits="0" branch="False" />
+                <line number="181" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="145" hits="0" branch="False" />
+            <line number="147" hits="0" branch="False" />
+            <line number="148" hits="0" branch="False" />
+            <line number="149" hits="0" branch="False" />
+            <line number="151" hits="0" branch="False" />
+            <line number="153" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="445" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="155" hits="0" branch="False" />
+            <line number="156" hits="0" branch="False" />
+            <line number="157" hits="0" branch="False" />
+            <line number="158" hits="0" branch="False" />
+            <line number="159" hits="0" branch="False" />
+            <line number="160" hits="0" branch="False" />
+            <line number="161" hits="0" branch="False" />
+            <line number="162" hits="0" branch="False" />
+            <line number="163" hits="0" branch="False" />
+            <line number="164" hits="0" branch="False" />
+            <line number="166" hits="0" branch="False" />
+            <line number="167" hits="0" branch="False" />
+            <line number="172" hits="0" branch="False" />
+            <line number="175" hits="0" branch="False" />
+            <line number="178" hits="0" branch="False" />
+            <line number="180" hits="0" branch="False" />
+            <line number="181" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Simulation.VirtualDrone" filename="ResQ.Simulation/VirtualDrone.cs" line-rate="0.6875" branch-rate="1" complexity="21">
+          <methods>
+            <method name="SimulateMovement" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="165" hits="0" branch="False" />
+                <line number="166" hits="0" branch="False" />
+                <line number="167" hits="0" branch="False" />
+                <line number="168" hits="0" branch="False" />
+                <line number="170" hits="0" branch="False" />
+                <line number="171" hits="0" branch="False" />
+                <line number="172" hits="0" branch="False" />
+                <line number="173" hits="0" branch="False" />
+                <line number="174" hits="0" branch="False" />
+                <line number="175" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="GenerateFakeImage" signature="(System.String)" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="258" hits="0" branch="False" />
+                <line number="259" hits="0" branch="False" />
+                <line number="260" hits="0" branch="False" />
+                <line number="261" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name="Stop" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="271" hits="0" branch="False" />
+              </lines>
+            </method>
+            <method name=".ctor" signature="(System.String,ResQ.Core.Location,ResQ.Clients.CoordinationHceClient,ResQ.Clients.InfrastructureApiClient)" line-rate="1" branch-rate="1" complexity="18">
+              <lines>
+                <line number="53" hits="15" branch="False" />
+                <line number="54" hits="15" branch="False" />
+                <line number="68" hits="15" branch="False" />
+                <line number="69" hits="15" branch="False" />
+                <line number="70" hits="15" branch="False" />
+                <line number="71" hits="15" branch="False" />
+                <line number="72" hits="15" branch="False" />
+                <line number="74" hits="15" branch="False" />
+                <line number="75" hits="14" branch="False" />
+                <line number="76" hits="13" branch="False" />
+                <line number="77" hits="12" branch="False" />
+                <line number="79" hits="11" branch="True" condition-coverage="100% (2/2)">
+                  <conditions>
+                    <condition number="83" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="80" hits="2" branch="False" />
+                <line number="83" hits="9" branch="True" condition-coverage="100% (4/4)">
+                  <conditions>
+                    <condition number="116" type="jump" coverage="100%" />
+                    <condition number="133" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="84" hits="2" branch="False" />
+                <line number="85" hits="2" branch="False" />
+                <line number="86" hits="2" branch="False" />
+                <line number="87" hits="2" branch="False" />
+                <line number="89" hits="7" branch="True" condition-coverage="100% (4/4)">
+                  <conditions>
+                    <condition number="177" type="jump" coverage="100%" />
+                    <condition number="194" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="90" hits="2" branch="False" />
+                <line number="91" hits="2" branch="False" />
+                <line number="92" hits="2" branch="False" />
+                <line number="93" hits="2" branch="False" />
+                <line number="95" hits="5" branch="True" condition-coverage="100% (8/8)">
+                  <conditions>
+                    <condition number="237" type="jump" coverage="100%" />
+                    <condition number="257" type="jump" coverage="100%" />
+                    <condition number="269" type="jump" coverage="100%" />
+                    <condition number="278" type="jump" coverage="100%" />
+                  </conditions>
+                </line>
+                <line number="96" hits="2" branch="False" />
+                <line number="97" hits="2" branch="False" />
+                <line number="98" hits="2" branch="False" />
+                <line number="99" hits="2" branch="False" />
+                <line number="101" hits="3" branch="False" />
+                <line number="102" hits="3" branch="False" />
+                <line number="103" hits="3" branch="False" />
+                <line number="104" hits="3" branch="False" />
+                <line number="105" hits="3" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="165" hits="0" branch="False" />
+            <line number="166" hits="0" branch="False" />
+            <line number="167" hits="0" branch="False" />
+            <line number="168" hits="0" branch="False" />
+            <line number="170" hits="0" branch="False" />
+            <line number="171" hits="0" branch="False" />
+            <line number="172" hits="0" branch="False" />
+            <line number="173" hits="0" branch="False" />
+            <line number="174" hits="0" branch="False" />
+            <line number="175" hits="0" branch="False" />
+            <line number="258" hits="0" branch="False" />
+            <line number="259" hits="0" branch="False" />
+            <line number="260" hits="0" branch="False" />
+            <line number="261" hits="0" branch="False" />
+            <line number="271" hits="0" branch="False" />
+            <line number="53" hits="15" branch="False" />
+            <line number="54" hits="15" branch="False" />
+            <line number="68" hits="15" branch="False" />
+            <line number="69" hits="15" branch="False" />
+            <line number="70" hits="15" branch="False" />
+            <line number="71" hits="15" branch="False" />
+            <line number="72" hits="15" branch="False" />
+            <line number="74" hits="15" branch="False" />
+            <line number="75" hits="14" branch="False" />
+            <line number="76" hits="13" branch="False" />
+            <line number="77" hits="12" branch="False" />
+            <line number="79" hits="11" branch="True" condition-coverage="100% (2/2)">
+              <conditions>
+                <condition number="83" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="80" hits="2" branch="False" />
+            <line number="83" hits="9" branch="True" condition-coverage="100% (4/4)">
+              <conditions>
+                <condition number="116" type="jump" coverage="100%" />
+                <condition number="133" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="84" hits="2" branch="False" />
+            <line number="85" hits="2" branch="False" />
+            <line number="86" hits="2" branch="False" />
+            <line number="87" hits="2" branch="False" />
+            <line number="89" hits="7" branch="True" condition-coverage="100% (4/4)">
+              <conditions>
+                <condition number="177" type="jump" coverage="100%" />
+                <condition number="194" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="90" hits="2" branch="False" />
+            <line number="91" hits="2" branch="False" />
+            <line number="92" hits="2" branch="False" />
+            <line number="93" hits="2" branch="False" />
+            <line number="95" hits="5" branch="True" condition-coverage="100% (8/8)">
+              <conditions>
+                <condition number="237" type="jump" coverage="100%" />
+                <condition number="257" type="jump" coverage="100%" />
+                <condition number="269" type="jump" coverage="100%" />
+                <condition number="278" type="jump" coverage="100%" />
+              </conditions>
+            </line>
+            <line number="96" hits="2" branch="False" />
+            <line number="97" hits="2" branch="False" />
+            <line number="98" hits="2" branch="False" />
+            <line number="99" hits="2" branch="False" />
+            <line number="101" hits="3" branch="False" />
+            <line number="102" hits="3" branch="False" />
+            <line number="103" hits="3" branch="False" />
+            <line number="104" hits="3" branch="False" />
+            <line number="105" hits="3" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Simulation.VirtualDrone/&lt;SendTelemetryAsync&gt;d__26" filename="ResQ.Simulation/VirtualDrone.cs" line-rate="0" branch-rate="0" complexity="2">
+          <methods>
+            <method name="MoveNext" signature="()" line-rate="0" branch-rate="0" complexity="2">
+              <lines>
+                <line number="179" hits="0" branch="False" />
+                <line number="180" hits="0" branch="False" />
+                <line number="181" hits="0" branch="False" />
+                <line number="182" hits="0" branch="False" />
+                <line number="183" hits="0" branch="False" />
+                <line number="184" hits="0" branch="False" />
+                <line number="185" hits="0" branch="False" />
+                <line number="186" hits="0" branch="False" />
+                <line number="187" hits="0" branch="False" />
+                <line number="189" hits="0" branch="False" />
+                <line number="190" hits="0" branch="False" />
+                <line number="191" hits="0" branch="False" />
+                <line number="192" hits="0" branch="False" />
+                <line number="196" hits="0" branch="False" />
+                <line number="197" hits="0" branch="False" />
+                <line number="199" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="249" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="201" hits="0" branch="False" />
+                <line number="203" hits="0" branch="False" />
+                <line number="204" hits="0" branch="False" />
+                <line number="206" hits="0" branch="False" />
+                <line number="207" hits="0" branch="False" />
+                <line number="208" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="179" hits="0" branch="False" />
+            <line number="180" hits="0" branch="False" />
+            <line number="181" hits="0" branch="False" />
+            <line number="182" hits="0" branch="False" />
+            <line number="183" hits="0" branch="False" />
+            <line number="184" hits="0" branch="False" />
+            <line number="185" hits="0" branch="False" />
+            <line number="186" hits="0" branch="False" />
+            <line number="187" hits="0" branch="False" />
+            <line number="189" hits="0" branch="False" />
+            <line number="190" hits="0" branch="False" />
+            <line number="191" hits="0" branch="False" />
+            <line number="192" hits="0" branch="False" />
+            <line number="196" hits="0" branch="False" />
+            <line number="197" hits="0" branch="False" />
+            <line number="199" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="249" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="201" hits="0" branch="False" />
+            <line number="203" hits="0" branch="False" />
+            <line number="204" hits="0" branch="False" />
+            <line number="206" hits="0" branch="False" />
+            <line number="207" hits="0" branch="False" />
+            <line number="208" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Simulation.VirtualDrone/&lt;SimulateDetectionAsync&gt;d__27" filename="ResQ.Simulation/VirtualDrone.cs" line-rate="0" branch-rate="1" complexity="1">
+          <methods>
+            <method name="MoveNext" signature="()" line-rate="0" branch-rate="1" complexity="1">
+              <lines>
+                <line number="212" hits="0" branch="False" />
+                <line number="213" hits="0" branch="False" />
+                <line number="214" hits="0" branch="False" />
+                <line number="216" hits="0" branch="False" />
+                <line number="221" hits="0" branch="False" />
+                <line number="222" hits="0" branch="False" />
+                <line number="223" hits="0" branch="False" />
+                <line number="225" hits="0" branch="False" />
+                <line number="228" hits="0" branch="False" />
+                <line number="229" hits="0" branch="False" />
+                <line number="230" hits="0" branch="False" />
+                <line number="231" hits="0" branch="False" />
+                <line number="232" hits="0" branch="False" />
+                <line number="233" hits="0" branch="False" />
+                <line number="234" hits="0" branch="False" />
+                <line number="235" hits="0" branch="False" />
+                <line number="236" hits="0" branch="False" />
+                <line number="237" hits="0" branch="False" />
+                <line number="238" hits="0" branch="False" />
+                <line number="239" hits="0" branch="False" />
+                <line number="240" hits="0" branch="False" />
+                <line number="241" hits="0" branch="False" />
+                <line number="243" hits="0" branch="False" />
+                <line number="245" hits="0" branch="False" />
+                <line number="247" hits="0" branch="False" />
+                <line number="248" hits="0" branch="False" />
+                <line number="249" hits="0" branch="False" />
+                <line number="251" hits="0" branch="False" />
+                <line number="252" hits="0" branch="False" />
+                <line number="253" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="212" hits="0" branch="False" />
+            <line number="213" hits="0" branch="False" />
+            <line number="214" hits="0" branch="False" />
+            <line number="216" hits="0" branch="False" />
+            <line number="221" hits="0" branch="False" />
+            <line number="222" hits="0" branch="False" />
+            <line number="223" hits="0" branch="False" />
+            <line number="225" hits="0" branch="False" />
+            <line number="228" hits="0" branch="False" />
+            <line number="229" hits="0" branch="False" />
+            <line number="230" hits="0" branch="False" />
+            <line number="231" hits="0" branch="False" />
+            <line number="232" hits="0" branch="False" />
+            <line number="233" hits="0" branch="False" />
+            <line number="234" hits="0" branch="False" />
+            <line number="235" hits="0" branch="False" />
+            <line number="236" hits="0" branch="False" />
+            <line number="237" hits="0" branch="False" />
+            <line number="238" hits="0" branch="False" />
+            <line number="239" hits="0" branch="False" />
+            <line number="240" hits="0" branch="False" />
+            <line number="241" hits="0" branch="False" />
+            <line number="243" hits="0" branch="False" />
+            <line number="245" hits="0" branch="False" />
+            <line number="247" hits="0" branch="False" />
+            <line number="248" hits="0" branch="False" />
+            <line number="249" hits="0" branch="False" />
+            <line number="251" hits="0" branch="False" />
+            <line number="252" hits="0" branch="False" />
+            <line number="253" hits="0" branch="False" />
+          </lines>
+        </class>
+        <class name="ResQ.Simulation.VirtualDrone/&lt;StartAsync&gt;d__24" filename="ResQ.Simulation/VirtualDrone.cs" line-rate="0" branch-rate="0" complexity="12">
+          <methods>
+            <method name="MoveNext" signature="()" line-rate="0" branch-rate="0" complexity="12">
+              <lines>
+                <line number="112" hits="0" branch="False" />
+                <line number="113" hits="0" branch="False" />
+                <line number="115" hits="0" branch="False" />
+                <line number="117" hits="0" branch="True" condition-coverage="0% (0/4)">
+                  <conditions>
+                    <condition number="950" type="jump" coverage="0%" />
+                    <condition number="937" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="122" hits="0" branch="False" />
+                <line number="125" hits="0" branch="False" />
+                <line number="128" hits="0" branch="False" />
+                <line number="131" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="391" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="133" hits="0" branch="False" />
+                <line number="137" hits="0" branch="True" condition-coverage="0% (0/4)">
+                  <conditions>
+                    <condition number="502" type="jump" coverage="0%" />
+                    <condition number="520" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="139" hits="0" branch="False" />
+                <line number="140" hits="0" branch="False" />
+                <line number="144" hits="0" branch="True" condition-coverage="0% (0/2)">
+                  <conditions>
+                    <condition number="574" type="jump" coverage="0%" />
+                  </conditions>
+                </line>
+                <line number="146" hits="0" branch="False" />
+                <line number="147" hits="0" branch="False" />
+                <line number="150" hits="0" branch="False" />
+                <line number="151" hits="0" branch="False" />
+                <line number="152" hits="0" branch="False" />
+                <line number="154" hits="0" branch="False" />
+                <line number="155" hits="0" branch="False" />
+                <line number="159" hits="0" branch="False" />
+                <line number="160" hits="0" branch="False" />
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="112" hits="0" branch="False" />
+            <line number="113" hits="0" branch="False" />
+            <line number="115" hits="0" branch="False" />
+            <line number="117" hits="0" branch="True" condition-coverage="0% (0/4)">
+              <conditions>
+                <condition number="950" type="jump" coverage="0%" />
+                <condition number="937" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="122" hits="0" branch="False" />
+            <line number="125" hits="0" branch="False" />
+            <line number="128" hits="0" branch="False" />
+            <line number="131" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="391" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="133" hits="0" branch="False" />
+            <line number="137" hits="0" branch="True" condition-coverage="0% (0/4)">
+              <conditions>
+                <condition number="502" type="jump" coverage="0%" />
+                <condition number="520" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="139" hits="0" branch="False" />
+            <line number="140" hits="0" branch="False" />
+            <line number="144" hits="0" branch="True" condition-coverage="0% (0/2)">
+              <conditions>
+                <condition number="574" type="jump" coverage="0%" />
+              </conditions>
+            </line>
+            <line number="146" hits="0" branch="False" />
+            <line number="147" hits="0" branch="False" />
+            <line number="150" hits="0" branch="False" />
+            <line number="151" hits="0" branch="False" />
+            <line number="152" hits="0" branch="False" />
+            <line number="154" hits="0" branch="False" />
+            <line number="155" hits="0" branch="False" />
+            <line number="159" hits="0" branch="False" />
+            <line number="160" hits="0" branch="False" />
+          </lines>
+        </class>
+      </classes>
+    </package>
+  </packages>
+</coverage>

@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <RootNamespace>ResQ.Protocols</RootNamespace>
+        <Description>ResQ Protocol Buffer definitions and generated types for cross-service communication</Description>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Google.Protobuf" />
+        <PackageReference Include="Grpc.Net.Client" />
+        <PackageReference Include="Grpc.Tools" PrivateAssets="All" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Protobuf Include="../../../../shared/protocols/*.proto" GrpcServices="Both" />
+    </ItemGroup>
+
+</Project>

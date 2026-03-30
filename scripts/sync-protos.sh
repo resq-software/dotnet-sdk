@@ -1,4 +1,19 @@
 #!/usr/bin/env bash
+
+# Copyright 2026 ResQ
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -12,11 +27,6 @@ fi
 
 TMP_DIR="$(mktemp -d)"
 trap 'rm -rf "${TMP_DIR}"' EXIT
-
-if [[ -z "${BUF_TOKEN:-}" ]]; then
-  echo "Warning: BUF_TOKEN is not set. Authentication to private BSR modules will fail." >&2
-  echo "If running in CI on a fork PR, this is expected — skip proto sync or use cached protos." >&2
-fi
 
 if command -v buf >/dev/null 2>&1; then
   buf export "${SOURCE_REF}" --output "${TMP_DIR}/export"
@@ -34,7 +44,7 @@ elif command -v docker >/dev/null 2>&1; then
   fi
 
   docker "${docker_args[@]}" \
-    bufbuild/buf:1.66.1 \
+    bufbuild/buf:latest \
     export "${SOURCE_REF}" --output /out/export
 else
   echo "buf CLI or docker is required to sync shared schemas from the Buf Schema Registry." >&2

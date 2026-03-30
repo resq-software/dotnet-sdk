@@ -326,7 +326,7 @@ public class MockNeoClient : INeoClient
         string incidentId,
         CancellationToken cancellationToken = default)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(incidentId, nameof(incidentId));
+        ArgumentNullException.ThrowIfNull(incidentId, nameof(incidentId));
         cancellationToken.ThrowIfCancellationRequested();
 
         if (_eventsByIncident.TryGetValue(incidentId, out var events))
