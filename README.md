@@ -1,23 +1,20 @@
 # ResQ .NET SDK
 
-<p align="center">
-  A collection of .NET 9 client libraries for interacting with the ResQ autonomous disaster-response platform.
-</p>
+[![CI](https://img.shields.io/github/actions/workflow/status/resq-software/dotnet-sdk/ci.yml?branch=main&label=ci&style=flat-square)](https://github.com/resq-software/dotnet-sdk/actions)
+[![ResQ.Protocols](https://img.shields.io/nuget/v/ResQ.Protocols?style=flat-square&label=ResQ.Protocols)](https://www.nuget.org/packages/ResQ.Protocols)
+[![ResQ.Clients](https://img.shields.io/nuget/v/ResQ.Clients?style=flat-square&label=ResQ.Clients)](https://www.nuget.org/packages/ResQ.Clients)
+[![ResQ.Core](https://img.shields.io/nuget/v/ResQ.Core?style=flat-square&label=ResQ.Core)](https://www.nuget.org/packages/ResQ.Core)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue?style=flat-square)](LICENSE)
 
-<p align="center">
-  <a href="https://github.com/resq-software/dotnet-sdk/actions/workflows/ci.yml">
-    <img src="https://img.shields.io/github/actions/workflow/status/resq-software/dotnet-sdk/ci.yml?branch=main&label=ci&style=flat-square" alt="CI" />
-  </a>
-  <a href="https://www.nuget.org/packages/ResQ.Core">
-    <img src="https://img.shields.io/nuget/v/ResQ.Core?style=flat-square&label=nuget" alt="NuGet" />
-  </a>
-  <a href="https://codecov.io/gh/resq-software/dotnet-sdk">
-    <img src="https://codecov.io/gh/resq-software/dotnet-sdk/graph/badge.svg" alt="Coverage" />
-  </a>
-  <a href="./LICENSE">
-    <img src="https://img.shields.io/badge/license-Apache--2.0-blue.svg?style=flat-square" alt="License: Apache-2.0" />
-  </a>
-</p>
+> .NET 9 typed clients and blockchain anchoring for the ResQ autonomous drone platform.
+
+## Packages
+
+| Package | Install | Version |
+|---------|---------|---------|
+| `ResQ.Protocols` | `dotnet add package ResQ.Protocols` | [![NuGet](https://img.shields.io/nuget/v/ResQ.Protocols?style=flat-square)](https://www.nuget.org/packages/ResQ.Protocols) |
+| `ResQ.Clients` | `dotnet add package ResQ.Clients` | [![NuGet](https://img.shields.io/nuget/v/ResQ.Clients?style=flat-square)](https://www.nuget.org/packages/ResQ.Clients) |
+| `ResQ.Core` | `dotnet add package ResQ.Core` | [![NuGet](https://img.shields.io/nuget/v/ResQ.Core?style=flat-square)](https://www.nuget.org/packages/ResQ.Core) |
 
 ## Overview
 
