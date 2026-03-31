@@ -1,3 +1,10 @@
+## [0.5.1](https://github.com/resq-software/dotnet-sdk/compare/v0.5.0...v0.5.1) (2026-03-31)
+
+
+### Bug Fixes
+
+* **ci:** remove custom codeql.yml — conflicts with GitHub default CodeQL setup ([dfc1e5e](https://github.com/resq-software/dotnet-sdk/commit/dfc1e5ef342fc7d1fa322e8bf33b02a82b89474a))
+
 # [0.5.0](https://github.com/resq-software/dotnet-sdk/compare/v0.4.3...v0.5.0) (2026-03-31)
 
 
