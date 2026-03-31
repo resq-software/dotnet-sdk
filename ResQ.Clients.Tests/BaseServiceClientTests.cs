@@ -284,7 +284,7 @@ public class BaseServiceClientTests : IDisposable
         Action act = () => new TestServiceClient("", _mockHandler);
 
         act.Should().Throw<ArgumentException>()
-            .WithMessage("*cannot be empty*")
+            .WithMessage("*cannot be*empty*")
             .WithParameterName("baseUrl");
         return Task.CompletedTask;
     }

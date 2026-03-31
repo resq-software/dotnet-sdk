@@ -1,18 +1,30 @@
-<!--
-  Copyright 2026 ResQ
+## [0.4.3](https://github.com/resq-software/dotnet-sdk/compare/v0.4.2...v0.4.3) (2026-03-22)
 
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
 
-      http://www.apache.org/licenses/LICENSE-2.0
+### Bug Fixes
 
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
--->
+* **ci:** address PR review suggestions for proto sync and CI hardening ([#15](https://github.com/resq-software/dotnet-sdk/issues/15)) ([8d64e7b](https://github.com/resq-software/dotnet-sdk/commit/8d64e7bcea655872ccc969b90b62365993f0499a))
+
+## [0.4.2](https://github.com/resq-software/dotnet-sdk/compare/v0.4.1...v0.4.2) (2026-03-21)
+
+
+### Performance Improvements
+
+* **ci:** sync directly to monorepo main instead of creating PRs ([3f94725](https://github.com/resq-software/dotnet-sdk/commit/3f94725dba71db53f5e00dfaeac23a8e0977fbad))
+
+## [0.4.1](https://github.com/resq-software/dotnet-sdk/compare/v0.4.0...v0.4.1) (2026-03-21)
+
+
+### Bug Fixes
+
+* **ci:** pin actions to SHA hashes and add permissions ([e7de772](https://github.com/resq-software/dotnet-sdk/commit/e7de772303d38e8289c8217c9a0a7a179ec2f263))
+
+# [0.4.0](https://github.com/resq-software/dotnet-sdk/compare/v0.3.2...v0.4.0) (2026-03-19)
+
+
+### Features
+
+* **clients:** 🛡️ implement resilience pipelines and cancellation support ([12e99c9](https://github.com/resq-software/dotnet-sdk/commit/12e99c95223bcdde1755c2889f591f21a6da3b95))
 
 ## [0.3.2](https://github.com/resq-software/dotnet-sdk/compare/v0.3.1...v0.3.2) (2026-03-18)
 

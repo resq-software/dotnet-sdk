@@ -1,39 +1,20 @@
-<!--
-  Copyright 2026 ResQ
-
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
-
-      http://www.apache.org/licenses/LICENSE-2.0
-
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
--->
-
 # ResQ .NET SDK
 
-<p align="center">
-  A collection of .NET 9 client libraries for interacting with the ResQ autonomous disaster-response platform.
-</p>
+[![CI](https://img.shields.io/github/actions/workflow/status/resq-software/dotnet-sdk/ci.yml?branch=main&label=ci&style=flat-square)](https://github.com/resq-software/dotnet-sdk/actions)
+[![ResQ.Protocols](https://img.shields.io/nuget/v/ResQ.Protocols?style=flat-square&label=ResQ.Protocols)](https://www.nuget.org/packages/ResQ.Protocols)
+[![ResQ.Clients](https://img.shields.io/nuget/v/ResQ.Clients?style=flat-square&label=ResQ.Clients)](https://www.nuget.org/packages/ResQ.Clients)
+[![ResQ.Core](https://img.shields.io/nuget/v/ResQ.Core?style=flat-square&label=ResQ.Core)](https://www.nuget.org/packages/ResQ.Core)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue?style=flat-square)](LICENSE)
 
-<p align="center">
-  <a href="https://github.com/resq-software/dotnet-sdk/actions/workflows/ci.yml">
-    <img src="https://img.shields.io/github/actions/workflow/status/resq-software/dotnet-sdk/ci.yml?branch=main&label=ci&style=flat-square" alt="CI" />
-  </a>
-  <a href="https://www.nuget.org/packages/ResQ.Core">
-    <img src="https://img.shields.io/nuget/v/ResQ.Core?style=flat-square&label=nuget" alt="NuGet" />
-  </a>
-  <a href="https://codecov.io/gh/resq-software/dotnet-sdk">
-    <img src="https://codecov.io/gh/resq-software/dotnet-sdk/graph/badge.svg" alt="Coverage" />
-  </a>
-  <a href="./LICENSE">
-    <img src="https://img.shields.io/badge/license-Apache--2.0-blue.svg?style=flat-square" alt="License: Apache-2.0" />
-  </a>
-</p>
+> .NET 9 typed clients and blockchain anchoring for the ResQ autonomous drone platform.
+
+## Packages
+
+| Package | Install | Version |
+|---------|---------|---------|
+| `ResQ.Protocols` | `dotnet add package ResQ.Protocols` | [![NuGet](https://img.shields.io/nuget/v/ResQ.Protocols?style=flat-square)](https://www.nuget.org/packages/ResQ.Protocols) |
+| `ResQ.Clients` | `dotnet add package ResQ.Clients` | [![NuGet](https://img.shields.io/nuget/v/ResQ.Clients?style=flat-square)](https://www.nuget.org/packages/ResQ.Clients) |
+| `ResQ.Core` | `dotnet add package ResQ.Core` | [![NuGet](https://img.shields.io/nuget/v/ResQ.Core?style=flat-square)](https://www.nuget.org/packages/ResQ.Core) |
 
 ## Overview
 
@@ -170,17 +151,15 @@ For example, to configure the `InfrastructureApiClient` via `appsettings.json`:
 Then, in your application's `Startup.cs` or equivalent:
 
 ```csharp
-services.Configure&lt;PinataOptions&gt;(Configuration.GetSection("PinataOptions")); // Example for Pinata
-
-// For InfrastructureApiClient, you would typically configure the HttpClient registration
-services.AddHttpClient&lt;InfrastructureApiClient&gt;(c =>
+// Register InfrastructureApiClient with base address from config
+services.AddHttpClient<InfrastructureApiClient>(c =>
 {
-    // Configure base address, headers, etc. from configuration
-    c.BaseAddress = new Uri(Configuration["ResQ:InfrastructureApiUrl"] ?? "https://api.resq.software");
-    // Resilience settings could be applied here using Polly if not handled internally
-})
-.ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler()) // Optional: customize handler
-.AddPolicyHandler(PollyPolicies.GetCircuitBreakerPolicy()); // Example of adding Polly policies
+    c.BaseAddress = new Uri(
+        Configuration["ResQ:InfrastructureApiUrl"] ?? "https://api.resq.software");
+});
+
+// Optional: bind strongly-typed options
+services.Configure<PinataOptions>(Configuration.GetSection("PinataOptions"));
 ```
 
 ## API Reference
@@ -229,6 +208,7 @@ The checked-in `protos/` directory is a synced local cache of the canonical sche
 When updating shared contracts:
 
 ```bash
+# Requires private BSR auth (e.g., BUF_TOKEN set or Buf CLI logged in)
 bash scripts/sync-protos.sh && dotnet build ResQ.Protocols/ResQ.Protocols.csproj
 ```
 

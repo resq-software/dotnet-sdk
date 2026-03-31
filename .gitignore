@@ -1,0 +1,10 @@
+bin/
+obj/
+*.user
+.vs/
+*.nupkg
+.DS_Store
+.worktrees/
+coverage*/
+TestResults/
+

@@ -66,6 +66,7 @@ public record Location(
     /// </example>
     public double DistanceTo(Location other)
     {
+        ArgumentNullException.ThrowIfNull(other, nameof(other));
         const double R = 6371.0; // Earth radius in km
         var lat1Rad = Latitude * Math.PI / 180.0;
         var lat2Rad = other.Latitude * Math.PI / 180.0;
