@@ -34,6 +34,8 @@ jobs:
       - uses: actions/setup-dotnet@c2fa09f4bde5ebb9d1777cf28262a3eb3db3ced7 # v5
         with:
           dotnet-version: "9.0.x"
+      - name: Pin CI to .NET 9 SDK
+        run: rm -f global.json
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
