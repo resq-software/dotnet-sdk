@@ -12,6 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       BUF_API_TOKEN: ${{ secrets.BUF_API_TOKEN }}
+      DOTNET_ROLL_FORWARD: LatestFeature
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - uses: bufbuild/buf-setup-action@a47c93e0b1648d5651a065437926377d060baa99 # v1
