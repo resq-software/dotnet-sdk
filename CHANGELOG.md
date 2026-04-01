@@ -1,3 +1,10 @@
+# [0.6.0](https://github.com/resq-software/dotnet-sdk/compare/v0.5.1...v0.6.0) (2026-04-01)
+
+
+### Features
+
+* add SimDemo example — standalone simulation, mesh, and dialect demo ([badeced](https://github.com/resq-software/dotnet-sdk/commit/badecedc375c092db3dd3232804c96b43b4ee5e8))
+
 ## [0.5.1](https://github.com/resq-software/dotnet-sdk/compare/v0.5.0...v0.5.1) (2026-03-31)
 
 
