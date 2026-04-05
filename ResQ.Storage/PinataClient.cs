@@ -198,8 +198,13 @@ public class PinataClient : IStorageClient
     {
         // Input validation
         ArgumentNullException.ThrowIfNull(content);
-        ArgumentException.ThrowIfNullOrWhiteSpace(fileName, nameof(fileName));
-        ArgumentException.ThrowIfNullOrWhiteSpace(contentType, nameof(contentType));
+        ArgumentNullException.ThrowIfNull(fileName);
+        ArgumentNullException.ThrowIfNull(contentType);
+
+        if (string.IsNullOrWhiteSpace(fileName))
+        {
+            throw new ArgumentException("File name cannot be empty", nameof(fileName));
+        }
 
         // File size validation — uses the configured limit from PinataOptions.MaxFileSizeBytes
         if (content.CanSeek && content.Length > _options.MaxFileSizeBytes)
@@ -300,7 +305,9 @@ public class PinataClient : IStorageClient
         string cid,
         CancellationToken cancellationToken = default)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(cid, nameof(cid));
+        ArgumentNullException.ThrowIfNull(cid);
+        if (string.IsNullOrWhiteSpace(cid))
+            throw new ArgumentException("CID cannot be empty", nameof(cid));
 
         if (_options.MockMode)
         {
@@ -327,7 +334,9 @@ public class PinataClient : IStorageClient
         string cid,
         CancellationToken cancellationToken = default)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(cid, nameof(cid));
+        ArgumentNullException.ThrowIfNull(cid);
+        if (string.IsNullOrWhiteSpace(cid))
+            throw new ArgumentException("CID cannot be empty", nameof(cid));
 
         if (_options.MockMode)
         {
@@ -359,7 +368,9 @@ public class PinataClient : IStorageClient
         string cid,
         CancellationToken cancellationToken = default)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(cid, nameof(cid));
+        ArgumentNullException.ThrowIfNull(cid);
+        if (string.IsNullOrWhiteSpace(cid))
+            throw new ArgumentException("CID cannot be empty", nameof(cid));
 
         if (_options.MockMode)
         {
@@ -433,7 +444,6 @@ public class PinataClient : IStorageClient
     /// </remarks>
     public string GetGatewayUrl(string cid)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(cid, nameof(cid));
         return $"{_options.GatewayUrl}/ipfs/{Uri.EscapeDataString(cid)}";
     }
 

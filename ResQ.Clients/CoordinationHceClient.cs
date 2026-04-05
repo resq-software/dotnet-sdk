@@ -39,9 +39,9 @@ public class CoordinationHceClient : BaseServiceClient
     /// </summary>
     public async Task<bool> AuthenticateAsync(string username, string password, CancellationToken ct = default)
     {
-        // F-P9-02: fail fast on null/empty credentials
-        ArgumentException.ThrowIfNullOrWhiteSpace(username, nameof(username));
-        ArgumentException.ThrowIfNullOrWhiteSpace(password, nameof(password));
+        // F-P9-02: fail fast on null credentials
+        ArgumentNullException.ThrowIfNull(username, nameof(username));
+        ArgumentNullException.ThrowIfNull(password, nameof(password));
 
         try
         {
@@ -92,7 +92,12 @@ public class CoordinationHceClient : BaseServiceClient
     {
         // Input validation
         ArgumentNullException.ThrowIfNull(batch);
-        ArgumentException.ThrowIfNullOrWhiteSpace(batch.DroneId, nameof(batch.DroneId));
+        ArgumentNullException.ThrowIfNull(batch.DroneId);
+
+        if (string.IsNullOrWhiteSpace(batch.DroneId))
+        {
+            throw new ArgumentException("DroneId cannot be empty", nameof(batch.DroneId));
+        }
 
         if (batch.Packets == null || batch.Packets.Count == 0)
         {
@@ -157,7 +162,9 @@ public class CoordinationHceClient : BaseServiceClient
     public async Task<FleetStatus> GetFleetStatusAsync(string fleetId, CancellationToken ct = default)
     {
         // P5-F01: validate and URL-encode fleetId
-        ArgumentException.ThrowIfNullOrWhiteSpace(fleetId, nameof(fleetId));
+        ArgumentNullException.ThrowIfNull(fleetId);
+        if (string.IsNullOrWhiteSpace(fleetId))
+            throw new ArgumentException("fleetId cannot be empty", nameof(fleetId));
 
         var response = await SendAsync(
             HttpMethod.Get,

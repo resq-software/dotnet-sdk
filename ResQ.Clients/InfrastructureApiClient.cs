@@ -40,9 +40,9 @@ public class InfrastructureApiClient : BaseServiceClient
     /// </summary>
     public async Task<bool> AuthenticateAsync(string username, string password, CancellationToken ct = default)
     {
-        // F-P9-02: fail fast on null/empty credentials
-        ArgumentException.ThrowIfNullOrWhiteSpace(username, nameof(username));
-        ArgumentException.ThrowIfNullOrWhiteSpace(password, nameof(password));
+        // F-P9-02: fail fast on null credentials
+        ArgumentNullException.ThrowIfNull(username, nameof(username));
+        ArgumentNullException.ThrowIfNull(password, nameof(password));
 
         try
         {
@@ -87,10 +87,13 @@ public class InfrastructureApiClient : BaseServiceClient
     public async Task<UploadResponse> UploadImageAsync(byte[] imageData, string fileName, CancellationToken ct = default)
     {
         ArgumentNullException.ThrowIfNull(imageData, nameof(imageData));
-        ArgumentException.ThrowIfNullOrWhiteSpace(fileName, nameof(fileName));
+        ArgumentNullException.ThrowIfNull(fileName, nameof(fileName));
 
         if (imageData.Length == 0)
             throw new ArgumentException("Image data cannot be empty", nameof(imageData));
+
+        if (string.IsNullOrWhiteSpace(fileName))
+            throw new ArgumentException("File name cannot be empty", nameof(fileName));
 
         // Non-idempotent uploads are no longer retried, so a single multipart body is safe here.
         var content = new MultipartFormDataContent();

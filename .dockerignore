@@ -1,7 +1,0 @@
-**/bin/
-**/obj/
-**/TestResults/
-**/.vs/
-.git/
-**/*.md
-artifacts/

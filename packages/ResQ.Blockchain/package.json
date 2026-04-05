@@ -1,0 +1,10 @@
+{
+  "name": "@resq/dotnet-blockchain",
+  "version": "2.0.0",
+  "private": true,
+  "scripts": {
+    "build": "dotnet build -c Release",
+    "test": "dotnet test",
+    "clean": "dotnet clean"
+  }
+}

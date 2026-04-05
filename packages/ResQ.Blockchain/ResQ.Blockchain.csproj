@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>ResQ.Blockchain</RootNamespace>
+    <Description>ResQ Neo N3 blockchain integration for immutable event logging and attestations</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Neo" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
+  </ItemGroup>
+
+</Project>
