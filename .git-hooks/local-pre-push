@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Repo-specific pre-push — runs alongside the canonical ResQ pre-push hook.
+set -euo pipefail
+
+if command -v dotnet >/dev/null 2>&1; then
+    echo "  .NET: dotnet build"
+    dotnet build --nologo --verbosity minimal
+fi
