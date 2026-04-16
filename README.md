@@ -242,7 +242,7 @@ bash scripts/sync-protos.sh && dotnet build ResQ.Protocols/ResQ.Protocols.csproj
 ### Setup
 ```bash
 git clone https://github.com/resq-software/dotnet-sdk.git
-./scripts/setup.sh
+./bootstrap.sh
 dotnet build
 ```
 
