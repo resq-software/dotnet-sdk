@@ -179,6 +179,30 @@ jobs:
             done
           } > "$OUTPUT_DIR/README.md"
 
+      - name: Drop hash from constructor filenames + references
+        # DefaultDocumentation names constructor pages after the IL
+        # convention, e.g. `ResQ.Foo.#ctor.md`. Mintlify's URL
+        # resolver splits a link target at the first `#`, so a
+        # reference like `Foo.#ctor.md#Foo.Foo(string)` parses as
+        # path=`Foo.` (does not exist) and fragment=`ctor.md#...`.
+        # Rename the files (drop the leading hash) and rewrite all
+        # in-content references in one pass so subsequent steps see
+        # consistent paths.
+        working-directory: ${{ env.OUTPUT_DIR }}
+        run: |
+          set -euo pipefail
+          # Rename: <Type>.#ctor.md -> <Type>.ctor.md
+          find . -type f -name '*.#ctor.md' -print0 | while IFS= read -r -d '' f; do
+            mv "$f" "${f//.#ctor.md/.ctor.md}"
+          done
+          # Rewrite references in remaining content. We replace the
+          # exact substring `.#ctor.md` (URL or prose) since the
+          # leading `.` and trailing `.md` together are unique enough
+          # to avoid collateral matches.
+          find . -type f -name '*.md' -print0 | while IFS= read -r -d '' f; do
+            sed -i 's|\.#ctor\.md|.ctor.md|g' "$f"
+          done
+
       - name: Prefix bare-filename intra-page links with ./
         # Mintlify rejects bare-filename .md links as broken; prefixing
         # with ./ makes the resolver treat them as relative paths.
