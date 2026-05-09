@@ -141,18 +141,17 @@ jobs:
             out="$OUTPUT_DIR/$proj"
             mkdir -p "$out"
             # Binary is lowercase (Linux is case-sensitive).
-            # GeneratedAccessModifiers limits emission to public + protected
-            # members. Without this flag the tool defaults vary by version
-            # and have leaked private members (e.g. MockNeoClient's
-            # ExtractIncidentId / GenerateTxHash) into the published API
-            # reference. Set explicitly so the contract is the same
-            # regardless of which DefaultDocumentation.Console version the
-            # `dotnet tool install` step pulls.
+            # --GeneratedAccessModifiers Api restricts emission to
+            # the public API surface (Public | Protected |
+            # ProtectedInternal). Without it the tool defaults to
+            # Default (= 0, "all access modifiers") and leaks
+            # private members. See enum definition at:
+            # https://github.com/Doraku/DefaultDocumentation/blob/main/source/DefaultDocumentation.Api/GeneratedAccessModifiers.cs
             defaultdocumentation \
               --AssemblyFilePath "$dll" \
               --DocumentationFilePath "$xml" \
               --OutputDirectoryPath "$out" \
-              --GeneratedAccessModifiers "Public,Family"
+              --GeneratedAccessModifiers Api
             generated=$((generated + 1))
           done
           if [ "$missing" -ne 0 ] || [ "$generated" -eq 0 ]; then
