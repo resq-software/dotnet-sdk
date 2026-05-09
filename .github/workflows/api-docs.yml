@@ -157,8 +157,20 @@ jobs:
 
       - name: Write top-level index
         # DefaultDocumentation emits one tree per assembly. Assemble
-        # a small README.md at the top of the api/ folder linking
-        # to each so a single nav entry can drive into all packages.
+        # a small README.mdx at the top of the api/ folder listing
+        # the available packages.
+        #
+        # Emit .mdx (not .md) because Mintlify's docs.json nav
+        # resolver only matches .mdx for page ids; without this,
+        # mint dev returns 404 on the registered page.
+        #
+        # Package names are emitted as plain backticked text rather
+        # than hyperlinks because cross-page links from a .mdx
+        # parent require nav registration in Mintlify (the bare
+        # filename / extensionless-page link form that works in .md
+        # parents fails broken-links validation when the parent is
+        # .mdx). Users navigate to per-package pages via the URL bar
+        # or future programmatic _pages.json nav splice.
         run: |
           {
             echo "# ResQ .NET SDK"
@@ -170,10 +182,10 @@ jobs:
             echo ""
             for proj in $PUBLIC_PROJECTS; do
               if [ -d "$OUTPUT_DIR/$proj" ]; then
-                echo "- [$proj]($proj/$proj)"
+                echo "- \`$proj\`"
               fi
             done
-          } > "$OUTPUT_DIR/README.md"
+          } > "$OUTPUT_DIR/README.mdx"
 
       - name: Drop hash from constructor filenames + references
         # DefaultDocumentation names constructor pages after the IL
