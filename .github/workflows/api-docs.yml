@@ -156,9 +156,9 @@ jobs:
           fi
 
       - name: Write top-level index
-        # xmldocmd emits one tree per assembly. Assemble a small
-        # README.md at the top of the api/ folder linking to each
-        # so a single nav entry can drive into all packages.
+        # DefaultDocumentation emits one tree per assembly. Assemble
+        # a small README.md at the top of the api/ folder linking
+        # to each so a single nav entry can drive into all packages.
         run: |
           {
             echo "# ResQ .NET SDK"
@@ -174,6 +174,40 @@ jobs:
               fi
             done
           } > "$OUTPUT_DIR/README.md"
+
+      - name: Drop hash from constructor filenames + references
+        # DefaultDocumentation names constructor pages after the IL
+        # convention, e.g. `ResQ.Foo.#ctor.md`. Mintlify's URL
+        # resolver splits a link target at the first `#`, so a
+        # reference like `Foo.#ctor.md#Foo.Foo(string)` parses as
+        # path=`Foo.` (does not exist) and fragment=`ctor.md#...`.
+        # Rename the files (drop the leading hash) and rewrite all
+        # in-content references in one pass so subsequent steps see
+        # consistent paths.
+        working-directory: ${{ env.OUTPUT_DIR }}
+        run: |
+          set -euo pipefail
+          find . -type f -name '*.#ctor.md' -print0 | while IFS= read -r -d '' f; do
+            mv "$f" "${f//.#ctor.md/.ctor.md}"
+          done
+          find . -type f -name '*.md' -print0 | while IFS= read -r -d '' f; do
+            sed -i 's|\.#ctor\.md|.ctor.md|g' "$f"
+          done
+
+      - name: Strip ctor.md# prefix from constructor anchors
+        # DefaultDocumentation's `*.#ctor.md` pages have anchor
+        # declarations like
+        #   <a name='ctor.md#ResQ.Sim.Foo.Foo(string,int)'></a>
+        # The matching link fragments in overload tables point at
+        # the bare anchor name (without `ctor.md#` prefix), so the
+        # in-page jumps go to the top of the page rather than the
+        # right constructor section. Strip that prefix from the
+        # anchor declarations.
+        working-directory: ${{ env.OUTPUT_DIR }}
+        run: |
+          find . -type f -name '*.md' -print0 | while IFS= read -r -d '' f; do
+            sed -i "s|<a name='ctor\\.md#|<a name='|g" "$f"
+          done
 
       - name: Prefix bare-filename intra-page links with ./
         # Mintlify rejects bare-filename .md links as broken;
