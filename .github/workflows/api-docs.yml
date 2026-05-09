@@ -13,7 +13,7 @@
 #
 # Pipeline:
 #   1. dotnet build -c Release -p:GenerateDocumentationFile=true
-#   2. xmldocmd <project>.dll  ->  per-project Markdown tree
+#   2. DefaultDocumentation <project>.dll + .xml  ->  Markdown tree
 #   3. Mintlify-safety post-processing (./ prefix on bare links;
 #      MDX curly-brace escape outside code regions)
 #   4. peter-evans/create-pull-request opens a PR in the docs repo
@@ -100,32 +100,23 @@ jobs:
             -p:GenerateDocumentationFile=true \
             -p:NoWarn=CS1591
 
-      - name: Publish public projects (flatten dep closure)
-        # xmldocmd uses MetadataLoadContext, which resolves
-        # dependencies from the directory next to the target DLL.
-        # `dotnet build` for a class library does NOT copy
-        # transitive package and contract assemblies (e.g.
-        # System.Runtime); `dotnet publish` does. Without this
-        # step xmldocmd hits FileNotFoundException on every load.
-        run: |
-          set -euo pipefail
-          for proj in $PUBLIC_PROJECTS; do
-            dotnet publish "$proj/$proj.csproj" \
-              --configuration Release \
-              --no-build \
-              -p:GenerateDocumentationFile=true \
-              -p:NoWarn=CS1591
-          done
-
-      - name: Install xmldocmd
-        run: dotnet tool install -g xmldocmd
+      - name: Install DefaultDocumentation
+        # We use DefaultDocumentation.Console rather than xmldocmd
+        # because xmldocmd loads assemblies via MetadataLoadContext,
+        # which scans the target's directory for transitive
+        # dependencies. .NET 9 class library output does not include
+        # System.Runtime contract DLLs in bin/ or even publish/, so
+        # xmldocmd hits FileNotFoundException on every assembly.
+        # DefaultDocumentation reads with Mono.Cecil, which parses
+        # the assembly bytes directly without resolving against a
+        # runtime, so cross-version reads just work.
+        run: dotnet tool install -g DefaultDocumentation.Console
 
       - name: Generate per-project Markdown
-        # xmldocmd reads <Project>.dll alongside <Project>.xml and
-        # emits a Markdown tree under the output dir. We point at
-        # the publish folder so the entire dependency closure is
-        # resolvable. Each package goes in its own subdirectory so
-        # the docs site can surface them as siblings.
+        # DefaultDocumentation reads <Project>.dll + <Project>.xml
+        # and emits Markdown into the output dir. Each package goes
+        # in its own subdirectory so the docs site can surface them
+        # as siblings under sdks/dotnet/api/.
         run: |
           set -euo pipefail
           export PATH="$PATH:$HOME/.dotnet/tools"
@@ -134,16 +125,25 @@ jobs:
           missing=0
           generated=0
           for proj in $PUBLIC_PROJECTS; do
-            dll="${proj}/bin/Release/net9.0/publish/${proj}.dll"
-            if [ ! -f "$dll" ]; then
-              echo "::error ::missing assembly for $proj ($dll)"
+            # Discover the build TFM at runtime instead of pinning
+            # net9.0. global.json controls the SDK feature band but
+            # not the project TFM, and a net10 upgrade should not
+            # require touching this workflow. Take the first .dll
+            # found under bin/Release/<tfm>/ for each project.
+            dll=$(find "${proj}/bin/Release" -maxdepth 2 \
+              -name "${proj}.dll" -type f 2>/dev/null | head -n 1)
+            xml="${dll%.dll}.xml"
+            if [ -z "$dll" ] || [ ! -f "$dll" ] || [ ! -f "$xml" ]; then
+              echo "::error ::missing assembly or xml doc for $proj"
               missing=1
               continue
             fi
-            mkdir -p "$OUTPUT_DIR/$proj"
-            xmldocmd "$dll" "$OUTPUT_DIR/$proj" \
-              --visibility public \
-              --clean
+            out="$OUTPUT_DIR/$proj"
+            mkdir -p "$out"
+            DefaultDocumentation \
+              --AssemblyFilePath "$dll" \
+              --DocumentationFilePath "$xml" \
+              --OutputDirectoryPath "$out"
             generated=$((generated + 1))
           done
           if [ "$missing" -ne 0 ] || [ "$generated" -eq 0 ]; then
