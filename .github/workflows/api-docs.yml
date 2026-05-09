@@ -221,6 +221,53 @@ jobs:
             sed -i "s|<a name='ctor\\.md#|<a name='|g" "$f"
           done
 
+      - name: Add sidebarTitle frontmatter (short Mintlify nav labels)
+        # DefaultDocumentation page filenames are fully qualified
+        # like `ResQ.Blockchain.INeoClient.RecordEvidenceAsync(ResQ.Blockchain.EvidenceRecord,System.Threading.CancellationToken).md`.
+        # Mintlify uses the page id's last segment as the sidebar
+        # label by default, which produces 100+ char entries that
+        # blow out the sidebar width. Compute a short label
+        # (member name + simplified parameter type list) and write
+        # it into each page as `sidebarTitle:` frontmatter so the
+        # sidebar shows readable names. The full URL still resolves
+        # and the page body still renders the qualified context.
+        working-directory: ${{ env.OUTPUT_DIR }}
+        run: |
+          python3 - <<'PY'
+          import pathlib
+
+          def short_name(stem: str) -> str:
+              paren = stem.find("(")
+              if paren == -1:
+                  return stem.rsplit(".", 1)[-1]
+              pre = stem[:paren]
+              last_dot = pre.rfind(".")
+              member = stem[last_dot + 1:]
+              name, _, args = member.partition("(")
+              args = args.rstrip(")")
+              if not args:
+                  return f"{name}()"
+              return f"{name}({', '.join(a.split('.')[-1] for a in args.split(','))})"
+
+          def yaml_quote(s: str) -> str:
+              return "'" + s.replace("'", "''") + "'"
+
+          count = 0
+          for md in pathlib.Path(".").rglob("*.md"):
+              if md.name == "README.md":
+                  continue
+              text = md.read_text(encoding="utf-8")
+              if text.startswith("---\n"):
+                  continue
+              title = short_name(md.stem)
+              md.write_text(
+                  f"---\nsidebarTitle: {yaml_quote(title)}\n---\n\n{text}",
+                  encoding="utf-8",
+              )
+              count += 1
+          print(f"  added sidebarTitle frontmatter to {count} files")
+          PY
+
       - name: Prefix bare-filename intra-page links with ./
         # Mintlify rejects bare-filename .md links as broken;
         # prefixing with ./ makes the resolver treat them as
