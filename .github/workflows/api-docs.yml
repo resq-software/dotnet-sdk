@@ -68,8 +68,13 @@ jobs:
         # workflow_dispatch can pass an alternate ref via inputs.ref;
         # fall back to github.ref_name (already stripped of refs/...).
         # DOCS_REF_SLUG is branch-safe for use in PR/branch names.
+        # Template values flow through env vars (not inline shell)
+        # so attacker-controlled refs cannot break out of quoting.
+        env:
+          INPUT_REF: ${{ inputs.ref }}
+          REF_NAME: ${{ github.ref_name }}
         run: |
-          raw='${{ inputs.ref || github.ref_name }}'
+          raw="${INPUT_REF:-$REF_NAME}"
           raw="${raw#refs/tags/}"
           raw="${raw#refs/heads/}"
           slug="${raw//\//-}"

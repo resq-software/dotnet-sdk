@@ -16,13 +16,27 @@ on:
 
 permissions:
   contents: read
-  security-events: write
-  pull-requests: read
 
 jobs:
   scan:
-    uses: resq-software/.github/.github/workflows/security-scan.yml@main
+    # Job-scoped permissions: CodeQL uploads SARIF
+    # (security-events:write); dependency-review reads PR metadata;
+    # codeql-action telemetry needs actions:read.
+    permissions:
+      contents: read
+      security-events: write
+      pull-requests: read
+      actions: read
+    # Pin the reusable workflow to a commit SHA so a forced branch
+    # rewrite in resq-software/.github cannot silently change the
+    # scanners that run here. Bump deliberately on upstream changes.
+    uses: resq-software/.github/.github/workflows/security-scan.yml@ee2001974be1e5610cff3a2c669cfab95c7415e7
     with:
       languages: '["csharp","actions"]'
       enable-semgrep: true
-    secrets: inherit
+    # The reusable security-scan.yml does not declare a
+    # `workflow_call.secrets:` block, so explicit per-secret passing
+    # is rejected by GitHub Actions. `inherit` is required for
+    # SEMGREP_APP_TOKEN (and would also cover SNYK_TOKEN /
+    # GITLEAKS_LICENSE if those are enabled). Ack the zizmor warn.
+    secrets: inherit  # zizmor: ignore[secrets-inherit]
