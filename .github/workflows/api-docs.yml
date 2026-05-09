@@ -140,18 +140,10 @@ jobs:
             fi
             out="$OUTPUT_DIR/$proj"
             mkdir -p "$out"
-            # Binary is lowercase (Linux is case-sensitive).
-            # --GeneratedAccessModifiers Api restricts emission to
-            # the public API surface (Public | Protected |
-            # ProtectedInternal). Without it the tool defaults to
-            # Default (= 0, "all access modifiers") and leaks
-            # private members. See enum definition at:
-            # https://github.com/Doraku/DefaultDocumentation/blob/main/source/DefaultDocumentation.Api/GeneratedAccessModifiers.cs
-            defaultdocumentation \
+            DefaultDocumentation \
               --AssemblyFilePath "$dll" \
               --DocumentationFilePath "$xml" \
-              --OutputDirectoryPath "$out" \
-              --GeneratedAccessModifiers Api
+              --OutputDirectoryPath "$out"
             generated=$((generated + 1))
           done
           if [ "$missing" -ne 0 ] || [ "$generated" -eq 0 ]; then
@@ -179,165 +171,16 @@ jobs:
             done
           } > "$OUTPUT_DIR/README.md"
 
-      - name: Drop hash from constructor filenames + references
-        # DefaultDocumentation names constructor pages after the IL
-        # convention, e.g. `ResQ.Foo.#ctor.md`. Mintlify's URL
-        # resolver splits a link target at the first `#`, so a
-        # reference like `Foo.#ctor.md#Foo.Foo(string)` parses as
-        # path=`Foo.` (does not exist) and fragment=`ctor.md#...`.
-        # Rename the files (drop the leading hash) and rewrite all
-        # in-content references in one pass so subsequent steps see
-        # consistent paths.
-        working-directory: ${{ env.OUTPUT_DIR }}
-        run: |
-          set -euo pipefail
-          # Rename: <Type>.#ctor.md -> <Type>.ctor.md
-          find . -type f -name '*.#ctor.md' -print0 | while IFS= read -r -d '' f; do
-            mv "$f" "${f//.#ctor.md/.ctor.md}"
-          done
-          # Rewrite references in remaining content. We replace the
-          # exact substring `.#ctor.md` (URL or prose) since the
-          # leading `.` and trailing `.md` together are unique enough
-          # to avoid collateral matches.
-          find . -type f -name '*.md' -print0 | while IFS= read -r -d '' f; do
-            sed -i 's|\.#ctor\.md|.ctor.md|g' "$f"
-          done
-
       - name: Prefix bare-filename intra-page links with ./
-        # Mintlify rejects bare-filename .md links as broken; prefixing
-        # with ./ makes the resolver treat them as relative paths.
-        #
-        # Cannot reuse the TypeScript template's sed regex here because
-        # DefaultDocumentation diverges from TypeDoc on two points:
-        #   1. It emits link titles, e.g. `(Foo.md 'Foo.Bar.Foo')`.
-        #      The sed regex expects `)` immediately after `.md`.
-        #   2. Method-overload pages have parens in the filename, e.g.
-        #      `Foo.Bar(string,int).md`. The sed regex's `[^)/]*` URL
-        #      character class excludes `)` outright.
-        # A paren-balanced Python walker handles both shapes; sed cannot
-        # without a stateful per-character mode.
-        working-directory: ${{ env.OUTPUT_DIR }}
-        run: |
-          python3 - <<'PY'
-          # Rewrites `](URL)` and `](URL 'title')` to use `./` prefix when
-          # URL ends in `.md` (with optional `#anchor`) and is not external
-          # or already-relative. Skips fenced code blocks (``` and ~~~).
-          import pathlib
-
-          def is_external(u: str) -> bool:
-              return u.startswith((
-                  "http://", "https://", "mailto:", "/", "#",
-                  "./", "../",
-              ))
-
-          def transform_inline(line: str) -> str:
-              out, i, n = [], 0, len(line)
-              while i < n:
-                  j = line.find("](", i)
-                  if j == -1:
-                      out.append(line[i:])
-                      break
-                  out.append(line[i:j+2])
-                  i = j + 2
-                  # Walk URL — depth-balanced, ends at depth-0 `)` or
-                  # whitespace (start of optional title).
-                  depth, url_end, scan = 0, -1, i
-                  while scan < n:
-                      c = line[scan]
-                      if c == "(":
-                          depth += 1
-                      elif c == ")":
-                          if depth == 0:
-                              url_end = scan
-                              break
-                          depth -= 1
-                      elif c.isspace() and depth == 0:
-                          url_end = scan
-                          break
-                      scan += 1
-                  if url_end == -1:
-                      out.append(line[i:])
-                      break
-                  url = line[i:url_end]
-                  # Find matching outer `)`, tracking quote state for
-                  # titles that may contain stray parens or quotes.
-                  scan = url_end
-                  in_quote, depth = None, 0
-                  while scan < n:
-                      c = line[scan]
-                      if in_quote:
-                          if c == in_quote:
-                              in_quote = None
-                          scan += 1
-                          continue
-                      if c in ("'", '"'):
-                          in_quote = c
-                          scan += 1
-                          continue
-                      if c == "(":
-                          depth += 1
-                      elif c == ")":
-                          if depth == 0:
-                              break
-                          depth -= 1
-                      scan += 1
-                  if scan >= n:
-                      out.append(line[i:])
-                      break
-                  rest = line[url_end:scan]
-                  url_no_anchor = url.partition("#")[0]
-                  if url and not is_external(url) and url_no_anchor.endswith(".md"):
-                      url = "./" + url
-                  out.append(url)
-                  out.append(rest)
-                  out.append(")")
-                  i = scan + 1
-              return "".join(out)
-
-          def transform(text: str) -> str:
-              out, in_fence = [], False
-              for raw in text.splitlines(keepends=True):
-                  if raw.endswith("\r\n"):
-                      line, eol = raw[:-2], "\r\n"
-                  elif raw.endswith("\n"):
-                      line, eol = raw[:-1], "\n"
-                  else:
-                      line, eol = raw, ""
-                  s = line.lstrip()
-                  if s.startswith("```") or s.startswith("~~~"):
-                      in_fence = not in_fence
-                      out.append(line); out.append(eol); continue
-                  if in_fence:
-                      out.append(line); out.append(eol); continue
-                  out.append(transform_inline(line))
-                  out.append(eol)
-              return "".join(out)
-
-          changed = 0
-          for p in pathlib.Path(".").rglob("*.md"):
-              orig = p.read_text(encoding="utf-8")
-              new = transform(orig)
-              if new != orig:
-                  p.write_text(new, encoding="utf-8")
-                  changed += 1
-          print(f"prefixed links in {changed} files")
-          PY
-
-      - name: Strip ctor.md# prefix from constructor anchors
-        # DefaultDocumentation has a quirk on `*.#ctor.md` pages: the
-        # anchor declaration includes the filename, e.g.
-        #   <a name='ctor.md#ResQ.Sim.Foo.Foo(string,int)'></a>
-        # The matching link fragments in the overload table point at
-        # `Foo.#ctor.md#ResQ.Sim.Foo.Foo(string,int)`, which expects
-        # the anchor name to be just `ResQ.Sim.Foo.Foo(string,int)`.
-        # Strip the `ctor.md#` prefix from anchor *declarations* only;
-        # link-target fragments are left intact (their `ctor.md#`
-        # appears after a literal `#` URL delimiter, not as the anchor
-        # name itself, so they remain valid).
+        # Same pattern as the TypeScript template: Mintlify rejects
+        # bare-filename .md links as broken; prefixing with ./
+        # forces the resolver to treat them as relative paths.
         working-directory: ${{ env.OUTPUT_DIR }}
         run: |
           find . -type f -name '*.md' -print0 | while IFS= read -r -d '' f; do
-            sed -i "s|<a name='ctor\\.md#|<a name='|g" "$f"
+            sed -E -i \
+              's|\]\(([A-Za-z0-9][^)/]*\.md(#[^)]*)?)\)|](./\1)|g' \
+              "$f"
           done
 
       - name: Escape curly braces outside code regions (MDX safety)
@@ -379,7 +222,8 @@ jobs:
       - name: Build pages index
         # Flat JSON array of generated Markdown paths (without
         # extension) so the docs repo can later splice them into
-        # docs.json automatically.
+        # docs.json automatically. Built BEFORE the .md -> .mdx
+        # rename below so paths stay extensionless either way.
         working-directory: ${{ env.OUTPUT_DIR }}
         run: |
           find . -name '*.md' -type f \
@@ -387,6 +231,30 @@ jobs:
             | sort > _pages.txt
           jq -R -s 'split("\n") | map(select(length > 0))' _pages.txt > _pages.json
           rm _pages.txt
+
+      - name: Rename .md -> .mdx (Mintlify nav requires .mdx)
+        # Mintlify's docs.json nav resolver only matches .mdx, so
+        # leaving the tree as .md makes `mint dev` warn that
+        # nav-registered files do not exist. Rename every .md to
+        # .mdx and strip `.md` from in-content link targets so
+        # they remain extensionless (Mintlify resolves these to
+        # the matching .mdx file; an explicit `.mdx` extension in
+        # a link is rejected as a static-asset reference).
+        working-directory: ${{ env.OUTPUT_DIR }}
+        run: |
+          set -euo pipefail
+          find . -type f -name '*.md' -print0 | while IFS= read -r -d '' f; do
+            mv "$f" "${f%.md}.mdx"
+          done
+          python3 - <<'PY'
+          import pathlib, re
+          LINK = re.compile(r'(\]\()((?!https?://|mailto:|#|/)[^)\s]*?)(\.md)((?:#[^)]*)?(\)))')
+          for p in pathlib.Path(".").rglob("*.mdx"):
+              text = p.read_text(encoding="utf-8")
+              new = LINK.sub(r'\1\2\4', text)
+              if new != text:
+                  p.write_text(new, encoding="utf-8")
+          PY
 
       - name: Checkout docs repo
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
