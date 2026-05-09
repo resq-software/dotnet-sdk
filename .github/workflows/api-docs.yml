@@ -158,7 +158,7 @@ jobs:
       - name: Write top-level index
         # DefaultDocumentation emits one tree per assembly. Assemble
         # a small README.mdx at the top of the api/ folder listing
-        # the available packages.
+        # the available packages with their pinned versions.
         #
         # Emit .mdx (not .md) because Mintlify's docs.json nav
         # resolver only matches .mdx for page ids; without this,
@@ -171,21 +171,51 @@ jobs:
         # parents fails broken-links validation when the parent is
         # .mdx). Users navigate to per-package pages via the URL bar
         # or future programmatic _pages.json nav splice.
+        #
+        # Version next to each project is read from <Version> /
+        # <VersionPrefix> in the .csproj. Falls back to "unknown" so
+        # missing tags don't break the doc build.
         run: |
-          {
-            echo "# ResQ .NET SDK"
-            echo ""
-            echo "Auto-generated reference for the public packages in"
-            echo "[resq-software/dotnet-sdk](https://github.com/resq-software/dotnet-sdk)."
-            echo ""
-            echo "## Packages"
-            echo ""
-            for proj in $PUBLIC_PROJECTS; do
-              if [ -d "$OUTPUT_DIR/$proj" ]; then
-                echo "- \`$proj\`"
-              fi
-            done
-          } > "$OUTPUT_DIR/README.mdx"
+          python3 - <<'PY' > "$OUTPUT_DIR/README.mdx"
+          import os
+          import pathlib
+          import re
+
+          ref_name = os.environ.get("DOCS_REF_NAME", "main")
+          repo = os.environ.get("GITHUB_REPOSITORY", "")
+          output_dir = pathlib.Path(os.environ["OUTPUT_DIR"])
+          projects = (os.environ.get("PUBLIC_PROJECTS") or "").split()
+
+          def read_version(proj: str) -> str:
+              # .csproj files are usually <ProjectName>/<ProjectName>.csproj
+              # but DefaultDocumentation expects the assembly name as the
+              # output dir, so search for a .csproj matching the project.
+              candidates = list(pathlib.Path(".").rglob(f"{proj}.csproj"))
+              if not candidates:
+                  return "unknown"
+              text = candidates[0].read_text(encoding="utf-8")
+              for tag in ("Version", "VersionPrefix"):
+                  m = re.search(rf"<{tag}>([^<]+)</{tag}>", text)
+                  if m:
+                      return m.group(1).strip()
+              return "unknown"
+
+          print("# ResQ .NET SDK")
+          print()
+          print(
+              f"Auto-generated reference for "
+              f"[`{repo}`](https://github.com/{repo}) "
+              f"at ref `{ref_name}`."
+          )
+          print()
+          print("## Packages")
+          print()
+          for proj in projects:
+              if not (output_dir / proj).is_dir():
+                  continue
+              version = read_version(proj)
+              print(f"- `{proj}` — `v{version}`")
+          PY
 
       - name: Drop hash from constructor filenames + references
         # DefaultDocumentation names constructor pages after the IL
