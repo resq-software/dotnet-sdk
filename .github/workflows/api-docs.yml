@@ -541,7 +541,9 @@ jobs:
           branch: auto/dotnet-api-${{ env.DOCS_REF_SLUG }}
           base: main
           delete-branch: true
-          add-paths: sdks/dotnet/api/**
+          add-paths: |
+            sdks/dotnet/api/**
+            docs.json
           labels: |
             automated
             docs:api-ref
