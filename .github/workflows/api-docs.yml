@@ -125,9 +125,15 @@ jobs:
           missing=0
           generated=0
           for proj in $PUBLIC_PROJECTS; do
-            dll="${proj}/bin/Release/net9.0/${proj}.dll"
-            xml="${proj}/bin/Release/net9.0/${proj}.xml"
-            if [ ! -f "$dll" ] || [ ! -f "$xml" ]; then
+            # Discover the build TFM at runtime instead of pinning
+            # net9.0. global.json controls the SDK feature band but
+            # not the project TFM, and a net10 upgrade should not
+            # require touching this workflow. Take the first .dll
+            # found under bin/Release/<tfm>/ for each project.
+            dll=$(find "${proj}/bin/Release" -maxdepth 2 \
+              -name "${proj}.dll" -type f 2>/dev/null | head -n 1)
+            xml="${dll%.dll}.xml"
+            if [ -z "$dll" ] || [ ! -f "$dll" ] || [ ! -f "$xml" ]; then
               echo "::error ::missing assembly or xml doc for $proj"
               missing=1
               continue
