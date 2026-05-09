@@ -152,15 +152,9 @@ jobs:
           fi
 
       - name: Write top-level index
-        # DefaultDocumentation emits one tree per assembly. Assemble
-        # a small README.mdx at the top of the api/ folder linking
-        # to each so a single nav entry can drive into all packages.
-        # Emit .mdx (not .md) because Mintlify's docs.json nav
-        # resolver only matches .mdx for page ids; without this,
-        # mint dev warns "is referenced in the docs.json navigation
-        # but the file does not exist". Submodule pages stay .md
-        # since they are linked from content (where both extensions
-        # resolve) rather than from nav.
+        # xmldocmd emits one tree per assembly. Assemble a small
+        # README.md at the top of the api/ folder linking to each
+        # so a single nav entry can drive into all packages.
         run: |
           {
             echo "# ResQ .NET SDK"
@@ -175,7 +169,7 @@ jobs:
                 echo "- [$proj]($proj/$proj)"
               fi
             done
-          } > "$OUTPUT_DIR/README.mdx"
+          } > "$OUTPUT_DIR/README.md"
 
       - name: Prefix bare-filename intra-page links with ./
         # Same pattern as the TypeScript template: Mintlify rejects
