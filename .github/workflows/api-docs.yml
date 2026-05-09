@@ -140,7 +140,8 @@ jobs:
             fi
             out="$OUTPUT_DIR/$proj"
             mkdir -p "$out"
-            DefaultDocumentation \
+            # Binary is lowercase (Linux is case-sensitive).
+            defaultdocumentation \
               --AssemblyFilePath "$dll" \
               --DocumentationFilePath "$xml" \
               --OutputDirectoryPath "$out"
