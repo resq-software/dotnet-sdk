@@ -9,6 +9,7 @@
         <PackageReference Include="Google.Protobuf" />
         <PackageReference Include="Grpc.Net.Client" />
         <PackageReference Include="Grpc.Tools" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" VersionOverride="8.0.3" />
     </ItemGroup>
 
     <ItemGroup>
