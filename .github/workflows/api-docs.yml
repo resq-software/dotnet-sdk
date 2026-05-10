@@ -535,7 +535,78 @@ jobs:
                   pages.append(to_mintlify(sub, dname))
               return pages if group_name is None else {"group": group_name, "pages": pages}
 
-          new_pages = [f"{PREFIX}/README"] + to_mintlify(tree, None)
+          # DefaultDocumentation flattens every type, ctor, property,
+          # and method as a sibling file under the namespace dir, with
+          # dotted names like `ResQ.Clients.AuthResponse.Token`. Group
+          # those by class so the sidebar reads
+          # `AuthResponse > Token / Type / ctor` rather than 76 flat
+          # siblings. The namespace overview itself (file named
+          # exactly `<namespace>`) is emitted first as a leaf.
+          # Mirrors scripts/splice-sdk-nav.py:_collapse_dotnet_classes
+          # in the docs repo so the workflow's splice produces the
+          # same result as a manual local re-splice.
+          def group_dotnet_namespace(prefix, namespace, file_ids):
+              members_by_class = {}
+              namespace_overview = None
+              for full_id in file_ids:
+                  fname = full_id.split("/")[-1]
+                  if fname == namespace:
+                      namespace_overview = full_id
+                      continue
+                  if not fname.startswith(namespace + "."):
+                      members_by_class.setdefault("__misc__", []).append(full_id)
+                      continue
+                  rest = fname[len(namespace) + 1:]
+                  class_name = rest.split(".")[0]
+                  members_by_class.setdefault(class_name, []).append(full_id)
+              pages = []
+              if namespace_overview:
+                  pages.append(namespace_overview)
+              for class_name in sorted(members_by_class):
+                  if class_name == "__misc__":
+                      continue
+                  members = sorted(members_by_class[class_name])
+                  class_page_id = f"{prefix}/{namespace}/{namespace}.{class_name}"
+                  if class_page_id in members:
+                      ordered = [class_page_id] + [m for m in members if m != class_page_id]
+                  else:
+                      ordered = members
+                  if len(ordered) == 1:
+                      pages.append(ordered[0])
+                  else:
+                      pages.append({"group": class_name, "pages": ordered})
+              if "__misc__" in members_by_class:
+                  pages.extend(sorted(members_by_class["__misc__"]))
+              return pages
+
+          def is_dotnet_namespace_dir(dirname, files):
+              # Heuristic: a .NET namespace dir contains files named
+              # `<dirname>.<rest>` or exactly `<dirname>`.
+              return all(
+                  f.endswith("/" + dirname) or f"/{dirname}." in f
+                  for f in files
+              )
+
+          def collapse_dotnet_classes(pages, prefix):
+              # For each top-level group whose name matches a .NET
+              # namespace pattern (contains `.` and the contained
+              # file IDs follow the dotted-name convention), replace
+              # its pages list with the class-grouped form.
+              out = []
+              for entry in pages:
+                  if isinstance(entry, dict) and "." in entry.get("group", ""):
+                      namespace = entry["group"]
+                      file_ids = [p for p in entry["pages"] if isinstance(p, str)]
+                      if file_ids and is_dotnet_namespace_dir(namespace, file_ids):
+                          regrouped = group_dotnet_namespace(prefix, namespace, file_ids)
+                          out.append({"group": namespace, "pages": regrouped})
+                          continue
+                  out.append(entry)
+              return out
+
+          rendered = to_mintlify(tree, None)
+          rendered = collapse_dotnet_classes(rendered, PREFIX)
+          new_pages = [f"{PREFIX}/README"] + rendered
 
           en = next(l for l in docs["navigation"]["languages"] if l["language"] == "en")
           sdks_tab = next(t for t in en["tabs"] if t["tab"] == "SDKs")
