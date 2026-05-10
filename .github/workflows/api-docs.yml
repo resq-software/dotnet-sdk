@@ -190,14 +190,20 @@ jobs:
               # .csproj files are usually <ProjectName>/<ProjectName>.csproj
               # but DefaultDocumentation expects the assembly name as the
               # output dir, so search for a .csproj matching the project.
+              # Some projects have multiple matching .csproj files (e.g.
+              # both `<Proj>/<Proj>.csproj` and
+              # `packages/<Proj>/<Proj>.csproj`); only the packaging
+              # variant has <Version>. Scan all candidates and return
+              # the first one that yields a real version, so we don't
+              # show "unknown" just because the first match happens
+              # to be the bare assembly project.
               candidates = list(pathlib.Path(".").rglob(f"{proj}.csproj"))
-              if not candidates:
-                  return "unknown"
-              text = candidates[0].read_text(encoding="utf-8")
-              for tag in ("Version", "VersionPrefix"):
-                  m = re.search(rf"<{tag}>([^<]+)</{tag}>", text)
-                  if m:
-                      return m.group(1).strip()
+              for cand in candidates:
+                  text = cand.read_text(encoding="utf-8")
+                  for tag in ("Version", "VersionPrefix"):
+                      m = re.search(rf"<{tag}>([^<]+)</{tag}>", text)
+                      if m:
+                          return m.group(1).strip()
               return "unknown"
 
           print("# ResQ .NET SDK")
