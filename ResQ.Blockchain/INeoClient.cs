@@ -362,10 +362,13 @@ public interface INeoClient
     /// <code>
     /// var height = await neoClient.GetBlockHeightAsync();
     /// Console.WriteLine($"Current block: {height}");
-    /// 
-    /// // Check if a transaction is confirmed (6+ blocks)
-    /// var txBlockHeight = result.BlockHeight;
-    /// if (height - txBlockHeight >= 6)
+    ///
+    /// // Check if a transaction is confirmed (6+ blocks past its inclusion).
+    /// // Use addition rather than subtraction: both operands are ulong, so
+    /// // `height - txBlockHeight` underflows to ~ulong.MaxValue when height
+    /// // briefly trails (stale RPC, reorgs) and falsely reports finalized.
+    /// ulong txBlockHeight = 12345; // captured from a prior RecordEventAsync
+    /// if (height >= txBlockHeight + 6)
     /// {
     ///     Console.WriteLine("Transaction is finalized");
     /// }

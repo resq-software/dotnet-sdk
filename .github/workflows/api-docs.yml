@@ -1,0 +1,666 @@
+# Copyright 2026 ResQ Software
+# SPDX-License-Identifier: Apache-2.0
+#
+# Source-of-truth template lives in resq-software/docs:
+#   automation/source-repo-templates/api-docs.dotnet.yml
+#
+# Copy this file to resq-software/dotnet-sdk at:
+#   .github/workflows/api-docs.yml
+#
+# Renders Markdown API reference for every IsPackable project in
+# the solution and opens a PR in resq-software/docs with generated
+# content under sdks/dotnet/api/.
+#
+# Pipeline:
+#   1. dotnet build -c Release -p:GenerateDocumentationFile=true
+#   2. DefaultDocumentation <project>.dll + .xml  ->  Markdown tree
+#   3. Mintlify-safety post-processing (./ prefix on bare links;
+#      MDX curly-brace escape outside code regions)
+#   4. peter-evans/create-pull-request opens a PR in the docs repo
+
+name: api-docs
+
+on:
+  push:
+    # dotnet-sdk uses bare semver tags (v0.6.0, v0.5.1, ...).
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Source ref to document (defaults to current ref)'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  # Each run force-pushes the same auto/dotnet-api-<ref> branch in
+  # the docs repo. Cancel any earlier run still in flight so we do
+  # not race on that push.
+  group: api-docs-${{ inputs.ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    env:
+      SOLUTION: ResQ.Sdk.sln
+      OUTPUT_DIR: generated-docs
+      DOCS_TARGET: sdks/dotnet/api
+      # Public, packable projects to document. Keep this list in
+      # sync with <IsPackable>true</IsPackable> in the .csproj
+      # files; tests and internal helpers should NOT be listed.
+      PUBLIC_PROJECTS: >-
+        ResQ.Clients
+        ResQ.Core
+        ResQ.Protocols
+        ResQ.Blockchain
+        ResQ.Storage
+        ResQ.Simulation
+
+    steps:
+      - name: Resolve ref metadata
+        # Single source of truth for the ref this run documents.
+        # workflow_dispatch can pass an alternate ref via inputs.ref;
+        # fall back to github.ref_name (already stripped of refs/...).
+        # DOCS_REF_SLUG is branch-safe for use in PR/branch names.
+        #
+        # The ref is routed through env: instead of being inlined via
+        # ${{ }}. Inlining at template-expansion time would interpolate
+        # the raw string into the shell literal, so a tag name with a
+        # single quote (Git allows it) could break out of the quoted
+        # context. Env indirection keeps user-controlled data on the
+        # variable side of the shell parser, where it cannot escape.
+        env:
+          REF_RAW: ${{ inputs.ref || github.ref_name }}
+        run: |
+          raw="$REF_RAW"
+          raw="${raw#refs/tags/}"
+          raw="${raw#refs/heads/}"
+          slug="${raw//\//-}"
+          echo "DOCS_REF_NAME=$raw" >> "$GITHUB_ENV"
+          echo "DOCS_REF_SLUG=$slug" >> "$GITHUB_ENV"
+
+      - name: Checkout source repo
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ inputs.ref || github.ref }}
+          persist-credentials: false
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@3e891b0cb619bf60e2c25674b222b8940e2c1c25 # v4.1.0
+        with:
+          # global.json pins the SDK feature band; this just makes
+          # sure something compatible is installed before restore.
+          global-json-file: global.json
+
+      - name: Restore
+        run: dotnet restore "$SOLUTION"
+
+      - name: Build (Release, with XML doc files)
+        run: |
+          dotnet build "$SOLUTION" \
+            --configuration Release \
+            --no-restore \
+            -p:GenerateDocumentationFile=true \
+            -p:NoWarn=CS1591
+
+      - name: Install DefaultDocumentation
+        # We use DefaultDocumentation.Console rather than xmldocmd
+        # because xmldocmd loads assemblies via MetadataLoadContext,
+        # which scans the target's directory for transitive
+        # dependencies. .NET 9 class library output does not include
+        # System.Runtime contract DLLs in bin/ or even publish/, so
+        # xmldocmd hits FileNotFoundException on every assembly.
+        # DefaultDocumentation reads with Mono.Cecil, which parses
+        # the assembly bytes directly without resolving against a
+        # runtime, so cross-version reads just work.
+        run: dotnet tool install -g DefaultDocumentation.Console
+
+      - name: Generate per-project Markdown
+        # DefaultDocumentation reads <Project>.dll + <Project>.xml
+        # and emits Markdown into the output dir. Each package goes
+        # in its own subdirectory so the docs site can surface them
+        # as siblings under sdks/dotnet/api/.
+        run: |
+          set -euo pipefail
+          export PATH="$PATH:$HOME/.dotnet/tools"
+          rm -rf "$OUTPUT_DIR"
+          mkdir -p "$OUTPUT_DIR"
+          missing=0
+          generated=0
+          for proj in $PUBLIC_PROJECTS; do
+            # Discover the build TFM at runtime instead of pinning
+            # net9.0. global.json controls the SDK feature band but
+            # not the project TFM, and a net10 upgrade should not
+            # require touching this workflow. Take the first .dll
+            # found under bin/Release/<tfm>/ for each project.
+            dll=$(find "${proj}/bin/Release" -maxdepth 2 \
+              -name "${proj}.dll" -type f 2>/dev/null | head -n 1)
+            xml="${dll%.dll}.xml"
+            if [ -z "$dll" ] || [ ! -f "$dll" ] || [ ! -f "$xml" ]; then
+              echo "::error ::missing assembly or xml doc for $proj"
+              missing=1
+              continue
+            fi
+            out="$OUTPUT_DIR/$proj"
+            mkdir -p "$out"
+            # Binary is lowercase on Linux (case-sensitive filesystem);
+            # the dotnet tool installer prints
+            #   "You can invoke the tool using the following command:
+            #    defaultdocumentation"
+            defaultdocumentation \
+              --AssemblyFilePath "$dll" \
+              --DocumentationFilePath "$xml" \
+              --OutputDirectoryPath "$out"
+            generated=$((generated + 1))
+          done
+          if [ "$missing" -ne 0 ] || [ "$generated" -eq 0 ]; then
+            echo "::error ::aborting to avoid syncing partial/empty docs output"
+            exit 1
+          fi
+
+      - name: Write top-level index
+        # DefaultDocumentation emits one tree per assembly. Assemble
+        # a small README.mdx at the top of the api/ folder listing
+        # the available packages with their pinned versions.
+        #
+        # Emit .mdx (not .md) because Mintlify's docs.json nav
+        # resolver only matches .mdx for page ids; without this,
+        # mint dev returns 404 on the registered page.
+        #
+        # Package names are emitted as plain backticked text rather
+        # than hyperlinks because cross-page links from a .mdx
+        # parent require nav registration in Mintlify (the bare
+        # filename / extensionless-page link form that works in .md
+        # parents fails broken-links validation when the parent is
+        # .mdx). Users navigate to per-package pages via the URL bar
+        # or future programmatic _pages.json nav splice.
+        #
+        # Version next to each project is read from <Version> /
+        # <VersionPrefix> in the .csproj. Falls back to "unknown" so
+        # missing tags don't break the doc build.
+        run: |
+          python3 - <<'PY' > "$OUTPUT_DIR/README.mdx"
+          import os
+          import pathlib
+          import re
+
+          ref_name = os.environ.get("DOCS_REF_NAME", "main")
+          repo = os.environ.get("GITHUB_REPOSITORY", "")
+          output_dir = pathlib.Path(os.environ["OUTPUT_DIR"])
+          projects = (os.environ.get("PUBLIC_PROJECTS") or "").split()
+
+          def read_version(proj: str) -> str:
+              # .csproj files are usually <ProjectName>/<ProjectName>.csproj
+              # but DefaultDocumentation expects the assembly name as the
+              # output dir, so search for a .csproj matching the project.
+              # Some projects have multiple matching .csproj files (e.g.
+              # both `<Proj>/<Proj>.csproj` and
+              # `packages/<Proj>/<Proj>.csproj`); only the packaging
+              # variant has <Version>. Scan all candidates and return
+              # the first one that yields a real version, so we don't
+              # show "unknown" just because the first match happens
+              # to be the bare assembly project.
+              candidates = list(pathlib.Path(".").rglob(f"{proj}.csproj"))
+              for cand in candidates:
+                  text = cand.read_text(encoding="utf-8")
+                  for tag in ("Version", "VersionPrefix"):
+                      m = re.search(rf"<{tag}>([^<]+)</{tag}>", text)
+                      if m:
+                          return m.group(1).strip()
+              return "unknown"
+
+          print("# ResQ .NET SDK")
+          print()
+          print(
+              f"Auto-generated reference for "
+              f"[`{repo}`](https://github.com/{repo}) "
+              f"at ref `{ref_name}`."
+          )
+          print()
+          print("## Packages")
+          print()
+          for proj in projects:
+              if not (output_dir / proj).is_dir():
+                  continue
+              version = read_version(proj)
+              print(f"- `{proj}` — `v{version}`")
+          PY
+
+      - name: Drop hash from constructor filenames + references
+        # DefaultDocumentation names constructor pages after the IL
+        # convention, e.g. `ResQ.Foo.#ctor.md`. Mintlify's URL
+        # resolver splits a link target at the first `#`, so a
+        # reference like `Foo.#ctor.md#Foo.Foo(string)` parses as
+        # path=`Foo.` (does not exist) and fragment=`ctor.md#...`.
+        # Rename the files (drop the leading hash) and rewrite all
+        # in-content references in one pass so subsequent steps see
+        # consistent paths.
+        working-directory: ${{ env.OUTPUT_DIR }}
+        run: |
+          set -euo pipefail
+          find . -type f -name '*.#ctor.md' -print0 | while IFS= read -r -d '' f; do
+            mv "$f" "${f//.#ctor.md/.ctor.md}"
+          done
+          find . -type f -name '*.md' -print0 | while IFS= read -r -d '' f; do
+            sed -i 's|\.#ctor\.md|.ctor.md|g' "$f"
+          done
+
+      - name: Strip ctor.md# prefix from constructor anchors
+        # DefaultDocumentation's `*.#ctor.md` pages have anchor
+        # declarations like
+        #   <a name='ctor.md#ResQ.Sim.Foo.Foo(string,int)'></a>
+        # The matching link fragments in overload tables point at
+        # the bare anchor name (without `ctor.md#` prefix), so the
+        # in-page jumps go to the top of the page rather than the
+        # right constructor section. Strip that prefix from the
+        # anchor declarations.
+        working-directory: ${{ env.OUTPUT_DIR }}
+        run: |
+          find . -type f -name '*.md' -print0 | while IFS= read -r -d '' f; do
+            sed -i "s|<a name='ctor\\.md#|<a name='|g" "$f"
+          done
+
+      - name: Add sidebarTitle frontmatter (short Mintlify nav labels)
+        # DefaultDocumentation page filenames are fully qualified
+        # like `ResQ.Blockchain.INeoClient.RecordEvidenceAsync(ResQ.Blockchain.EvidenceRecord,System.Threading.CancellationToken).md`.
+        # Mintlify uses the page id's last segment as the sidebar
+        # label by default, which produces 100+ char entries that
+        # blow out the sidebar width. Compute a short label
+        # (member name + simplified parameter type list) and write
+        # it into each page as `sidebarTitle:` frontmatter so the
+        # sidebar shows readable names. The full URL still resolves
+        # and the page body still renders the qualified context.
+        working-directory: ${{ env.OUTPUT_DIR }}
+        run: |
+          python3 - <<'PY'
+          import pathlib
+
+          def short_name(stem: str) -> str:
+              paren = stem.find("(")
+              if paren == -1:
+                  return stem.rsplit(".", 1)[-1]
+              pre = stem[:paren]
+              last_dot = pre.rfind(".")
+              member = stem[last_dot + 1:]
+              name, _, args = member.partition("(")
+              args = args.rstrip(")")
+              if not args:
+                  return f"{name}()"
+              return f"{name}({', '.join(a.split('.')[-1] for a in args.split(','))})"
+
+          def yaml_quote(s: str) -> str:
+              return "'" + s.replace("'", "''") + "'"
+
+          count = 0
+          for md in pathlib.Path(".").rglob("*.md"):
+              if md.name == "README.md":
+                  continue
+              text = md.read_text(encoding="utf-8")
+              if text.startswith("---\n"):
+                  continue
+              title = short_name(md.stem)
+              md.write_text(
+                  f"---\nsidebarTitle: {yaml_quote(title)}\n---\n\n{text}",
+                  encoding="utf-8",
+              )
+              count += 1
+          print(f"  added sidebarTitle frontmatter to {count} files")
+          PY
+
+      - name: Prefix bare-filename intra-page links with ./
+        # Mintlify rejects bare-filename .md links as broken;
+        # prefixing with ./ makes the resolver treat them as
+        # relative paths.
+        #
+        # Cannot use a plain sed regex here because DefaultDocumentation
+        # output diverges from the simple `[text](path.md)` form on two
+        # axes:
+        #   1. Link titles: `[text](path.md 'qualified.Type')` —
+        #      sed regex expects `)` immediately after `.md`.
+        #   2. Method-overload pages have parens in the filename, e.g.
+        #      `Foo.Bar(string,int).md` — character classes that exclude
+        #      `)` reject these outright.
+        # A paren-balanced Python walker handles both shapes; sed cannot
+        # without per-character state.
+        working-directory: ${{ env.OUTPUT_DIR }}
+        run: |
+          python3 - <<'PY'
+          import pathlib
+
+          def is_external(u: str) -> bool:
+              return u.startswith((
+                  "http://", "https://", "mailto:", "/", "#", "./", "../",
+              ))
+
+          def transform_inline(line: str) -> str:
+              out, i, n = [], 0, len(line)
+              while i < n:
+                  j = line.find("](", i)
+                  if j == -1:
+                      out.append(line[i:])
+                      break
+                  out.append(line[i:j+2])
+                  i = j + 2
+                  # Walk URL: paren-balanced, ends at depth-0 ) or whitespace
+                  depth, url_end, scan = 0, -1, i
+                  while scan < n:
+                      c = line[scan]
+                      if c == "(":
+                          depth += 1
+                      elif c == ")":
+                          if depth == 0:
+                              url_end = scan
+                              break
+                          depth -= 1
+                      elif c.isspace() and depth == 0:
+                          url_end = scan
+                          break
+                      scan += 1
+                  if url_end == -1:
+                      out.append(line[i:])
+                      break
+                  url = line[i:url_end]
+                  # Find matching outer ), tracking quote/depth for titles
+                  scan = url_end
+                  in_quote, depth = None, 0
+                  while scan < n:
+                      c = line[scan]
+                      if in_quote:
+                          if c == in_quote:
+                              in_quote = None
+                          scan += 1
+                          continue
+                      if c in ("'", '"'):
+                          in_quote = c
+                          scan += 1
+                          continue
+                      if c == "(":
+                          depth += 1
+                      elif c == ")":
+                          if depth == 0:
+                              break
+                          depth -= 1
+                      scan += 1
+                  if scan >= n:
+                      out.append(line[i:])
+                      break
+                  rest = line[url_end:scan]
+                  url_no_anchor = url.partition("#")[0]
+                  if url and not is_external(url) and url_no_anchor.endswith(".md"):
+                      url = "./" + url
+                  out.append(url)
+                  out.append(rest)
+                  out.append(")")
+                  i = scan + 1
+              return "".join(out)
+
+          def transform(text: str) -> str:
+              out, in_fence = [], False
+              for raw in text.splitlines(keepends=True):
+                  if raw.endswith("\r\n"):
+                      line, eol = raw[:-2], "\r\n"
+                  elif raw.endswith("\n"):
+                      line, eol = raw[:-1], "\n"
+                  else:
+                      line, eol = raw, ""
+                  s = line.lstrip()
+                  if s.startswith("```") or s.startswith("~~~"):
+                      in_fence = not in_fence
+                      out.append(line); out.append(eol); continue
+                  if in_fence:
+                      out.append(line); out.append(eol); continue
+                  out.append(transform_inline(line))
+                  out.append(eol)
+              return "".join(out)
+
+          for p in pathlib.Path(".").rglob("*.md"):
+              orig = p.read_text(encoding="utf-8")
+              new = transform(orig)
+              if new != orig:
+                  p.write_text(new, encoding="utf-8")
+          PY
+
+      - name: Escape curly braces outside code regions (MDX safety)
+        # Mintlify parses .md as MDX. Any literal `{ ... }` in prose
+        # is interpreted as a JSX expression and trips the
+        # broken-links check. Awk tracks both triple-backtick fences
+        # and single-backtick inline spans, and rewrites curly
+        # braces to HTML entities only on prose outside any code
+        # region.
+        working-directory: ${{ env.OUTPUT_DIR }}
+        run: |
+          find . -type f -name '*.md' -print0 | while IFS= read -r -d '' f; do
+            awk '
+              BEGIN { in_fence = 0 }
+              /^```/ { in_fence = !in_fence; print; next }
+              {
+                if (in_fence) { print; next }
+                out = ""
+                in_inline_code = 0
+                n = length($0)
+                for (i = 1; i <= n; i++) {
+                  c = substr($0, i, 1)
+                  if (c == "`") {
+                    in_inline_code = !in_inline_code
+                    out = out c
+                  } else if (!in_inline_code && c == "{") {
+                    out = out "&#123;"
+                  } else if (!in_inline_code && c == "}") {
+                    out = out "&#125;"
+                  } else {
+                    out = out c
+                  }
+                }
+                print out
+              }
+            ' "$f" > "$f.tmp" && mv "$f.tmp" "$f"
+          done
+
+      - name: Build pages index
+        # Flat JSON array of generated Markdown paths (without
+        # extension) so the docs repo can later splice them into
+        # docs.json automatically.
+        working-directory: ${{ env.OUTPUT_DIR }}
+        run: |
+          find . -name '*.md' -type f \
+            | sed 's|^\./||; s|\.md$||' \
+            | sort > _pages.txt
+          jq -R -s 'split("\n") | map(select(length > 0))' _pages.txt > _pages.json
+          rm _pages.txt
+
+      - name: Checkout docs repo
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          repository: resq-software/docs
+          path: docs-checkout
+          token: ${{ secrets.DOCS_REPO_PR_TOKEN }}
+          # peter-evans/create-pull-request also sets an
+          # Authorization extraheader; persisting credentials here
+          # produces a "Duplicate header: Authorization" 400.
+          persist-credentials: false
+
+      - name: Sync generated Markdown into docs checkout
+        run: |
+          target="docs-checkout/${DOCS_TARGET}"
+          mkdir -p "$target"
+          rm -rf "${target:?}"/*
+          cp -R "${OUTPUT_DIR}/." "$target/"
+
+      - name: Splice _pages.json into docs.json nav
+        # Mintlify only routes pages registered in docs.json. The
+        # _pages.json artifact lists every generated Markdown path;
+        # rewrite the matching language sub-group under the
+        # 'Generated Package References' group so all pages are
+        # discoverable, in-content cross-links resolve, and direct
+        # URLs work.
+        working-directory: docs-checkout
+        run: |
+          python3 - <<'PYINNER'
+          import json
+          import pathlib
+
+          PREFIX = "sdks/dotnet/api"
+          LANG_LABEL = ".NET"
+
+          docs_path = pathlib.Path("docs.json")
+          docs = json.loads(docs_path.read_text())
+          pages_path = pathlib.Path(PREFIX) / "_pages.json"
+          if not pages_path.exists():
+              raise SystemExit(f"missing {pages_path}")
+          raw = json.loads(pages_path.read_text())
+
+          # Build hierarchical groups by path segments. Each
+          # `<dir>/README` becomes the dir's group entry rather than
+          # a duplicate leaf.
+          tree: dict = {}
+
+          def insert(node, parts, full_id):
+              if len(parts) == 1:
+                  node.setdefault("_files", []).append((parts[0], full_id))
+                  return
+              head, *rest = parts
+              insert(node.setdefault("_dirs", {}).setdefault(head, {}), rest, full_id)
+
+          for p in raw:
+              if p == "README":
+                  continue
+              # Mintlify auto-redirects `/path/README` to `/path`, so
+              # register the directory form (page id without trailing
+              # /README). Files that don't end in /README keep their
+              # path verbatim.
+              if p.endswith("/README"):
+                  full_id = f"{PREFIX}/{p[: -len('/README')]}"
+                  parts = full_id[len(PREFIX) + 1:].split("/")
+              else:
+                  full_id = f"{PREFIX}/{p}"
+                  parts = p.split("/")
+              insert(tree, parts, full_id)
+
+          def to_mintlify(node, group_name):
+              pages = []
+              for fname, full_id in sorted(node.get("_files", [])):
+                  pages.append(full_id)
+              for dname, sub in sorted(node.get("_dirs", {}).items()):
+                  pages.append(to_mintlify(sub, dname))
+              return pages if group_name is None else {"group": group_name, "pages": pages}
+
+          # DefaultDocumentation flattens every type, ctor, property,
+          # and method as a sibling file under the namespace dir, with
+          # dotted names like `ResQ.Clients.AuthResponse.Token`. Group
+          # those by class so the sidebar reads
+          # `AuthResponse > Token / Type / ctor` rather than 76 flat
+          # siblings. The namespace overview itself (file named
+          # exactly `<namespace>`) is emitted first as a leaf.
+          # Mirrors scripts/splice-sdk-nav.py:_collapse_dotnet_classes
+          # in the docs repo so the workflow's splice produces the
+          # same result as a manual local re-splice.
+          def group_dotnet_namespace(prefix, namespace, file_ids):
+              members_by_class = {}
+              namespace_overview = None
+              for full_id in file_ids:
+                  fname = full_id.split("/")[-1]
+                  if fname == namespace:
+                      namespace_overview = full_id
+                      continue
+                  if not fname.startswith(namespace + "."):
+                      members_by_class.setdefault("__misc__", []).append(full_id)
+                      continue
+                  rest = fname[len(namespace) + 1:]
+                  class_name = rest.split(".")[0]
+                  members_by_class.setdefault(class_name, []).append(full_id)
+              pages = []
+              if namespace_overview:
+                  pages.append(namespace_overview)
+              for class_name in sorted(members_by_class):
+                  if class_name == "__misc__":
+                      continue
+                  members = sorted(members_by_class[class_name])
+                  class_page_id = f"{prefix}/{namespace}/{namespace}.{class_name}"
+                  if class_page_id in members:
+                      ordered = [class_page_id] + [m for m in members if m != class_page_id]
+                  else:
+                      ordered = members
+                  if len(ordered) == 1:
+                      pages.append(ordered[0])
+                  else:
+                      pages.append({"group": class_name, "pages": ordered})
+              if "__misc__" in members_by_class:
+                  pages.extend(sorted(members_by_class["__misc__"]))
+              return pages
+
+          def is_dotnet_namespace_dir(dirname, files):
+              # Heuristic: a .NET namespace dir contains files named
+              # `<dirname>.<rest>` or exactly `<dirname>`.
+              return all(
+                  f.endswith("/" + dirname) or f"/{dirname}." in f
+                  for f in files
+              )
+
+          def collapse_dotnet_classes(pages, prefix):
+              # For each top-level group whose name matches a .NET
+              # namespace pattern (contains `.` and the contained
+              # file IDs follow the dotted-name convention), replace
+              # its pages list with the class-grouped form.
+              out = []
+              for entry in pages:
+                  if isinstance(entry, dict) and "." in entry.get("group", ""):
+                      namespace = entry["group"]
+                      file_ids = [p for p in entry["pages"] if isinstance(p, str)]
+                      if file_ids and is_dotnet_namespace_dir(namespace, file_ids):
+                          regrouped = group_dotnet_namespace(prefix, namespace, file_ids)
+                          out.append({"group": namespace, "pages": regrouped})
+                          continue
+                  out.append(entry)
+              return out
+
+          rendered = to_mintlify(tree, None)
+          rendered = collapse_dotnet_classes(rendered, PREFIX)
+          new_pages = [f"{PREFIX}/README"] + rendered
+
+          en = next(l for l in docs["navigation"]["languages"] if l["language"] == "en")
+          sdks_tab = next(t for t in en["tabs"] if t["tab"] == "SDKs")
+          gen_group = next(g for g in sdks_tab["groups"] if g["group"] == "Generated Package References")
+          for sub in gen_group["pages"]:
+              if isinstance(sub, dict) and sub.get("group") == LANG_LABEL:
+                  sub["pages"] = new_pages
+                  break
+          else:
+              gen_group["pages"].append({"group": LANG_LABEL, "pages": new_pages})
+
+          docs_path.write_text(json.dumps(docs, indent=2, ensure_ascii=False))
+          print(f"Updated {LANG_LABEL} sub-group with {len(raw)} pages")
+          PYINNER
+
+      - name: Open PR in docs repo
+        uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7.0.8
+        with:
+          path: docs-checkout
+          token: ${{ secrets.DOCS_REPO_PR_TOKEN }}
+          author: 'resq-sw <engineer@resq.software>'
+          committer: 'resq-sw <engineer@resq.software>'
+          commit-message: |
+            docs(dotnet): sync API reference for ${{ env.DOCS_REF_NAME }}
+          title: 'docs(dotnet): API reference ${{ env.DOCS_REF_NAME }}'
+          body: |
+            Auto-generated by `${{ github.workflow }}` in
+            `${{ github.repository }}` for ref `${{ env.DOCS_REF_NAME }}`
+            (run: ${{ github.run_id }}).
+
+            Regenerated files under `sdks/dotnet/api/`. Review the
+            diff for unintended exports and merge to publish.
+          branch: auto/dotnet-api-${{ env.DOCS_REF_SLUG }}
+          base: main
+          delete-branch: true
+          add-paths: |
+            sdks/dotnet/api/**
+            docs.json
+          labels: |
+            automated
+            docs:api-ref
+            language:dotnet

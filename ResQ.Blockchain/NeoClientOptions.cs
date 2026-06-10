@@ -64,10 +64,10 @@ public class NeoClientOptions
     /// <summary>
     /// Gets or sets the Neo N3 RPC endpoint URL.
     /// </summary>
-    /// <value>The RPC endpoint URL. Default is "http://localhost:10332".</value>
+    /// <value>The RPC endpoint URL. Default is <c>"http://localhost:10332"</c>.</value>
     /// <remarks>
     /// This should point to a Neo N3 RPC node. For testnet, use a public endpoint like
-    /// "https://testnet1.neo.coz.io:443". For mainnet, use a reliable node provider.
+    /// <c>"https://testnet1.neo.coz.io:443"</c>. For mainnet, use a reliable node provider.
     /// </remarks>
     /// <example>
     /// <code>
