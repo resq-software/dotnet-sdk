@@ -9,6 +9,7 @@
     <PackageReference Include="Neo" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
     <PackageReference Include="Microsoft.Extensions.Options" />
+  <PackageReference Include="System.Text.Json" VersionOverride="9.0.15" />
   </ItemGroup>
 
 </Project>
