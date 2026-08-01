@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>ResQ.Blockchain</id>
+    <version>0.1.0</version>
+    <authors>ResQ Software</authors>
+    <license type="expression">Apache-2.0</license>
+    <licenseUrl>https://licenses.nuget.org/Apache-2.0</licenseUrl>
+    <readme>NUGET_README.md</readme>
+    <projectUrl>https://github.com/resq-software/dotnet-sdk</projectUrl>
+    <description>ResQ blockchain integration — Neo N3 client and mock for development</description>
+    <copyright>Copyright (c) 2026 ResQ</copyright>
+    <tags>resq drone blockchain neo disaster-response</tags>
+    <repository type="git" url="https://github.com/resq-software/dotnet-sdk" commit="4d54225d699dbf1daa43226c84c54305060a202f" />
+    <dependencies>
+      <group targetFramework="net9.0">
+        <dependency id="Microsoft.Extensions.Logging.Abstractions" version="10.0.7" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Options" version="10.0.7" exclude="Build,Analyzers" />
+        <dependency id="Neo" version="3.8.2" exclude="Build,Analyzers" />
+        <dependency id="System.Text.Json" version="9.0.15" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="/tmp/tmp.6MiWRroken/ResQ.Blockchain/bin/Release/net9.0/ResQ.Blockchain.dll" target="lib/net9.0/ResQ.Blockchain.dll" />
+    <file src="/tmp/tmp.6MiWRroken/NUGET_README.md" target="/NUGET_README.md" />
+  </files>
+</package>

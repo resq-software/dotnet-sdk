@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>ResQ.Simulation</id>
+    <version>0.1.0</version>
+    <authors>ResQ Software</authors>
+    <license type="expression">Apache-2.0</license>
+    <licenseUrl>https://licenses.nuget.org/Apache-2.0</licenseUrl>
+    <readme>NUGET_README.md</readme>
+    <projectUrl>https://github.com/resq-software/dotnet-sdk</projectUrl>
+    <description>ResQ simulation harness — virtual drone and scenario runner</description>
+    <copyright>Copyright (c) 2026 ResQ</copyright>
+    <tags>resq drone simulation testing disaster-response</tags>
+    <repository type="git" url="https://github.com/resq-software/dotnet-sdk" commit="4d54225d699dbf1daa43226c84c54305060a202f" />
+    <dependencies>
+      <group targetFramework="net9.0">
+        <dependency id="ResQ.Clients" version="0.1.0" exclude="Build,Analyzers" />
+        <dependency id="ResQ.Core" version="0.1.0" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="/tmp/tmp.6MiWRroken/ResQ.Simulation/bin/Release/net9.0/ResQ.Simulation.dll" target="lib/net9.0/ResQ.Simulation.dll" />
+    <file src="/tmp/tmp.6MiWRroken/NUGET_README.md" target="/NUGET_README.md" />
+  </files>
+</package>

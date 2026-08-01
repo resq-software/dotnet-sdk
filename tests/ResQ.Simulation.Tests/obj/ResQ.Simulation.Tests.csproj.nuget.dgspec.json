@@ -1,0 +1,418 @@
+{
+  "format": 1,
+  "restore": {
+    "/tmp/tmp.6MiWRroken/tests/ResQ.Simulation.Tests/ResQ.Simulation.Tests.csproj": {}
+  },
+  "projects": {
+    "/tmp/tmp.6MiWRroken/ResQ.Clients/ResQ.Clients.csproj": {
+      "version": "0.1.0",
+      "restore": {
+        "projectUniqueName": "/tmp/tmp.6MiWRroken/ResQ.Clients/ResQ.Clients.csproj",
+        "projectName": "ResQ.Clients",
+        "projectPath": "/tmp/tmp.6MiWRroken/ResQ.Clients/ResQ.Clients.csproj",
+        "packagesPath": "/home/wombocombo/.nuget/packages/",
+        "outputPath": "/tmp/tmp.6MiWRroken/ResQ.Clients/obj/",
+        "projectStyle": "PackageReference",
+        "centralPackageVersionsManagementEnabled": true,
+        "configFilePaths": [
+          "/home/wombocombo/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0": {
+            "targetAlias": "net9.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "moderate",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
+      },
+      "frameworks": {
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "dependencies": {
+            "Microsoft.Extensions.Http": {
+              "target": "Package",
+              "version": "[10.0.7, )",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.Extensions.Http.Polly": {
+              "target": "Package",
+              "version": "[10.0.7, )",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.Extensions.Logging.Abstractions": {
+              "target": "Package",
+              "version": "[10.0.7, )",
+              "versionCentrallyManaged": true
+            },
+            "Polly": {
+              "target": "Package",
+              "version": "[8.6.6, )",
+              "versionCentrallyManaged": true
+            },
+            "Polly.Extensions.Http": {
+              "target": "Package",
+              "version": "[3.0.0, )",
+              "versionCentrallyManaged": true
+            }
+          },
+          "centralPackageVersions": {
+            "coverlet.collector": "8.0.1",
+            "DotNetEnv": "3.1.1",
+            "FluentAssertions": "8.9.0",
+            "FluentValidation": "11.12.0",
+            "Google.Protobuf": "3.34.1",
+            "Grpc.Net.Client": "2.80.0",
+            "Grpc.Tools": "2.80.0",
+            "Microsoft.Extensions.Http": "10.0.7",
+            "Microsoft.Extensions.Http.Polly": "10.0.7",
+            "Microsoft.Extensions.Logging.Abstractions": "10.0.7",
+            "Microsoft.Extensions.Options": "10.0.7",
+            "Microsoft.NET.Test.Sdk": "17.14.1",
+            "Moq": "4.20.72",
+            "Neo": "3.8.2",
+            "Newtonsoft.Json": "13.0.3",
+            "Pinata.Client": "2.0.0",
+            "Polly": "8.6.6",
+            "Polly.Extensions.Http": "3.0.0",
+            "RichardSzalay.MockHttp": "7.0.0",
+            "System.Text.Json": "9.0.15",
+            "xunit": "2.9.3",
+            "xunit.runner.visualstudio": "3.1.5"
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/home/wombocombo/.dotnet/sdk/9.0.313/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/tmp/tmp.6MiWRroken/ResQ.Core/ResQ.Core.csproj": {
+      "version": "0.1.0",
+      "restore": {
+        "projectUniqueName": "/tmp/tmp.6MiWRroken/ResQ.Core/ResQ.Core.csproj",
+        "projectName": "ResQ.Core",
+        "projectPath": "/tmp/tmp.6MiWRroken/ResQ.Core/ResQ.Core.csproj",
+        "packagesPath": "/home/wombocombo/.nuget/packages/",
+        "outputPath": "/tmp/tmp.6MiWRroken/ResQ.Core/obj/",
+        "projectStyle": "PackageReference",
+        "centralPackageVersionsManagementEnabled": true,
+        "configFilePaths": [
+          "/home/wombocombo/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0": {
+            "targetAlias": "net9.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "moderate",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
+      },
+      "frameworks": {
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "centralPackageVersions": {
+            "coverlet.collector": "8.0.1",
+            "DotNetEnv": "3.1.1",
+            "FluentAssertions": "8.9.0",
+            "FluentValidation": "11.12.0",
+            "Google.Protobuf": "3.34.1",
+            "Grpc.Net.Client": "2.80.0",
+            "Grpc.Tools": "2.80.0",
+            "Microsoft.Extensions.Http": "10.0.7",
+            "Microsoft.Extensions.Http.Polly": "10.0.7",
+            "Microsoft.Extensions.Logging.Abstractions": "10.0.7",
+            "Microsoft.Extensions.Options": "10.0.7",
+            "Microsoft.NET.Test.Sdk": "17.14.1",
+            "Moq": "4.20.72",
+            "Neo": "3.8.2",
+            "Newtonsoft.Json": "13.0.3",
+            "Pinata.Client": "2.0.0",
+            "Polly": "8.6.6",
+            "Polly.Extensions.Http": "3.0.0",
+            "RichardSzalay.MockHttp": "7.0.0",
+            "System.Text.Json": "9.0.15",
+            "xunit": "2.9.3",
+            "xunit.runner.visualstudio": "3.1.5"
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/home/wombocombo/.dotnet/sdk/9.0.313/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/tmp/tmp.6MiWRroken/ResQ.Simulation/ResQ.Simulation.csproj": {
+      "version": "0.1.0",
+      "restore": {
+        "projectUniqueName": "/tmp/tmp.6MiWRroken/ResQ.Simulation/ResQ.Simulation.csproj",
+        "projectName": "ResQ.Simulation",
+        "projectPath": "/tmp/tmp.6MiWRroken/ResQ.Simulation/ResQ.Simulation.csproj",
+        "packagesPath": "/home/wombocombo/.nuget/packages/",
+        "outputPath": "/tmp/tmp.6MiWRroken/ResQ.Simulation/obj/",
+        "projectStyle": "PackageReference",
+        "centralPackageVersionsManagementEnabled": true,
+        "configFilePaths": [
+          "/home/wombocombo/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0": {
+            "targetAlias": "net9.0",
+            "projectReferences": {
+              "/tmp/tmp.6MiWRroken/ResQ.Clients/ResQ.Clients.csproj": {
+                "projectPath": "/tmp/tmp.6MiWRroken/ResQ.Clients/ResQ.Clients.csproj"
+              },
+              "/tmp/tmp.6MiWRroken/ResQ.Core/ResQ.Core.csproj": {
+                "projectPath": "/tmp/tmp.6MiWRroken/ResQ.Core/ResQ.Core.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "moderate",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
+      },
+      "frameworks": {
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "centralPackageVersions": {
+            "coverlet.collector": "8.0.1",
+            "DotNetEnv": "3.1.1",
+            "FluentAssertions": "8.9.0",
+            "FluentValidation": "11.12.0",
+            "Google.Protobuf": "3.34.1",
+            "Grpc.Net.Client": "2.80.0",
+            "Grpc.Tools": "2.80.0",
+            "Microsoft.Extensions.Http": "10.0.7",
+            "Microsoft.Extensions.Http.Polly": "10.0.7",
+            "Microsoft.Extensions.Logging.Abstractions": "10.0.7",
+            "Microsoft.Extensions.Options": "10.0.7",
+            "Microsoft.NET.Test.Sdk": "17.14.1",
+            "Moq": "4.20.72",
+            "Neo": "3.8.2",
+            "Newtonsoft.Json": "13.0.3",
+            "Pinata.Client": "2.0.0",
+            "Polly": "8.6.6",
+            "Polly.Extensions.Http": "3.0.0",
+            "RichardSzalay.MockHttp": "7.0.0",
+            "System.Text.Json": "9.0.15",
+            "xunit": "2.9.3",
+            "xunit.runner.visualstudio": "3.1.5"
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/home/wombocombo/.dotnet/sdk/9.0.313/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/tmp/tmp.6MiWRroken/tests/ResQ.Simulation.Tests/ResQ.Simulation.Tests.csproj": {
+      "version": "0.3.2",
+      "restore": {
+        "projectUniqueName": "/tmp/tmp.6MiWRroken/tests/ResQ.Simulation.Tests/ResQ.Simulation.Tests.csproj",
+        "projectName": "ResQ.Simulation.Tests",
+        "projectPath": "/tmp/tmp.6MiWRroken/tests/ResQ.Simulation.Tests/ResQ.Simulation.Tests.csproj",
+        "packagesPath": "/home/wombocombo/.nuget/packages/",
+        "outputPath": "/tmp/tmp.6MiWRroken/tests/ResQ.Simulation.Tests/obj/",
+        "projectStyle": "PackageReference",
+        "centralPackageVersionsManagementEnabled": true,
+        "configFilePaths": [
+          "/home/wombocombo/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0": {
+            "targetAlias": "net9.0",
+            "projectReferences": {
+              "/tmp/tmp.6MiWRroken/ResQ.Simulation/ResQ.Simulation.csproj": {
+                "projectPath": "/tmp/tmp.6MiWRroken/ResQ.Simulation/ResQ.Simulation.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "moderate",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
+      },
+      "frameworks": {
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "dependencies": {
+            "FluentAssertions": {
+              "target": "Package",
+              "version": "[8.9.0, )",
+              "versionCentrallyManaged": true
+            },
+            "Microsoft.NET.Test.Sdk": {
+              "target": "Package",
+              "version": "[17.14.1, )",
+              "versionCentrallyManaged": true
+            },
+            "Moq": {
+              "target": "Package",
+              "version": "[4.20.72, )",
+              "versionCentrallyManaged": true
+            },
+            "coverlet.collector": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[8.0.1, )",
+              "versionCentrallyManaged": true
+            },
+            "xunit": {
+              "target": "Package",
+              "version": "[2.9.3, )",
+              "versionCentrallyManaged": true
+            },
+            "xunit.runner.visualstudio": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[3.1.5, )",
+              "versionCentrallyManaged": true
+            }
+          },
+          "centralPackageVersions": {
+            "coverlet.collector": "8.0.1",
+            "DotNetEnv": "3.1.1",
+            "FluentAssertions": "8.9.0",
+            "FluentValidation": "11.12.0",
+            "Google.Protobuf": "3.34.1",
+            "Grpc.Net.Client": "2.80.0",
+            "Grpc.Tools": "2.80.0",
+            "Microsoft.Extensions.Http": "10.0.7",
+            "Microsoft.Extensions.Http.Polly": "10.0.7",
+            "Microsoft.Extensions.Logging.Abstractions": "10.0.7",
+            "Microsoft.Extensions.Options": "10.0.7",
+            "Microsoft.NET.Test.Sdk": "17.14.1",
+            "Moq": "4.20.72",
+            "Neo": "3.8.2",
+            "Newtonsoft.Json": "13.0.3",
+            "Pinata.Client": "2.0.0",
+            "Polly": "8.6.6",
+            "Polly.Extensions.Http": "3.0.0",
+            "RichardSzalay.MockHttp": "7.0.0",
+            "System.Text.Json": "9.0.15",
+            "xunit": "2.9.3",
+            "xunit.runner.visualstudio": "3.1.5"
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/home/wombocombo/.dotnet/sdk/9.0.313/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

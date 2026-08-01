@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>ResQ.Protocols</id>
+    <version>0.1.0</version>
+    <authors>ResQ Software</authors>
+    <license type="expression">Apache-2.0</license>
+    <licenseUrl>https://licenses.nuget.org/Apache-2.0</licenseUrl>
+    <readme>NUGET_README.md</readme>
+    <projectUrl>https://github.com/resq-software/dotnet-sdk</projectUrl>
+    <description>ResQ Protobuf protocol extensions and utilities</description>
+    <copyright>Copyright (c) 2026 ResQ</copyright>
+    <tags>resq drone protobuf protocols disaster-response</tags>
+    <repository type="git" url="https://github.com/resq-software/dotnet-sdk" commit="4d54225d699dbf1daa43226c84c54305060a202f" />
+    <dependencies>
+      <group targetFramework="net9.0">
+        <dependency id="Google.Protobuf" version="3.34.1" exclude="Build,Analyzers" />
+        <dependency id="Grpc.Net.Client" version="2.80.0" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Logging.Abstractions" version="10.0.7" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="/tmp/tmp.6MiWRroken/ResQ.Protocols/bin/Release/net9.0/ResQ.Protocols.dll" target="lib/net9.0/ResQ.Protocols.dll" />
+    <file src="/tmp/tmp.6MiWRroken/NUGET_README.md" target="/NUGET_README.md" />
+  </files>
+</package>

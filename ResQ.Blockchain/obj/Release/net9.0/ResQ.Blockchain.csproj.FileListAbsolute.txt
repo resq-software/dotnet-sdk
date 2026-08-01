@@ -1,0 +1,13 @@
+/tmp/tmp.6MiWRroken/ResQ.Blockchain/bin/Release/net9.0/ResQ.Blockchain.deps.json
+/tmp/tmp.6MiWRroken/ResQ.Blockchain/bin/Release/net9.0/ResQ.Blockchain.dll
+/tmp/tmp.6MiWRroken/ResQ.Blockchain/bin/Release/net9.0/ResQ.Blockchain.pdb
+/tmp/tmp.6MiWRroken/ResQ.Blockchain/obj/Release/net9.0/ResQ.Blockchain.csproj.AssemblyReference.cache
+/tmp/tmp.6MiWRroken/ResQ.Blockchain/obj/Release/net9.0/ResQ.Blockchain.GeneratedMSBuildEditorConfig.editorconfig
+/tmp/tmp.6MiWRroken/ResQ.Blockchain/obj/Release/net9.0/ResQ.Blockchain.AssemblyInfoInputs.cache
+/tmp/tmp.6MiWRroken/ResQ.Blockchain/obj/Release/net9.0/ResQ.Blockchain.AssemblyInfo.cs
+/tmp/tmp.6MiWRroken/ResQ.Blockchain/obj/Release/net9.0/ResQ.Blockchain.csproj.CoreCompileInputs.cache
+/tmp/tmp.6MiWRroken/ResQ.Blockchain/obj/Release/net9.0/ResQ.Blockchain.sourcelink.json
+/tmp/tmp.6MiWRroken/ResQ.Blockchain/obj/Release/net9.0/ResQ.Blockchain.dll
+/tmp/tmp.6MiWRroken/ResQ.Blockchain/obj/Release/net9.0/refint/ResQ.Blockchain.dll
+/tmp/tmp.6MiWRroken/ResQ.Blockchain/obj/Release/net9.0/ResQ.Blockchain.pdb
+/tmp/tmp.6MiWRroken/ResQ.Blockchain/obj/Release/net9.0/ref/ResQ.Blockchain.dll

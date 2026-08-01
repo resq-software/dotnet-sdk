@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "dgSpecHash": "upj9nNbsWnE=",
+  "success": true,
+  "projectFilePath": "/tmp/tmp.6MiWRroken/ResQ.Protocols/ResQ.Protocols.csproj",
+  "expectedPackageFiles": [
+    "/home/wombocombo/.nuget/packages/google.protobuf/3.34.1/google.protobuf.3.34.1.nupkg.sha512",
+    "/home/wombocombo/.nuget/packages/grpc.core.api/2.80.0/grpc.core.api.2.80.0.nupkg.sha512",
+    "/home/wombocombo/.nuget/packages/grpc.net.client/2.80.0/grpc.net.client.2.80.0.nupkg.sha512",
+    "/home/wombocombo/.nuget/packages/grpc.net.common/2.80.0/grpc.net.common.2.80.0.nupkg.sha512",
+    "/home/wombocombo/.nuget/packages/grpc.tools/2.80.0/grpc.tools.2.80.0.nupkg.sha512",
+    "/home/wombocombo/.nuget/packages/microsoft.extensions.dependencyinjection.abstractions/10.0.7/microsoft.extensions.dependencyinjection.abstractions.10.0.7.nupkg.sha512",
+    "/home/wombocombo/.nuget/packages/microsoft.extensions.logging.abstractions/10.0.7/microsoft.extensions.logging.abstractions.10.0.7.nupkg.sha512",
+    "/home/wombocombo/.nuget/packages/system.diagnostics.diagnosticsource/10.0.7/system.diagnostics.diagnosticsource.10.0.7.nupkg.sha512"
+  ],
+  "logs": []
+}

@@ -1,0 +1,13 @@
+/tmp/tmp.6MiWRroken/ResQ.Protocols/bin/Release/net9.0/ResQ.Protocols.deps.json
+/tmp/tmp.6MiWRroken/ResQ.Protocols/bin/Release/net9.0/ResQ.Protocols.dll
+/tmp/tmp.6MiWRroken/ResQ.Protocols/bin/Release/net9.0/ResQ.Protocols.pdb
+/tmp/tmp.6MiWRroken/ResQ.Protocols/obj/Release/net9.0/ResQ.Protocols.csproj.AssemblyReference.cache
+/tmp/tmp.6MiWRroken/ResQ.Protocols/obj/Release/net9.0/ResQ.Protocols.GeneratedMSBuildEditorConfig.editorconfig
+/tmp/tmp.6MiWRroken/ResQ.Protocols/obj/Release/net9.0/ResQ.Protocols.AssemblyInfoInputs.cache
+/tmp/tmp.6MiWRroken/ResQ.Protocols/obj/Release/net9.0/ResQ.Protocols.AssemblyInfo.cs
+/tmp/tmp.6MiWRroken/ResQ.Protocols/obj/Release/net9.0/ResQ.Protocols.csproj.CoreCompileInputs.cache
+/tmp/tmp.6MiWRroken/ResQ.Protocols/obj/Release/net9.0/ResQ.Protocols.sourcelink.json
+/tmp/tmp.6MiWRroken/ResQ.Protocols/obj/Release/net9.0/ResQ.Protocols.dll
+/tmp/tmp.6MiWRroken/ResQ.Protocols/obj/Release/net9.0/refint/ResQ.Protocols.dll
+/tmp/tmp.6MiWRroken/ResQ.Protocols/obj/Release/net9.0/ResQ.Protocols.pdb
+/tmp/tmp.6MiWRroken/ResQ.Protocols/obj/Release/net9.0/ref/ResQ.Protocols.dll

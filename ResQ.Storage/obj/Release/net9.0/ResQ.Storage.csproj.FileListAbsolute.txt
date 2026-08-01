@@ -1,0 +1,13 @@
+/tmp/tmp.6MiWRroken/ResQ.Storage/bin/Release/net9.0/ResQ.Storage.deps.json
+/tmp/tmp.6MiWRroken/ResQ.Storage/bin/Release/net9.0/ResQ.Storage.dll
+/tmp/tmp.6MiWRroken/ResQ.Storage/bin/Release/net9.0/ResQ.Storage.pdb
+/tmp/tmp.6MiWRroken/ResQ.Storage/obj/Release/net9.0/ResQ.Storage.csproj.AssemblyReference.cache
+/tmp/tmp.6MiWRroken/ResQ.Storage/obj/Release/net9.0/ResQ.Storage.GeneratedMSBuildEditorConfig.editorconfig
+/tmp/tmp.6MiWRroken/ResQ.Storage/obj/Release/net9.0/ResQ.Storage.AssemblyInfoInputs.cache
+/tmp/tmp.6MiWRroken/ResQ.Storage/obj/Release/net9.0/ResQ.Storage.AssemblyInfo.cs
+/tmp/tmp.6MiWRroken/ResQ.Storage/obj/Release/net9.0/ResQ.Storage.csproj.CoreCompileInputs.cache
+/tmp/tmp.6MiWRroken/ResQ.Storage/obj/Release/net9.0/ResQ.Storage.sourcelink.json
+/tmp/tmp.6MiWRroken/ResQ.Storage/obj/Release/net9.0/ResQ.Storage.dll
+/tmp/tmp.6MiWRroken/ResQ.Storage/obj/Release/net9.0/refint/ResQ.Storage.dll
+/tmp/tmp.6MiWRroken/ResQ.Storage/obj/Release/net9.0/ResQ.Storage.pdb
+/tmp/tmp.6MiWRroken/ResQ.Storage/obj/Release/net9.0/ref/ResQ.Storage.dll

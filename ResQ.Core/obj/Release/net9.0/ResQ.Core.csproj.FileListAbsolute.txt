@@ -1,0 +1,12 @@
+/tmp/tmp.6MiWRroken/ResQ.Core/bin/Release/net9.0/ResQ.Core.deps.json
+/tmp/tmp.6MiWRroken/ResQ.Core/bin/Release/net9.0/ResQ.Core.dll
+/tmp/tmp.6MiWRroken/ResQ.Core/bin/Release/net9.0/ResQ.Core.pdb
+/tmp/tmp.6MiWRroken/ResQ.Core/obj/Release/net9.0/ResQ.Core.GeneratedMSBuildEditorConfig.editorconfig
+/tmp/tmp.6MiWRroken/ResQ.Core/obj/Release/net9.0/ResQ.Core.AssemblyInfoInputs.cache
+/tmp/tmp.6MiWRroken/ResQ.Core/obj/Release/net9.0/ResQ.Core.AssemblyInfo.cs
+/tmp/tmp.6MiWRroken/ResQ.Core/obj/Release/net9.0/ResQ.Core.csproj.CoreCompileInputs.cache
+/tmp/tmp.6MiWRroken/ResQ.Core/obj/Release/net9.0/ResQ.Core.sourcelink.json
+/tmp/tmp.6MiWRroken/ResQ.Core/obj/Release/net9.0/ResQ.Core.dll
+/tmp/tmp.6MiWRroken/ResQ.Core/obj/Release/net9.0/refint/ResQ.Core.dll
+/tmp/tmp.6MiWRroken/ResQ.Core/obj/Release/net9.0/ResQ.Core.pdb
+/tmp/tmp.6MiWRroken/ResQ.Core/obj/Release/net9.0/ref/ResQ.Core.dll
