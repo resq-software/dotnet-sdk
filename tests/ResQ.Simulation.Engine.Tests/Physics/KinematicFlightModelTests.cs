@@ -175,4 +175,52 @@ public class KinematicFlightModelTests
         var displacement = Vector3.Distance(model.State.Position, start);
         displacement.Should().BeApproximately((float)maxSpeed, 0.001f);
     }
+
+    // 11. A non-Land command re-arms a landed drone so it can take off again
+    [Fact]
+    public void ApplyCommand_NonLandCommand_ReArmsLandedDrone()
+    {
+        var model = new KinematicFlightModel(new Vector3(0f, 5f, 0f));
+
+        model.ApplyCommand(FlightCommand.Land());
+        for (var i = 0; i < 50 && !model.HasLanded; i++)
+            model.Step(1.0, NoWind);
+        model.HasLanded.Should().BeTrue("the drone should reach the ground and land");
+
+        // Without this the drone stays frozen forever — Step() skips landed drones.
+        model.ApplyCommand(FlightCommand.Hover());
+        model.HasLanded.Should().BeFalse("a non-Land command must clear the landed state for takeoff");
+    }
+
+    // 12. Orientation yaw follows the direction of horizontal travel
+    [Fact]
+    public void Step_MovingDrone_OrientationFacesTravel()
+    {
+        var model = new KinematicFlightModel(new Vector3(0f, 100f, 0f));
+        model.ApplyCommand(FlightCommand.GoTo(new Vector3(1000f, 100f, 0f))); // travel toward +X
+
+        for (var i = 0; i < 120; i++)
+            model.Step(1.0 / 60.0, NoWind);
+
+        var forward = Vector3.Transform(new Vector3(0f, 0f, 1f), model.State.Orientation);
+        Math.Atan2(forward.X, forward.Z).Should().BeApproximately(Math.PI / 2, 0.2,
+            "the nose (local +Z) should slew to face the +X travel direction");
+    }
+
+    // 13. Hover with a commanded yaw rotates the drone in place
+    [Fact]
+    public void Step_HoverWithDesiredYaw_RotatesInPlace()
+    {
+        var start = new Vector3(0f, 100f, 0f);
+        var model = new KinematicFlightModel(start);
+        model.ApplyCommand(FlightCommand.Hover(Math.PI / 2)); // face +X, hold position
+
+        for (var i = 0; i < 120; i++)
+            model.Step(1.0 / 60.0, NoWind);
+
+        model.State.Position.Should().Be(start, "hover holds position while rotating");
+        var forward = Vector3.Transform(new Vector3(0f, 0f, 1f), model.State.Orientation);
+        Math.Atan2(forward.X, forward.Z).Should().BeApproximately(Math.PI / 2, 0.15,
+            "Hover(yaw) should rotate the drone to the commanded heading");
+    }
 }

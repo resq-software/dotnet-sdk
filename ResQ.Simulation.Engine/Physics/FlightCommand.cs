@@ -50,16 +50,23 @@ public enum FlightCommandType
 /// The cruise speed in metres per second for waypoint navigation.
 /// When <see langword="null"/> the flight model uses its configured default maximum speed.
 /// </param>
+/// <param name="DesiredYaw">
+/// The commanded heading in radians about the world +Y axis (0 = facing +Z), used to
+/// point/rotate the drone independently of its travel direction. When <see langword="null"/>
+/// the flight model faces the direction of travel (or holds heading while stationary).
+/// </param>
 public readonly record struct FlightCommand(
     FlightCommandType Type,
     Vector3? TargetPosition = null,
-    double? DesiredSpeed = null)
+    double? DesiredSpeed = null,
+    double? DesiredYaw = null)
 {
     /// <summary>
     /// Creates a <see cref="FlightCommand"/> that tells the drone to hold its current position.
     /// </summary>
+    /// <param name="yaw">Optional commanded heading in radians; <see langword="null"/> holds the current heading.</param>
     /// <returns>A hover command.</returns>
-    public static FlightCommand Hover() => new(FlightCommandType.Hover);
+    public static FlightCommand Hover(double? yaw = null) => new(FlightCommandType.Hover, DesiredYaw: yaw);
 
     /// <summary>
     /// Creates a <see cref="FlightCommand"/> that tells the drone to fly to <paramref name="target"/>.
@@ -68,9 +75,10 @@ public readonly record struct FlightCommand(
     /// <param name="speed">
     /// Optional cruise speed in m/s. Defaults to the flight model's maximum speed when <see langword="null"/>.
     /// </param>
+    /// <param name="yaw">Optional commanded heading in radians; <see langword="null"/> faces the direction of travel.</param>
     /// <returns>A go-to-waypoint command.</returns>
-    public static FlightCommand GoTo(Vector3 target, double? speed = null) =>
-        new(FlightCommandType.GoToWaypoint, target, speed);
+    public static FlightCommand GoTo(Vector3 target, double? speed = null, double? yaw = null) =>
+        new(FlightCommandType.GoToWaypoint, target, speed, yaw);
 
     /// <summary>
     /// Creates a <see cref="FlightCommand"/> that instructs the drone to return to its launch position.
