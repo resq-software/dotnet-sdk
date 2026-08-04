@@ -20,6 +20,7 @@ using ResQ.Core;
 using ResQ.Mavlink.Enums;
 using ResQ.Mavlink.Gateway.Gcs;
 using ResQ.Mavlink.Gateway.Routing;
+using ResQ.Mavlink.Gateway.State;
 using ResQ.Mavlink.Gateway.Tests.Infrastructure;
 using ResQ.Mavlink.Messages;
 using ResQ.Mavlink.Protocol;
@@ -187,10 +188,20 @@ public sealed class MavlinkGatewayIntegrationTests
         };
         transport.InjectPacket(SerializeMessage(position, systemId: 2));
 
-        // Allow the receive loop to process the packet.
-        await Task.Delay(150, cts.Token);
+        // Poll until the receive loop has processed the packet (a fixed delay is flaky
+        // when the test suite runs in parallel).
+        VehicleState? state = null;
+        for (var remaining = TimeSpan.FromSeconds(5); remaining > TimeSpan.Zero; remaining -= TimeSpan.FromMilliseconds(25))
+        {
+            state = gateway.StateTracker.GetVehicle(2);
+            if (state is not null)
+            {
+                break;
+            }
 
-        var state = gateway.StateTracker.GetVehicle(2);
+            await Task.Delay(25, cts.Token);
+        }
+
         state.Should().NotBeNull();
         state!.Latitude.Should().BeApproximately(51.2345, 1e-4);
 
