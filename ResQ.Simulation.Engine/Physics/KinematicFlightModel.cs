@@ -44,9 +44,30 @@ public sealed class KinematicFlightModel : IFlightModel
     /// <summary>Distance to a waypoint below which the drone considers the waypoint reached, in metres.</summary>
     public const double WaypointThreshold = 1.0;
 
+    /// <summary>Maximum yaw slew rate in radians per second (~115°/s) — how fast heading turns.</summary>
+    public const double MaxYawRateRadPerSec = 2.0;
+
+    /// <summary>Horizontal speed (m/s) below which heading is held rather than chased from velocity.</summary>
+    private const double HeadingHoldSpeed = 0.5;
+
+    /// <summary>Maximum bank (roll) angle when turning, radians (~26°).</summary>
+    private const double MaxBankRad = 0.45;
+
+    /// <summary>Maximum nose pitch from forward speed, radians (~17°).</summary>
+    private const double MaxPitchRad = 0.30;
+
+    /// <summary>Rate (per second) at which roll/pitch ease toward their targets.</summary>
+    private const double AttitudeEaseRate = 6.0;
+
     private readonly double _maxSpeed;
     private FlightCommand _currentCommand;
     private DronePhysicsState _state;
+
+    // Attitude state, integrated each Step. Heading is the yaw about +Y (0 = +Z);
+    // roll/pitch are eased cosmetic tilts derived from turn rate and forward speed.
+    private double _headingRad;
+    private double _rollRad;
+    private double _pitchRad;
 
     /// <summary>
     /// Initialises a new <see cref="KinematicFlightModel"/> at the given start position.
@@ -81,6 +102,12 @@ public sealed class KinematicFlightModel : IFlightModel
     /// </remarks>
     public void ApplyCommand(FlightCommand command)
     {
+        // Any command other than Land re-arms a landed drone so it can take off
+        // again — otherwise HasLanded latches on forever and Step() skips it,
+        // leaving the drone frozen and unresponsive to further commands.
+        if (command.Type != FlightCommandType.Land)
+            HasLanded = false;
+
         _currentCommand = command.Type == FlightCommandType.ReturnToLaunch
             ? FlightCommand.GoTo(LaunchPosition)
             : command;
@@ -100,17 +127,59 @@ public sealed class KinematicFlightModel : IFlightModel
             position = position with { Y = 0f };
 
         var battery = Math.Max(0.0, _state.BatteryPercent - BatteryDrainPerSec * dt);
+        var orientation = IntegrateAttitude(velocity, dt);
 
         _state = _state with
         {
             Position = position,
             Velocity = velocity,
             BatteryPercent = battery,
+            Orientation = orientation,
         };
 
         // Landing check: only when actively landing and altitude is at or below threshold
         if (_currentCommand.Type == FlightCommandType.Land && position.Y <= LandedThreshold)
             HasLanded = true;
+    }
+
+    /// <summary>
+    /// Advances the drone's attitude one step and returns the resulting body orientation.
+    /// Heading follows the explicit <see cref="FlightCommand.DesiredYaw"/> when set, otherwise
+    /// the direction of horizontal travel (held while nearly stationary); it slews at
+    /// <see cref="MaxYawRateRadPerSec"/>. Roll banks into turns and pitch tips with forward
+    /// speed — both eased and clamped for a natural, non-jerky look.
+    /// </summary>
+    private Quaternion IntegrateAttitude(Vector3 velocity, double dt)
+    {
+        var speed = new Vector2(velocity.X, velocity.Z).Length();
+
+        double targetHeading = _currentCommand.DesiredYaw
+            ?? (speed > HeadingHoldSpeed ? Math.Atan2(velocity.X, velocity.Z) : _headingRad);
+
+        // Slew heading along the shortest arc, capped at the yaw rate.
+        double delta = WrapPi(targetHeading - _headingRad);
+        double maxStep = MaxYawRateRadPerSec * dt;
+        double applied = Math.Clamp(delta, -maxStep, maxStep);
+        _headingRad = WrapPi(_headingRad + applied);
+
+        // Bank into the turn (roll ∝ turn rate); pitch nose-down with forward speed.
+        double turnRate = dt > 0 ? applied / dt : 0.0;
+        double targetRoll = Math.Clamp(-turnRate * 0.25, -MaxBankRad, MaxBankRad);
+        double targetPitch = -Math.Clamp(speed / _maxSpeed, 0.0, 1.0) * MaxPitchRad;
+        double ease = Math.Clamp(AttitudeEaseRate * dt, 0.0, 1.0);
+        _rollRad += (targetRoll - _rollRad) * ease;
+        _pitchRad += (targetPitch - _pitchRad) * ease;
+
+        return Quaternion.CreateFromYawPitchRoll((float)_headingRad, (float)_pitchRad, (float)_rollRad);
+    }
+
+    /// <summary>Wraps an angle into (-π, π].</summary>
+    private static double WrapPi(double angle)
+    {
+        angle %= 2 * Math.PI;
+        if (angle > Math.PI) angle -= 2 * Math.PI;
+        else if (angle <= -Math.PI) angle += 2 * Math.PI;
+        return angle;
     }
 
     /// <summary>
