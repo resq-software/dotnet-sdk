@@ -20,11 +20,12 @@
 # flake.lock — not packages.lock.json — so without this a restore-worthy change
 # lands silently in a .NET repo.
 #
-# Set DOTNET_RESTORE_AFTER_MERGE=1 to auto-run `dotnet restore`.
-# Set SKIP_DOTNET_RESTORE=1 to silence everything.
+# Both switches are exact-value, so `=0` and `=false` mean what they say:
+#   DOTNET_RESTORE_AFTER_MERGE=1  opt in to running `dotnet restore` here
+#   SKIP_DOTNET_RESTORE=1         silence this hook (it does not affect any other)
 set -euo pipefail
 
-[ -n "${SKIP_DOTNET_RESTORE:-}" ] && exit 0
+[ "${SKIP_DOTNET_RESTORE:-0}" = "1" ] && exit 0
 
 CHANGED=$(git diff-tree -r --name-only --no-commit-id ORIG_HEAD HEAD 2>/dev/null || true)
 case "$CHANGED" in
