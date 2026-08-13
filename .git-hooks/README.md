@@ -1,3 +1,19 @@
+<!--
+  Copyright 2026 ResQ Systems, Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
 # Git Hooks — ResQ .NET SDK
 
 This directory contains the project's git hooks. They enforce code quality, security, and workflow conventions for the ResQ .NET SDK (C#/.NET 9).
@@ -16,14 +32,33 @@ The setup script sets `core.hooksPath` to `.git-hooks` and makes all hooks execu
 
 ## Active Hooks
 
+These are the canonical ResQ hooks, owned by
+[`resq-software/crates`](https://github.com/resq-software/crates/tree/master/crates/resq-cli/templates/git-hooks)
+and installed by `resq hooks update`. They are deliberately thin: each delegates
+the real work to the `resq` binary or to a repo-owned `local-*` hook, which is
+why editing them here only produces drift.
+
 | Hook | Purpose |
 |------|---------|
-| `pre-commit` | Large file guard (1 MB limit), secrets scan (gitleaks / grep fallback), C# formatting verification (`dotnet format --verify-no-changes`) |
+| `pre-commit` | Delegates to `resq pre-commit` — copyright headers, large-file guard, secret scan, dependency audit, C# formatting |
 | `commit-msg` | Conventional Commits format validation; blocks `fixup!`/`squash!`/WIP on `main` |
 | `prepare-commit-msg` | Prepends ticket reference (e.g., `[PROJ-123]`) extracted from branch name |
-| `pre-push` | Force-push guard on `main`, branch naming convention, `dotnet build` check on changed `.cs` files |
-| `post-checkout` | Auto `dotnet restore` when `packages.lock.json` changes between branches |
-| `post-merge` | Auto `dotnet restore` when `packages.lock.json` changes after a merge |
+| `pre-push` | Force-push guard and branch-naming rule, both applied to the ref being **pushed to**; then runs `local-pre-push` |
+| `post-checkout` | **Reports** changed `Cargo.lock` / `bun.lock` / `uv.lock` / `flake.lock`; then runs `local-post-checkout` |
+| `post-merge` | **Reports** the same lockfile changes after a merge; then runs `local-post-merge` |
+
+| Local hook | Purpose | Env |
+|------|---------|-----|
+| `local-pre-push` | `dotnet build --no-incremental` when `.cs` files changed | `SKIP_DOTNET_BUILD=1` to skip |
+| `local-post-checkout` | Reports a changed `packages.lock.json` — the canonical hook does not know that filename | `DOTNET_RESTORE_AFTER_MERGE=1` opts into running `dotnet restore`; `SKIP_DOTNET_RESTORE=1` silences this hook only |
+| `local-post-merge` | The same, after a merge | as above |
+
+Both `local-post-*` switches are exact-value: `=1` enables, and anything else —
+including `0` and `false` — does not.
+
+The lockfile hooks report rather than restoring for you. A hook that mutates the
+working tree during a checkout is a surprise, and the package state you want
+after switching branches is not always the one the lockfile names.
 
 ## Bypassing Hooks
 
