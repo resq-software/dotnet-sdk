@@ -1,0 +1,112 @@
+/**
+ * Copyright 2026 ResQ
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto3";
+
+package resq.health;
+
+import "google/protobuf/timestamp.proto";
+
+// Rich diagnostics contract for ResQ services.
+//
+// This is deliberately NOT a replacement for the standard gRPC health checking
+// protocol (`grpc.health.v1.Health`), which Kubernetes probes and gRPC load
+// balancers already speak natively. Services SHOULD expose both:
+// `grpc.health.v1.Health` for orchestration liveness/readiness, and
+// `ResQDiagnosticService` below for operator-facing detail.
+//
+// EXPOSURE: this service reveals internal topology, dependency names, and host
+// resource pressure. Serve it on an authenticated internal listener only —
+// never on a public or unauthenticated edge.
+
+enum SystemState {
+  // Guards against proto3's zero-default masking failures: an unset
+  // overall_state / state must not read as HEALTHY.
+  SYSTEM_STATE_UNSPECIFIED = 0;
+  SYSTEM_STATE_HEALTHY = 1;
+  SYSTEM_STATE_DEGRADED = 2;
+  SYSTEM_STATE_UNHEALTHY = 3;
+}
+
+enum DependencyType {
+  DEPENDENCY_TYPE_UNSPECIFIED = 0;
+  DEPENDENCY_TYPE_DATABASE = 1;
+  DEPENDENCY_TYPE_CACHE = 2;
+  DEPENDENCY_TYPE_MESSAGE_BROKER = 3;
+  DEPENDENCY_TYPE_PEER_SERVICE = 4;
+  DEPENDENCY_TYPE_INTERNAL_ENGINE = 5;
+}
+
+// Outcome of probing a single downstream dependency.
+message DependencyCheck {
+  // Stable operator-facing identifier, e.g. "postgres-primary".
+  string name = 1;
+  DependencyType type = 2;
+  SystemState state = 3;
+
+  // Observed probe round-trip, in whole milliseconds.
+  //
+  // Integer rather than floating point: probe timing carries no meaning below
+  // 1ms, and an integer avoids cross-language float formatting drift between
+  // the .NET, Python, TypeScript and Rust SDKs.
+  uint32 latency_ms = 4;
+
+  // Short, stable, machine-matchable code, e.g. "CONN_REFUSED".
+  // Callers branch on this; `detail` is for humans.
+  string error_code = 5;
+
+  // Human-readable elaboration on `error_code`.
+  //
+  // MUST be sanitized by the producer. Never place raw exception text, stack
+  // traces, connection strings, credentials, or query fragments here — this
+  // value crosses a service boundary and is rendered in operator UIs.
+  string detail = 6;
+}
+
+// Host-level resource pressure. Populated only when
+// GetDetailedHealthRequest.include_resources is set.
+message ResourceMetrics {
+  // CPU in use as a percentage on the range [0.0, 100.0] — a percentage, not
+  // a [0.0, 1.0] ratio. On multi-core hosts this is normalized across all
+  // cores, so it does not exceed 100.0.
+  double cpu_usage_percent = 1;
+  uint64 memory_bytes_used = 2;
+  uint64 memory_bytes_total = 3;
+  uint64 disk_bytes_free = 4;
+  // Paired with disk_bytes_free so clients can derive a used/total ratio
+  // without a second source, mirroring the memory_used/memory_total pair.
+  uint64 disk_bytes_total = 5;
+}
+
+message GetDetailedHealthRequest {
+  // When false, `resources` is left unset so the probe stays cheap enough to
+  // run on a tight interval.
+  bool include_resources = 1;
+}
+
+message GetDetailedHealthResponse {
+  string service_name = 1;
+  SystemState overall_state = 2;
+  uint64 uptime_seconds = 3;
+  google.protobuf.Timestamp timestamp = 4;
+  repeated DependencyCheck dependencies = 5;
+  ResourceMetrics resources = 6;
+  string version = 7;
+}
+
+service ResQDiagnosticService {
+  rpc GetDetailedHealth(GetDetailedHealthRequest) returns (GetDetailedHealthResponse);
+}
