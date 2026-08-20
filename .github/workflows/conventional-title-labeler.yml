@@ -56,7 +56,11 @@ jobs:
               args+=(--remove-label "$m")
             fi
           done
-          [ -n "$label" ] && args+=(--add-label "$label")
+          # Add the target only when it is not already present, so an unchanged
+          # correct label makes no gh pr edit call (args stays empty -> no-op).
+          if [ -n "$label" ] && ! grep -Fxq "$label" <<<"$current"; then
+            args+=(--add-label "$label")
+          fi
           if [ "${#args[@]}" -eq 0 ]; then
             echo "Change-type labels already correct; nothing to do."
             exit 0
