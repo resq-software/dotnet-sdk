@@ -31,4 +31,13 @@ jobs:
       - uses: pascalgn/size-label-action@56b489b027932ec0cf60438a1a5f1a19c8fc71ff # v0.5.7
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-          IGNORED: ".*\\.lock$|bun\\.lock|\\.lock\\.yml$"
+          # pascalgn/size-label-action splits IGNORED on newlines and compiles
+          # each line as a glob (globrex, extended + globstar), NOT a regex. A
+          # single regex-style line (backslash/pipe/dollar) matches no real path, so
+          # lock-file churn would still inflate the size label. One glob per line
+          # excludes generated locks (flake.lock, proto-source.lock, *.lock.yml
+          # agentic-workflow locks, and NuGet *.lock.json).
+          IGNORED: |
+            **/*.lock
+            **/*.lock.yml
+            **/*.lock.json

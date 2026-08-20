@@ -77,8 +77,15 @@ jobs:
         # --generate-notes builds notes from merged PRs since the previous tag
         # (categorized by .github/release.yml); --verify-tag asserts the ref is
         # a real tag first.
-        run: >
-          gh release create "$TAG"
-          --title "$TAG"
-          --generate-notes
-          --verify-tag
+        run: |
+          set -euo pipefail
+          # Idempotent: a workflow re-run for an already-released tag must not
+          # fail with "release already exists". Skip creation when present.
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Release $TAG already exists; skipping creation."
+            exit 0
+          fi
+          gh release create "$TAG" \
+            --title "$TAG" \
+            --generate-notes \
+            --verify-tag

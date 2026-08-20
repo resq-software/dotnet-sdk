@@ -34,6 +34,7 @@ jobs:
         run: |
           set -euo pipefail
           type="$(printf '%s' "$TITLE" | sed -nE 's/^([a-zA-Z]+)(\([^)]*\))?!?:.*/\1/p' | tr '[:upper:]' '[:lower:]')"
+          label=""
           case "$type" in
             feat|feature) label="C-Feature" ;;
             fix)          label="C-Bug" ;;
@@ -42,8 +43,39 @@ jobs:
             refactor)     label="C-Refactor" ;;
             test)         label="C-Testing" ;;
             chore|build|ci|style|revert) label="C-Chore" ;;
-            *) echo "Title has no conventional type prefix; nothing to label."; exit 0 ;;
+            *) echo "Title has no conventional type prefix." ;;
           esac
-          echo "Conventional type '$type' -> $label"
-          gh pr edit "$PR" --repo "$GITHUB_REPOSITORY" --add-label "$label" \
-            || echo "::warning::label '$label' not found yet (run Label Sync); skipped."
+          # On an edited title, drop the stale change-type label so a PR is
+          # never filed under two release-note sections; A-*/pkg:*/P-* stay.
+          managed="C-Feature C-Bug C-Performance C-Documentation C-Refactor C-Testing C-Chore"
+          current="$(gh pr view "$PR" --repo "$GITHUB_REPOSITORY" --json labels --jq ".labels[].name")"
+          args=()
+          for m in $managed; do
+            [ "$m" = "$label" ] && continue
+            if grep -Fxq "$m" <<<"$current"; then
+              args+=(--remove-label "$m")
+            fi
+          done
+          [ -n "$label" ] && args+=(--add-label "$label")
+          if [ "${#args[@]}" -eq 0 ]; then
+            echo "Change-type labels already correct; nothing to do."
+            exit 0
+          fi
+          echo "Applying label changes: ${args[*]}"
+          # Tolerate only a missing-label error (target not yet created by
+          # Label Sync); surface auth, permission, rate-limit, network fails.
+          set +e
+          out="$(gh pr edit "$PR" --repo "$GITHUB_REPOSITORY" "${args[@]}" 2>&1)"
+          status=$?
+          set -e
+          if [ "$status" -eq 0 ]; then
+            echo "$out"
+            exit 0
+          fi
+          if grep -qiE "not found|not resolve|does not exist|label with the name" <<<"$out"; then
+            echo "::warning::a managed label is not created yet (run Label Sync); skipped."
+            echo "$out"
+            exit 0
+          fi
+          echo "$out" >&2
+          exit "$status"
