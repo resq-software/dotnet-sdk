@@ -223,4 +223,35 @@ public class KinematicFlightModelTests
         Math.Atan2(forward.X, forward.Z).Should().BeApproximately(Math.PI / 2, 0.15,
             "Hover(yaw) should rotate the drone to the commanded heading");
     }
+
+    [Theory]
+    [InlineData(500f, 0f)]
+    [InlineData(-500f, 0f)]
+    [InlineData(0f, 500f)]
+    public void ForwardFlightPitchesNoseDown(float targetX, float targetZ)
+    {
+        // Direction, not magnitude. A multirotor tips its rotor disc INTO the direction of
+        // travel to generate forward thrust, so the nose drops as it accelerates. This was
+        // inverted: the pitch term was negated, and at 15 m/s the body's forward axis sat
+        // 17 degrees ABOVE the horizon — front high, rear rotors low.
+        //
+        // Nothing caught it because the guard that existed asserted |pitch| > 0.01, which a
+        // nose-up drone satisfies exactly as well as a nose-down one. Asserted here through the
+        // rotated basis vector rather than an Euler angle, so it cannot be satisfied by a
+        // convention change that leaves the drone visually wrong.
+        var model = new KinematicFlightModel(new Vector3(0f, 50f, 0f));
+        model.ApplyCommand(FlightCommand.GoTo(new Vector3(targetX, 50f, targetZ)));
+
+        for (int i = 0; i < 120; i++)
+            model.Step(1.0 / 60.0, Vector3.Zero);
+
+        model.State.Velocity.Length().Should().BeGreaterThan(1f, "it has to be moving to pitch");
+
+        // Body forward is +Z in this model's frame.
+        var forward = Vector3.Transform(new Vector3(0f, 0f, 1f), model.State.Orientation);
+
+        forward.Y.Should().BeLessThan(
+            -0.05f,
+            "a multirotor under way pitches nose DOWN; a positive Y here is the nose riding high");
+    }
 }

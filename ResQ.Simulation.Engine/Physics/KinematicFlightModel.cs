@@ -163,9 +163,16 @@ public sealed class KinematicFlightModel : IFlightModel
         _headingRad = WrapPi(_headingRad + applied);
 
         // Bank into the turn (roll ∝ turn rate); pitch nose-down with forward speed.
+        //
+        // The pitch term is POSITIVE, and that is not a typo. `CreateFromYawPitchRoll` takes
+        // pitch as a rotation about the body X axis, and this model's body frame has +X to the
+        // LEFT — so a positive rotation carries forward (+Z) toward down (-Y), which is nose
+        // down. Negating it, as this did, tipped the nose UP as the drone accelerated: at 15 m/s
+        // the forward axis sat 17 degrees ABOVE the horizon, front high and rear rotors low,
+        // which is the opposite of how a multirotor generates forward thrust.
         double turnRate = dt > 0 ? applied / dt : 0.0;
         double targetRoll = Math.Clamp(-turnRate * 0.25, -MaxBankRad, MaxBankRad);
-        double targetPitch = -Math.Clamp(speed / _maxSpeed, 0.0, 1.0) * MaxPitchRad;
+        double targetPitch = Math.Clamp(speed / _maxSpeed, 0.0, 1.0) * MaxPitchRad;
         double ease = Math.Clamp(AttitudeEaseRate * dt, 0.0, 1.0);
         _rollRad += (targetRoll - _rollRad) * ease;
         _pitchRad += (targetPitch - _pitchRad) * ease;
