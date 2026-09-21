@@ -83,7 +83,6 @@
 "A-Release":
   - changed-files:
     - any-glob-to-any-file:
-      - .releaserc.json
       - CHANGELOG.md
 
 # ── Category labels ─────────────────────────────────────────────────────
