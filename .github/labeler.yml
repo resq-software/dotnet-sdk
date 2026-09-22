@@ -13,44 +13,38 @@
 # limitations under the License.
 
 # ── Package scope labels (NuGet projects in ResQ.Sdk.sln) ────────────────
-# Note: each ResQ.* project exists both at the repo root (the path the .sln
-# references) and under packages/, so both locations are globbed.
+# Each ResQ.* project lives at the repo root, which is the path ResQ.Sdk.sln
+# references.
 
 "pkg:core":
   - changed-files:
     - any-glob-to-any-file:
       - ResQ.Core/**/*
-      - resq-core/**/*
 
 "pkg:blockchain":
   - changed-files:
     - any-glob-to-any-file:
       - ResQ.Blockchain/**/*
-      - packages/ResQ.Blockchain/**/*
 
 "pkg:clients":
   - changed-files:
     - any-glob-to-any-file:
       - ResQ.Clients/**/*
-      - packages/ResQ.Clients/**/*
 
 "pkg:protocols":
   - changed-files:
     - any-glob-to-any-file:
       - ResQ.Protocols/**/*
-      - packages/ResQ.Protocols/**/*
 
 "pkg:simulation":
   - changed-files:
     - any-glob-to-any-file:
       - ResQ.Simulation/**/*
-      - packages/ResQ.Simulation/**/*
 
 "pkg:storage":
   - changed-files:
     - any-glob-to-any-file:
       - ResQ.Storage/**/*
-      - packages/ResQ.Storage/**/*
 
 # ── Area labels ─────────────────────────────────────────────────────────
 
@@ -99,5 +93,4 @@
     - any-glob-to-any-file:
       - tests/**/*
       - ResQ.Clients.Tests/**/*
-      - packages/ResQ.Clients.Tests/**/*
       - "**/*.Tests/**/*"
