@@ -41,20 +41,114 @@ jobs:
     # (semgrep / gitleaks / snyk are disabled here). GITHUB_TOKEN
     # is automatic, so we drop the unconditional secrets:inherit.
 
+  # The published version is derived from the git tag by MinVer; nothing in the
+  # working tree states one. Two inbound syncs reverted a literal <Version> in
+  # Directory.Build.props -- 2026-03-30, hand-reverted the next day, and
+  # 2026-04-05, which went unnoticed for five months and republished a stale
+  # version. MinVer removes the thing those syncs could revert. This job is the
+  # alarm for the day a literal comes back.
+  #
+  # It lives in this workflow rather than a standalone one so it feeds the single
+  # `required` status check that the org ruleset enforces on the default branch.
+  # That covers all three shapes of the failure: re-adding a literal fails the
+  # job, weakening the job fails the job, and deleting this file means `required`
+  # never reports -- which the ruleset already treats as unmergeable.
+  version-guard:
+    name: version-guard
+    runs-on: ubuntu-latest
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1  # v2.21.1
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          # This job only reads the tree; keeping the token out of
+          # .git/config avoids zizmor's artipacked finding.
+          persist-credentials: false
+
+      - name: Assert the version is tag-derived, not literal
+        run: |
+          set -eu
+          props=Directory.Build.props
+          status=0
+
+          fail() {
+            printf '::error title=version-guard::%s\n' "$1"
+            status=1
+          }
+
+          # 1. No literal version property anywhere MSBuild would read one.
+          #    Matched as an element with no attributes (`<Version>`) so the
+          #    `<PackageVersion Include="..." Version="..." />` items that central
+          #    package management keeps in Directory.Packages.props stay legal.
+          hits=$(grep -REn '<(Version|VersionPrefix|VersionSuffix|PackageVersion)>' \
+                   --include='*.csproj' \
+                   --include='Directory.Build.props' \
+                   --include='Directory.Packages.props' \
+                   . || true)
+
+          if [ -n "$hits" ]; then
+            status=1
+            # One annotation per offending line, so the failure lands on the diff.
+            printf '%s\n' "$hits" | while IFS= read -r hit; do
+              file=${hit%%:*}
+              rest=${hit#*:}
+              line=${rest%%:*}
+              printf '::error file=%s,line=%s,title=version-guard::literal version property; this repo derives its version from the git tag\n' \
+                "${file#./}" "$line"
+            done
+            printf '::error title=version-guard::%s\n' \
+              'a literal version property is back in the tree (see the annotations above)'
+          fi
+
+          # 2. The MinVer wiring that makes the tag authoritative is still here.
+          #    Without it there is no literal *and* no derivation, so packages
+          #    publish as 0.0.0 -- a quieter version of the same bug.
+          if [ ! -f "$props" ]; then
+            fail "$props is missing"
+          else
+            grep -q 'PackageReference[^>]*Include="MinVer"' "$props" ||
+              fail "MinVer PackageReference is gone from $props; nothing derives the version from the tag"
+            grep -q '<MinVerTagPrefix>v</MinVerTagPrefix>' "$props" ||
+              fail "MinVerTagPrefix is not 'v' in $props; release tags here are v-prefixed (v0.6.0), and without the prefix MinVer ignores them and falls back to 0.0.0-alpha.0"
+          fi
+
+          if [ "$status" -ne 0 ]; then
+            echo
+            echo "The contract: this repo's published version is derived from its git tag"
+            echo "by MinVer, so there is no in-tree version for an inbound sync to revert."
+            echo "If you are seeing this after a sync, the sync reintroduced one -- drop it"
+            echo "rather than updating it to match."
+            exit 1
+          fi
+
+          echo "ok: no literal version in the tree; MinVer wiring intact (tag prefix 'v')"
+
   required:
     name: required
     runs-on: ubuntu-latest
-    needs: [gates]
+    needs: [gates, version-guard]
     if: always()
     steps:
       - env:
           R: ${{ needs.gates.result }}
+          V: ${{ needs.version-guard.result }}
         run: |
           set -eu
+          rc=0
           case "$R" in
             success|skipped|"") echo "ok: gates=$R" ;;
-            *) echo "::error::gates reusable returned: $R"; exit 1 ;;
+            *) echo "::error::gates reusable returned: $R"; rc=1 ;;
           esac
+          # version-guard has to actually run and pass. Accepting `skipped` here
+          # would let an `if:` added to that job switch the guard off silently.
+          case "$V" in
+            success) echo "ok: version-guard=$V" ;;
+            *) echo "::error::version-guard returned: $V (it must pass, not be skipped)"; rc=1 ;;
+          esac
+          exit "$rc"
 
   # Publish a GitHub Release per v* tag so resq-software/landing's changelog
   # aggregator picks the version up — the aggregator ingests GitHub *Releases*,
