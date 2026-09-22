@@ -105,12 +105,36 @@ jobs:
             projects=''
           fi
 
+          # Every project the solution lists must actually be on disk. A path
+          # that dangles -- after an inbound sync moves or renames a project,
+          # say -- would otherwise be skipped by grep while the remaining
+          # files still scan clean, and the guard would report success having
+          # examined less than it claims. Same reason the empty-parse case
+          # above fails closed.
+          scan_list=''
+          for proj in $projects; do
+            if [ -f "$proj" ]; then
+              scan_list="$scan_list $proj"
+            else
+              fail "project listed in $sln but not on disk: $proj"
+            fi
+          done
+
+          # Directory.Packages.props is optional; only scan it if present, so
+          # grep is never handed a path that does not exist.
+          for extra in Directory.Build.props Directory.Packages.props; do
+            if [ -f "$extra" ]; then
+              scan_list="$scan_list $extra"
+            fi
+          done
+
           # -H so the filename is always prefixed, even for a single-file scan.
+          # No 2>/dev/null here: every path is known to exist, so any grep
+          # error is real and should be seen.
           set -f
           # shellcheck disable=SC2086
           hits=$(grep -HEn '<(Version|VersionPrefix|VersionSuffix|PackageVersion)>' \
-                   $projects Directory.Build.props Directory.Packages.props \
-                   2>/dev/null || true)
+                   $scan_list || true)
           set +f
 
           if [ -n "$hits" ]; then
