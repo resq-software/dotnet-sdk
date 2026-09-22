@@ -20,7 +20,7 @@
 
     <ItemGroup>
       <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
-        <Protobuf Include="../../protos/*.proto" GrpcServices="Both" />
+        <Protobuf Include="../protos/*.proto" GrpcServices="Both" />
     </ItemGroup>
 
 </Project>

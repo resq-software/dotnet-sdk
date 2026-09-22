@@ -17,20 +17,25 @@ if [ -z "$COMMIT_MSG_FILE" ] || [ ! -f "$COMMIT_MSG_FILE" ]; then
     exit 1
 fi
 
+# Ticket-prefix only for a freshly-templated message. For merge/squash/`-m`
+# (message)/amend (commit) the message is already composed, so skip the prefix
+# logic — but still fall through to the local hook below instead of exiting, so
+# the documented local-prepare-commit-msg override runs for these paths too.
 case "$COMMIT_SOURCE" in
-    merge|squash|message|commit) exit 0 ;;
+    merge|squash|message|commit) ;;
+    *)
+        BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || echo "")
+        if [ -n "$BRANCH" ]; then
+            TICKET=$(grep -oE '[A-Z]{2,}-[0-9]+' <<<"$BRANCH" | head -1 || true)
+            if [ -n "$TICKET" ]; then
+                COMMIT_MSG=$(cat "$COMMIT_MSG_FILE")
+                if ! grep -qF -- "$TICKET" <<<"$COMMIT_MSG"; then
+                    printf '[%s] %s\n' "$TICKET" "$COMMIT_MSG" > "$COMMIT_MSG_FILE"
+                fi
+            fi
+        fi
+        ;;
 esac
-
-BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || echo "")
-[ -z "$BRANCH" ] && exit 0
-
-TICKET=$(grep -oE '[A-Z]{2,}-[0-9]+' <<<"$BRANCH" | head -1 || true)
-if [ -n "$TICKET" ]; then
-    COMMIT_MSG=$(cat "$COMMIT_MSG_FILE")
-    if ! grep -qF -- "$TICKET" <<<"$COMMIT_MSG"; then
-        printf '[%s] %s\n' "$TICKET" "$COMMIT_MSG" > "$COMMIT_MSG_FILE"
-    fi
-fi
 
 LOCAL_HOOK="$(git rev-parse --show-toplevel)/.git-hooks/local-prepare-commit-msg"
 if [ -x "$LOCAL_HOOK" ]; then
