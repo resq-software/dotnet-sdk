@@ -30,9 +30,49 @@ fi
 if [ -n "$RESQ_BIN" ]; then
     "$RESQ_BIN" pre-commit --root "$PROJECT_ROOT" "$@"
 else
-    echo "⚠️  resq not found — skipping ResQ pre-commit checks."
-    echo "    Install: enter 'nix develop', or run:"
+    # resq CLI absent (e.g. `./scripts/setup.sh` without `nix develop`): do NOT
+    # silently skip enforcement — a missing backend must not let staged secrets
+    # or large files through. Run an inline fallback mirroring the secret /
+    # large-file portion of the canonical `resq pre-commit` gate. Install the
+    # CLI (below) to get the full OSV + formatting checks too.
+    echo "⚠️  resq not found — running inline fallback checks."
+    echo "    For the full gate, enter 'nix develop', or run:"
     echo "      cargo install --git https://github.com/resq-software/crates resq-cli"
+
+    # Large-file guard (1 MB).
+    while IFS= read -r _f; do
+        [ -f "$_f" ] || continue
+        if [ "$(wc -c < "$_f")" -gt 1048576 ]; then
+            echo "❌ '$_f' exceeds 1 MB. Large files must not be committed."
+            exit 1
+        fi
+    done < <(git diff --cached --name-only --diff-filter=ACM)
+
+    # Secret scan: prefer gitleaks, else fall back to inline regex patterns.
+    if command -v gitleaks >/dev/null 2>&1; then
+        if ! gitleaks protect --staged --redact -v >/dev/null 2>&1; then
+            echo "❌ Potential secrets detected. Remove them before committing."
+            exit 1
+        fi
+    else
+        _staged="$(git diff --cached --unified=0 2>/dev/null || true)"
+        if printf '%s' "$_staged" | grep -qE 'AKIA[0-9A-Z]{16}'; then
+            echo "❌ AWS access key detected."; exit 1
+        fi
+        if printf '%s' "$_staged" | grep -qE '(ghp_|ghs_|gho_)[A-Za-z0-9_]{36,}'; then
+            echo "❌ GitHub token detected."; exit 1
+        fi
+        if printf '%s' "$_staged" | grep -qF 'BEGIN PRIVATE KEY'; then
+            echo "❌ Private key detected."; exit 1
+        fi
+        if printf '%s' "$_staged" | grep -qiE 'api[_-]?key[[:space:]]*=[[:space:]]*"[A-Za-z0-9_-]{16,}"'; then
+            echo "❌ API key detected."; exit 1
+        fi
+        if printf '%s' "$_staged" | grep -qiE 'password[[:space:]]*=[[:space:]]*"[^"]{4,}"'; then
+            echo "❌ Hardcoded password detected."; exit 1
+        fi
+    fi
+    echo "✅ Inline secret / large-file checks passed (install resq for the full gate)."
 fi
 
 # ── Local override ──────────────────────────────────────────────────────────
