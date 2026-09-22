@@ -3,7 +3,15 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>0.6.0</Version>
+
+    <!-- MinVer derives the version from git tags. Our release tags are v-prefixed (e.g. v0.6.0), and
+         MinVer's default expects an unprefixed tag, so without this it ignores them and falls back to
+         0.0.0-alpha.<height>. Strip the leading "v" so v0.6.0 -> 0.6.0.
+
+         There is deliberately no literal version property here or in any .csproj. A version string
+         committed to the tree is something an inbound sync can revert, and one did. Deriving the
+         version from the release tag makes that drift structurally impossible. -->
+    <MinVerTagPrefix>v</MinVerTagPrefix>
     <Authors>ResQ Team</Authors>
     <Company>ResQ Software</Company>
     <Copyright>Copyright (c) 2026 ResQ</Copyright>
@@ -25,6 +33,12 @@
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
   </PropertyGroup>
+
+  <!-- Build-time only (PrivateAssets="all" keeps MinVer out of the produced packages).
+       Version is pinned centrally in Directory.Packages.props. -->
+  <ItemGroup>
+    <PackageReference Include="MinVer" PrivateAssets="all" />
+  </ItemGroup>
 
   <ItemGroup Condition="'$(IsPackable)' == 'true'">
     <None Include="$(MSBuildThisFileDirectory)NUGET_README.md" Pack="true" PackagePath="\" Visible="false" />

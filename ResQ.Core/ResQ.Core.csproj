@@ -3,7 +3,6 @@
   <PropertyGroup>
     <RootNamespace>ResQ.Core</RootNamespace>
     <PackageId>ResQ.Core</PackageId>
-    <Version>0.1.0</Version>
     <Authors>ResQ Software</Authors>
     <Description>ResQ core domain models — location, enums, blockchain models, and shared utilities</Description>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>

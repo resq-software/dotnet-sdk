@@ -3,7 +3,6 @@
   <PropertyGroup>
     <RootNamespace>ResQ.Storage</RootNamespace>
     <PackageId>ResQ.Storage</PackageId>
-    <Version>0.1.0</Version>
     <Authors>ResQ Software</Authors>
     <Description>ResQ IPFS storage client via Pinata</Description>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
