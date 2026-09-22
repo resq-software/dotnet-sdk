@@ -63,6 +63,10 @@ jobs:
           egress-policy: audit
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          # This job only reads the tree; keeping the token out of
+          # .git/config avoids zizmor's artipacked finding.
+          persist-credentials: false
 
       - name: Assert the version is tag-derived, not literal
         run: |
