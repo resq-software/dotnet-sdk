@@ -90,6 +90,15 @@ jobs:
         with:
           ref: ${{ inputs.ref || github.ref }}
           persist-credentials: false
+          # Full history AND tags. Repos that derive their package
+          # version from git tags (MinVer et al.) read the tag graph
+          # at build time. Under the default shallow, tagless
+          # checkout they do not fail -- they silently settle on a
+          # 0.0.0-alpha.<height> placeholder, which would then be
+          # published as the version of every documented package.
+          # Verified: the same tree at depth 1 resolves 0.0.0-alpha.0
+          # where full history resolves the real tag version.
+          fetch-depth: 0
 
       - name: Setup .NET
         uses: actions/setup-dotnet@3e891b0cb619bf60e2c25674b222b8940e2c1c25 # v4.1.0
@@ -181,19 +190,79 @@ jobs:
         # .mdx). Users navigate to per-package pages via the URL bar
         # or future programmatic _pages.json nav splice.
         #
-        # Version next to each project is read from <Version> /
-        # <VersionPrefix> in the .csproj. Falls back to "unknown" so
-        # missing tags don't break the doc build.
+        # Version next to each project comes from MSBuild, which is
+        # the only source that is right for every repo this template
+        # is synced into. Scraping <Version>/<VersionPrefix> out of
+        # the .csproj -- what this step used to do -- only works for
+        # repos that commit a literal version string. Repos that
+        # derive the version from git tags (MinVer et al.) carry no
+        # such literal by design, precisely because a literal in the
+        # tree is something an inbound sync can revert, so the scrape
+        # returned "unknown" for every package there.
+        #
+        # Asking MSBuild covers both: it reports the literal where
+        # one exists and the tag-derived value where it does not. The
+        # .csproj scan is kept as a fallback for the case where the
+        # MSBuild query is unavailable (an SDK older than 8.0.200 has
+        # no -getProperty) or the project cannot be evaluated.
         run: |
           python3 - <<'PY' > "$OUTPUT_DIR/README.mdx"
           import os
           import pathlib
           import re
+          import subprocess
 
           ref_name = os.environ.get("DOCS_REF_NAME", "main")
           repo = os.environ.get("GITHUB_REPOSITORY", "")
           output_dir = pathlib.Path(os.environ["OUTPUT_DIR"])
           projects = (os.environ.get("PUBLIC_PROJECTS") or "").split()
+
+          # The version the SDK implies when the project sets none. It
+          # is reported like any real version, so it cannot be told
+          # apart from a deliberate 1.0.0 by its value alone. Treat it
+          # as inconclusive and keep looking; if some .csproj really
+          # does declare 1.0.0, the literal scan below returns it.
+          SDK_DEFAULT_VERSION = "1.0.0"
+          VERSION_RE = re.compile(r"\A\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)*\Z")
+
+          def msbuild_version(csproj: pathlib.Path) -> str:
+              # -getProperty alone only evaluates the project, and a
+              # tag-derived version is computed inside a target, not at
+              # evaluation -- so a bare query returns the SDK default.
+              # GetAssemblyVersion is a stock SDK target whose job is to
+              # settle the version, and it is one of the targets MinVer
+              # hooks. It compiles nothing: the solution was already
+              # built above, so this costs well under a second per
+              # project.
+              try:
+                  proc = subprocess.run(
+                      [
+                          "dotnet", "msbuild", str(csproj),
+                          "-t:GetAssemblyVersion",
+                          "-getProperty:Version",
+                          "-p:Configuration=Release",
+                          "-nologo",
+                      ],
+                      capture_output=True,
+                      text=True,
+                      timeout=180,
+                      check=False,
+                  )
+              except (OSError, subprocess.SubprocessError):
+                  return ""
+              if proc.returncode != 0:
+                  return ""
+              lines = [ln.strip() for ln in proc.stdout.splitlines() if ln.strip()]
+              value = lines[-1] if lines else ""
+              return value if VERSION_RE.match(value) else ""
+
+          def literal_version(csproj: pathlib.Path) -> str:
+              text = csproj.read_text(encoding="utf-8")
+              for tag in ("Version", "VersionPrefix"):
+                  m = re.search(rf"<{tag}>([^<]+)</{tag}>", text)
+                  if m:
+                      return m.group(1).strip()
+              return ""
 
           def read_version(proj: str) -> str:
               # .csproj files are usually <ProjectName>/<ProjectName>.csproj
@@ -205,15 +274,21 @@ jobs:
               # variant has <Version>. Scan all candidates and return
               # the first one that yields a real version, so we don't
               # show "unknown" just because the first match happens
-              # to be the bare assembly project.
-              candidates = list(pathlib.Path(".").rglob(f"{proj}.csproj"))
+              # to be the bare assembly project. Sorted for a stable
+              # answer across runners.
+              candidates = sorted(pathlib.Path(".").rglob(f"{proj}.csproj"))
+              sdk_default = ""
               for cand in candidates:
-                  text = cand.read_text(encoding="utf-8")
-                  for tag in ("Version", "VersionPrefix"):
-                      m = re.search(rf"<{tag}>([^<]+)</{tag}>", text)
-                      if m:
-                          return m.group(1).strip()
-              return "unknown"
+                  value = msbuild_version(cand)
+                  if value and value != SDK_DEFAULT_VERSION:
+                      return value
+                  if value:
+                      sdk_default = value
+              for cand in candidates:
+                  value = literal_version(cand)
+                  if value:
+                      return value
+              return sdk_default or "unknown"
 
           print("# ResQ .NET SDK")
           print()
