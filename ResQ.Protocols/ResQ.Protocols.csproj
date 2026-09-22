@@ -3,7 +3,6 @@
     <PropertyGroup>
         <RootNamespace>ResQ.Protocols</RootNamespace>
         <PackageId>ResQ.Protocols</PackageId>
-        <Version>0.1.0</Version>
         <Authors>ResQ Software</Authors>
         <Description>ResQ Protobuf protocol extensions and utilities</Description>
         <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
