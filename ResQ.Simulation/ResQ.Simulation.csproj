@@ -3,7 +3,6 @@
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
     <PackageId>ResQ.Simulation</PackageId>
-    <Version>0.1.0</Version>
     <Authors>ResQ Software</Authors>
     <Description>ResQ simulation harness — virtual drone and scenario runner</Description>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
