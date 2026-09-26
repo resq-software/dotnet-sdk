@@ -11,7 +11,7 @@ Core .NET libraries and service clients for the ResQ platform. Provides typed AP
 - `ResQ.Protocols/` — Protobuf-generated types and protocol extensions.
 - `ResQ.Simulation/` — Virtual drone and scenario runner for local testing.
 - `ResQ.Storage/` — IPFS/Pinata storage client (`IStorageClient`, `PinataClient`).
-- `protos/` — Synced local cache of shared `.proto` files authored in `resq-software/resq-proto`.
+- `protos/` — Synced local cache of shared `.proto` files authored in `buf.build/resq-software/resq-proto`.
 
 ## Commands
 ```bash
@@ -26,7 +26,7 @@ dotnet format --verify-no-changes    # Check formatting (CI gate)
 - **Target**: .NET 9, `netstandard2.1` compatibility for client libraries.
 - **Clients** extend `BaseServiceClient` which handles auth headers, retry, and telemetry.
 - **Interfaces** (`INeoClient`, `IStorageClient`) live in `ResQ.Core` — implementations in their respective projects.
-- **Protos** are synced from `resq-software/resq-proto` before local builds and then compiled via `protoc`; regenerate with `bash scripts/sync-protos.sh && dotnet build ResQ.Protocols/ResQ.Protocols.csproj`.
+- **Protos** are synced from `buf.build/resq-software/resq-proto` before local builds and then compiled via `protoc`; regenerate with `bash scripts/sync-protos.sh && dotnet build ResQ.Protocols/ResQ.Protocols.csproj`.
 - **NuGet packages** are produced per-project; versioning follows SemVer via `Directory.Build.props`.
 
 ## Standards
