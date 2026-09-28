@@ -224,7 +224,7 @@ This allows you to isolate your code's logic from external dependencies and veri
 
 ## Shared Protobuf Source
 
-The checked-in `protos/` directory is a synced local cache of the canonical schemas published from `buf.build/resq-software/resq-proto`.
+The checked-in `protos/` directory is a synced local cache of the canonical schemas published to the org's shared schema module on the Buf Schema Registry, pinned in `proto-source.lock`.
 
 When updating shared contracts:
 

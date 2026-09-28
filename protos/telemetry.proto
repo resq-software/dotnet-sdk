@@ -143,7 +143,7 @@ message DetectionSummary {
   google.protobuf.Timestamp detected_at = 5;
   bool evidence_uploaded = 6; // Whether full evidence is on IPFS
   string evidence_cid = 7; // IPFS CID if uploaded
-  bool evidence_face_blurred = 8; // GDPR Art. 9 - faces blurred before upload
+  bool evidence_face_blurred = 8; // True when faces were blurred before upload
 }
 
 // Aggregated swarm telemetry

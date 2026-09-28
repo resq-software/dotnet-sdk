@@ -198,36 +198,94 @@ jobs:
           esac
           exit "$rc"
 
-  # Publish a GitHub Release per v* tag so resq-software/landing's changelog
-  # aggregator picks the version up — the aggregator ingests GitHub *Releases*,
-  # not git tags. Gated on the `required` aggregator so a release is only cut
-  # once CI is green, and only on a v* tag push.
+  # Publish a GitHub Release per v* tag so the org's changelog aggregator
+  # picks the version up — the aggregator ingests GitHub *Releases*, not git
+  # tags. Gated on the `required` aggregator so a release is only cut once CI
+  # is green, and only on a v* tag push.
+  #
+  # Each release carries a source archive of the tag and an SPDX JSON SBOM,
+  # and both are covered by a build-provenance attestation, so anyone can
+  # check them with `gh attestation verify <file> --repo resq-software/dotnet-sdk`.
   release:
     name: GitHub Release
     runs-on: ubuntu-latest
     needs: [required]
     if: startsWith(github.ref, 'refs/tags/v')
     permissions:
-      contents: write # create the release
+      contents: write # create the release and attach its assets
+      id-token: write # sign the provenance attestation
+      attestations: write # store the provenance attestation
     env:
       GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
       TAG: ${{ github.ref_name }}
     steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          # MinVer derives the package version from the tag and its history.
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: actions/setup-dotnet@3e891b0cb619bf60e2c25674b222b8940e2c1c25 # v4.1.0
+        with:
+          global-json-file: global.json
+
+      - name: Build the solution
+        # The SBOM is read from the build output: the generated .deps.json
+        # files list the resolved NuGet graph, which the source tree does not.
+        run: dotnet build ResQ.Sdk.sln -c Release
+
+      - name: Archive the tagged source
+        # Written outside the workspace so the SBOM scan below does not see it.
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/release-assets"
+          git archive --format=tar.gz --prefix="dotnet-sdk-${TAG}/" \
+            -o "$RUNNER_TEMP/release-assets/dotnet-sdk-${TAG}.tar.gz" "$TAG"
+
+      - name: Generate the SBOM (SPDX JSON)
+        uses: anchore/sbom-action@3ad7283483fc7af8ff2b4ea19663c2d5ca935e26  # v0.24.2
+        with:
+          path: .
+          format: spdx-json
+          output-file: ${{ runner.temp }}/release-assets/dotnet-sdk-${{ github.ref_name }}.spdx.json
+          # The last step attaches it to the release.
+          upload-artifact: false
+          upload-release-assets: false
+
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: ${{ runner.temp }}/release-assets/*
+
       - name: Create GitHub Release from the tag
-        # `gh` reads $GH_TOKEN and $GITHUB_REPOSITORY automatically; the tag is
-        # passed via env (never `${{ }}` inside run:) to avoid template injection.
+        # `gh` reads $GH_TOKEN and $GH_REPO from the job env; the tag is passed
+        # via env (never `${{ }}` inside run:) to avoid template injection.
         # --generate-notes builds notes from merged PRs since the previous tag
         # (categorized by .github/release.yml); --verify-tag asserts the ref is
         # a real tag first.
         run: |
           set -euo pipefail
+          assets=("$RUNNER_TEMP"/release-assets/*)
           # Idempotent: a workflow re-run for an already-released tag must not
-          # fail with "release already exists". Skip creation when present.
+          # fail with "release already exists". It attaches only the assets the
+          # release lacks; assets already there stay as they are (each was
+          # attested by the run that uploaded it), so nothing published is
+          # deleted before its replacement exists.
           if gh release view "$TAG" >/dev/null 2>&1; then
-            echo "Release $TAG already exists; skipping creation."
+            echo "Release $TAG already exists; attaching only missing assets."
+            attached=$(gh release view "$TAG" --json assets --jq '.assets[].name')
+            for asset in "${assets[@]}"; do
+              name=$(basename "$asset")
+              if grep -qxF "$name" <<<"$attached"; then
+                echo "keep: $name is already attached"
+              else
+                gh release upload "$TAG" "$asset"
+              fi
+            done
             exit 0
           fi
-          gh release create "$TAG" \
+          gh release create "$TAG" "${assets[@]}" \
             --title "$TAG" \
             --generate-notes \
             --verify-tag
