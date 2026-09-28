@@ -34,3 +34,6 @@ artifacts/
 .DS_Store
 Thumbs.db
 *.log
+
+## Local tool settings (per-developer, never committed)
+.claude/settings.local.json
