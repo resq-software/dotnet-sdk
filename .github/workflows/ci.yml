@@ -55,7 +55,7 @@ jobs:
   # never reports -- which the ruleset already treats as unmergeable.
   version-guard:
     name: version-guard
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.USE_SELF_HOSTED == 'true' && fromJSON('["self-hosted","linux","x64","zima"]') || 'ubuntu-latest' }}
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1  # v2.21.1
@@ -176,7 +176,7 @@ jobs:
 
   required:
     name: required
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.USE_SELF_HOSTED == 'true' && fromJSON('["self-hosted","linux","x64","zima"]') || 'ubuntu-latest' }}
     needs: [gates, version-guard]
     if: always()
     steps:
@@ -208,7 +208,7 @@ jobs:
   # check them with `gh attestation verify <file> --repo resq-software/dotnet-sdk`.
   release:
     name: GitHub Release
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.USE_SELF_HOSTED == 'true' && fromJSON('["self-hosted","linux","x64","zima"]') || 'ubuntu-latest' }}
     needs: [required]
     if: startsWith(github.ref, 'refs/tags/v')
     permissions:
