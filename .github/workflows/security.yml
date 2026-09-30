@@ -19,9 +19,11 @@ permissions:
 
 jobs:
   scan:
-    # Job-scoped permissions: CodeQL uploads SARIF
+    # Job-scoped permissions: the reusable's zizmor job uploads SARIF
     # (security-events:write); dependency-review reads PR metadata;
-    # codeql-action telemetry needs actions:read.
+    # codeql-action telemetry needs actions:read. These stay as they are —
+    # zizmor still uploads through github/codeql-action/upload-sarif, which
+    # default setup does not reject.
     permissions:
       contents: read
       security-events: write
@@ -36,7 +38,26 @@ jobs:
     if: ${{ github.actor != 'dependabot[bot]' }}
     uses: resq-software/.github/.github/workflows/security-scan.yml@73b9edb8f4f28a99f70ee22eb5e2dd2bf7807c84
     with:
-      languages: '["csharp","actions"]'
+      # `languages` is deliberately omitted. It defaults to "[]", and
+      # security-scan gates its CodeQL job on
+      #   if: ${{ inputs.languages != '' && inputs.languages != '[]' }}
+      # so the job is skipped rather than run-and-discarded.
+      #
+      # Code-scanning *default setup* is enabled on this repository, and
+      # GitHub refuses advanced-setup CodeQL uploads while it is. This job
+      # logged, on every run:
+      #   Analysis upload status is failed.
+      #   CodeQL analyses from advanced configurations cannot be processed
+      #   when the default setup is enabled
+      #   CodeQL job status was configuration error.
+      # and still reported success — the reusable carries
+      # `continue-on-error: true` on its analyze step and the rejection is
+      # emitted in the post-job phase, so a configuration error had become a
+      # permanent green check.
+      #
+      # Coverage is unchanged: every stored CodeQL analysis here already
+      # comes from default setup, which runs the broader `extended` query
+      # suite rather than the default suite this job used.
       enable-semgrep: true
     # The reusable security-scan.yml does not declare a
     # `workflow_call.secrets:` block, so explicit per-secret passing
