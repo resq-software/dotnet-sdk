@@ -19,9 +19,9 @@ permissions:
 
 jobs:
   scan:
-    # Job-scoped permissions: CodeQL uploads SARIF
+    # Job-scoped permissions: the zizmor job uploads SARIF
     # (security-events:write); dependency-review reads PR metadata;
-    # codeql-action telemetry needs actions:read.
+    # codeql-action's upload-sarif telemetry needs actions:read.
     permissions:
       contents: read
       security-events: write
@@ -36,7 +36,22 @@ jobs:
     if: ${{ github.actor != 'dependabot[bot]' }}
     uses: resq-software/.github/.github/workflows/security-scan.yml@73b9edb8f4f28a99f70ee22eb5e2dd2bf7807c84
     with:
-      languages: '["csharp","actions"]'
+      # `languages` is deliberately omitted. It defaults to "[]", which makes
+      # the reusable's CodeQL job a no-op (it is gated on
+      # `inputs.languages != '' && inputs.languages != '[]'`).
+      #
+      # Code-scanning *default setup* is enabled on this repository, so every
+      # advanced-setup upload was rejected: the analyze step logs "Analysis
+      # upload status is failed. CodeQL analyses from advanced configurations
+      # cannot be processed when the default setup is enabled", and the job
+      # ends "CodeQL job status was configuration error". The reusable carries
+      # `continue-on-error: true` on that step and the rejection arrives in the
+      # post-job phase, so the job still reported success. Nothing was ever
+      # stored: every CodeQL analysis on this repository carries default
+      # setup's analysis key, none carries this workflow's.
+      #
+      # Coverage is unchanged. Default setup runs the broader `extended` query
+      # suite; this job ran the default suite.
       enable-semgrep: true
     # The reusable security-scan.yml does not declare a
     # `workflow_call.secrets:` block, so explicit per-secret passing
