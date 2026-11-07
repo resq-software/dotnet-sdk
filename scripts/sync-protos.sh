@@ -17,8 +17,24 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-read -r REVISION < "${ROOT_DIR}/proto-source.lock"
 TARGET_DIR="${ROOT_DIR}/protos"
+LOCK_FILE="${ROOT_DIR}/proto-source.lock"
+
+# `read` returns nonzero at EOF when the last line has no trailing newline,
+# which under `set -e` would abort here -- before any of the validation below
+# could run and explain why. So tolerate that and let the checks speak.
+REVISION=""
+read -r REVISION < "${LOCK_FILE}" || true
+
+# `read` consumes only the first line and silently ignores the rest of the
+# file. That matters specifically here: this change migrates the lock away from
+# a '<module>:<revision>' format, so a stale second line is a realistic leftover
+# and must be rejected rather than skipped.
+lock_entries=$(grep -cve '^[[:space:]]*$' "${LOCK_FILE}" || true)
+if [[ "${lock_entries}" != "1" ]]; then
+  echo "proto-source.lock must contain exactly one revision line; found ${lock_entries}." >&2
+  exit 1
+fi
 
 # proto-source.lock pins only the schema REVISION. The module identifier it
 # belongs to is not recorded in this repository: this repo is public, the
