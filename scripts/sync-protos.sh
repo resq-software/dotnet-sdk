@@ -17,13 +17,43 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-read SOURCE_REF < "${ROOT_DIR}/proto-source.lock"
+read -r REVISION < "${ROOT_DIR}/proto-source.lock"
 TARGET_DIR="${ROOT_DIR}/protos"
 
-if [[ -z "${SOURCE_REF//[[:space:]]/}" ]]; then
-  echo "proto-source.lock is empty or invalid. Expected '<module>:<revision>'." >&2
+# proto-source.lock pins only the schema REVISION. The module identifier it
+# belongs to is not recorded in this repository: this repo is public, the
+# module is not, and naming it here would disclose a non-public resource to
+# every reader. Set RESQ_PROTO_MODULE to supply it.
+#
+# This costs public consumers nothing. `protos/` is a checked-in cache of the
+# generated schemas, so building this SDK never contacts the registry; only
+# someone re-syncing the cache needs the module, and they already have
+# registry access.
+if [[ -z "${REVISION//[[:space:]]/}" ]]; then
+  echo "proto-source.lock is empty or invalid. Expected a bare '<revision>'." >&2
   exit 1
 fi
+
+if [[ ! "${REVISION}" =~ ^[0-9a-f]{32}$ ]]; then
+  echo "proto-source.lock does not look like a Buf revision: '${REVISION}'." >&2
+  echo "Expected 32 lowercase hex characters, with no module prefix." >&2
+  exit 1
+fi
+
+if [[ -z "${RESQ_PROTO_MODULE:-}" ]]; then
+  cat >&2 <<'MSG'
+RESQ_PROTO_MODULE is not set, so the schema module to export is unknown.
+
+This is expected when working from a clone of the public SDK: the module is
+not public and is therefore not named in this repository. You do not need it
+to build -- protos/ is a checked-in cache and the build reads that.
+
+Set RESQ_PROTO_MODULE to the Buf module path if you are re-syncing the cache.
+MSG
+  exit 1
+fi
+
+SOURCE_REF="${RESQ_PROTO_MODULE}:${REVISION}"
 
 TMP_DIR="$(mktemp -d)"
 trap 'rm -rf "${TMP_DIR}"' EXIT
