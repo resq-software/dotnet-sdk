@@ -224,12 +224,14 @@ This allows you to isolate your code's logic from external dependencies and veri
 
 ## Shared Protobuf Source
 
-The checked-in `protos/` directory is a synced local cache of the canonical schemas published to the org's shared schema module on the Buf Schema Registry, pinned in `proto-source.lock`.
+The checked-in `protos/` directory is a synced local cache of the canonical schemas published to the org's shared schema module on the Buf Schema Registry. `proto-source.lock` pins the schema **revision**; the module it belongs to is not public and so is not named in this repository. Building the SDK reads the checked-in cache and never contacts the registry, so this costs consumers nothing. Re-syncing the cache additionally requires `RESQ_PROTO_MODULE` to be set and registry access.
 
 When updating shared contracts:
 
 ```bash
-bash scripts/sync-protos.sh && dotnet build ResQ.Protocols/ResQ.Protocols.csproj
+# RESQ_PROTO_MODULE is the non-public Buf module path; not needed to build.
+RESQ_PROTO_MODULE=<module> bash scripts/sync-protos.sh \
+  && dotnet build ResQ.Protocols/ResQ.Protocols.csproj
 ```
 
 ## Development

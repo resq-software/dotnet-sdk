@@ -26,7 +26,7 @@ dotnet format --verify-no-changes    # Check formatting (CI gate)
 - **Target**: .NET 9, `netstandard2.1` compatibility for client libraries.
 - **Clients** extend `BaseServiceClient` which handles auth headers, retry, and telemetry.
 - **Interfaces** (`INeoClient`, `IStorageClient`) live in `ResQ.Core` — implementations in their respective projects.
-- **Protos** are synced from the org's shared schema module (pinned in `proto-source.lock`) before local builds and then compiled via `protoc`; regenerate with `bash scripts/sync-protos.sh && dotnet build ResQ.Protocols/ResQ.Protocols.csproj`.
+- **Protos** are synced from the org's shared schema module (revision pinned in `proto-source.lock`; module supplied via `RESQ_PROTO_MODULE`, which is deliberately not recorded in this public repo) and compiled via `protoc`. The checked-in `protos/` cache is what builds read, so no registry access is needed to build; to re-sync, `RESQ_PROTO_MODULE=<module> bash scripts/sync-protos.sh && dotnet build ResQ.Protocols/ResQ.Protocols.csproj`.
 - **NuGet packages** are produced per-project; versioning follows SemVer via `Directory.Build.props`.
 
 ## Standards
