@@ -185,15 +185,33 @@ jobs:
 
           echo "ok: no literal version in the tree; MinVer wiring intact (tag prefix 'v')"
 
+  # ── Private-name guard ──────────────────────────────────────────────
+  # Called from here and not from security.yml: `needs:` cannot reach across
+  # workflow files, and the org ruleset watches only the `required` context.
+  # A guard that reports into nothing cannot stop a merge, however loudly it
+  # fails -- which is what happened on the pull request that first enabled
+  # this guard here: it went red on two real hits and was still mergeable.
+  private-name-guard:
+    name: private-name-guard
+    # Dependabot's restricted context resolves Actions secrets to empty, so
+    # the guard cannot authenticate on its pull requests. The aggregate below
+    # tolerates the resulting skip for that actor alone.
+    if: ${{ github.actor != 'dependabot[bot]' }}
+    uses: resq-software/.github/.github/workflows/private-name-guard.yml@03bd2fc8788be394d96edebcaceb3b3735bb2cbc # main
+    secrets:
+      PRIVATE_NAME_GUARD_TOKEN: ${{ secrets.PRIVATE_NAME_GUARD_TOKEN }}
+
   required:
     name: required
     runs-on: ubuntu-latest
-    needs: [gates, version-guard]
+    needs: [gates, version-guard, private-name-guard]
     if: always()
     steps:
       - env:
           R: ${{ needs.gates.result }}
           V: ${{ needs.version-guard.result }}
+          GUARD: ${{ needs.private-name-guard.result }}
+          ACTOR: ${{ github.actor }}
         run: |
           set -eu
           rc=0
@@ -206,6 +224,15 @@ jobs:
           case "$V" in
             success) echo "ok: version-guard=$V" ;;
             *) echo "::error::version-guard returned: $V (it must pass, not be skipped)"; rc=1 ;;
+          esac
+          # Same strictness as version-guard, and for the same reason: a
+          # skipped guard means no check ran. That also covers fork pull
+          # requests, which cannot reach PRIVATE_NAME_GUARD_TOKEN and so fail
+          # closed here. Dependabot is the one tolerated skip -- its restricted
+          # context resolves Actions secrets to empty.
+          case "$ACTOR:$GUARD" in
+            "dependabot[bot]:skipped"|*":success") echo "ok: private-name-guard=$GUARD" ;;
+            *) echo "::error::private-name-guard returned: $GUARD"; rc=1 ;;
           esac
           exit "$rc"
 
